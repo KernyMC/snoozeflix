@@ -1,0 +1,89 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+@theme {
+  --color-primary: #24215b;
+  --color-primary-dark: #14123a;
+  --color-primary-light: #e9e8f4;
+  --color-ink: #24215b;
+  --color-ink-soft: #666779;
+  --color-ink-faint: #a3a4b3;
+  --color-surface: #ffffff;
+  --color-surface-cream: #faf7ee;
+  --color-surface-muted: #f3efe2;
+  --color-surface-line: #e5e2d9;
+  --color-leaf: #287a58;
+  --color-leaf-dark: #1e5f44;
+  --color-leaf-light: #dcefe6;
+  --color-sky: #75bfbc;
+  --color-sky-dark: #3e8582;
+  --color-sky-light: #e3f2f1;
+  --color-ember: #b83d49;
+  --color-ember-dark: #912e39;
+  --color-ember-light: #f8e4e6;
+  --color-sun: #f6c445;
+  --color-sun-dark: #a67c0a;
+  --color-sun-light: #fdf3d3;
+  --color-flame: #d98a2b;
+  --color-flame-dark: #b06d1a;
+  --color-flame-light: #fbeadb;
+  --color-grape: #4b4789;
+  --color-grape-dark: #24215b;
+  --color-grape-light: #e9e8f4;
+  --font-display: var(--font-nunito), system-ui, sans-serif;
+  --font-body: var(--font-nunito), system-ui, sans-serif;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-3xl: 28px;
+}
+
+@utility shadow-chunky {
+  box-shadow: 0 4px 0 0 var(--edge, #e5e2d9);
+}
+@utility shadow-chunky-sm {
+  box-shadow: 0 2px 0 0 var(--edge, #e5e2d9);
+}
+
+html,
+body {
+  background: var(--color-surface-cream);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-weight: 600;
+  -webkit-tap-highlight-color: transparent;
+}
+body {
+  min-height: 100dvh;
+  overscroll-behavior-y: none;
+}
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+:focus-visible {
+  outline: 3px solid var(--color-sky);
+  outline-offset: 2px;
+}
+
+/* shimmer skeleton */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, #efeadb 25%, #faf7ee 50%, #efeadb 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite linear;
+  border-radius: 16px;
+}
+
+/* leaflet fixes */
+.leaflet-container { border-radius: 16px; font-family: inherit; z-index: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
