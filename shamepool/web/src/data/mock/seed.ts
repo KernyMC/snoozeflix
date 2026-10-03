@@ -1,5 +1,6 @@
 import { DEFAULT_TZ, dateAddDays, dowOfDate, localDate, penaltyKey } from '../logic';
 import type { Checkin, Goal, Penalty, User } from '../types';
+import { hash } from './authEngine';
 import { MOCK_VERSION, type MockState } from './state';
 
 const DAY = 86_400_000;
@@ -8,7 +9,7 @@ export function makeSeed(now: number): MockState {
   const tz = DEFAULT_TZ;
   const today = localDate(now, tz);
   const s: MockState = {
-    version: MOCK_VERSION, users: {}, squads: {}, goals: {}, checkins: {}, penalties: {}, feed: [], cashouts: {},
+    version: MOCK_VERSION, users: {}, accounts: {}, authAttempts: {}, resetTokens: {}, squads: {}, goals: {}, checkins: {}, penalties: {}, feed: [], cashouts: {},
     botThreads: {}, pendingActions: {}, milestones: {}, msgTimes: {}, seedUserIds: [],
     demo: { nextPhotoFails: false, fakeLocation: null, timeOffsetMs: 0 }, seq: 1, rev: 1,
   };
@@ -24,6 +25,11 @@ export function makeSeed(now: number): MockState {
     const u: User = { id: `seed_${k}`, name, avatar, squadId, balanceCents: 20000 };
     s.users[u.id] = u;
     s.seedUserIds.push(u.id);
+    // Demo login: username = lowercase name, password "Password1", security answers all "demo".
+    s.accounts[k] = {
+      userId: u.id, username: k, email: `${k}@example.com`, firstName: name, lastName: 'Demo', passwordHash: hash('Password1'),
+      security: ['pet', 'city', 'car'].map((qId) => ({ qId, answerHash: hash('demo') })),
+    };
   }
   // [owner, title, emoji, lat, lng, days, deadlineMin, penalty, skipIdx[]]
   const defs: Array<[string, string, string, number, number, number[], number, number, number[]]> = [

@@ -1,30 +1,55 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { claimSeedUser, listSeedUsers, useMe, type User } from '@/data';
-import { Wordmark } from '@/components/AppShell';
+import { useEffect, useRef, useState } from 'react';
+import { claimSeedUser, listSeedUsers, login, useMe, type User } from '@/data';
+import { AuthShell, focusFirstInvalid } from '@/components/auth/AuthShell';
+import { PasswordField } from '@/components/auth/PasswordField';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { Flakey } from '@/components/ui/Flakey';
+import { Field } from '@/components/ui/Field';
 import { errorText } from '@/components/ui/States';
 import { useToast } from '@/components/ui/Toast';
 
 const DEMO = process.env.NEXT_PUBLIC_DEMO === 'true';
+const DEV_SKIP = process.env.NODE_ENV !== 'production'; // dev-only bypass, stripped from production builds
 
-export default function Welcome() {
+export default function LoginPage() {
   const me = useMe();
   const router = useRouter();
   const { toast } = useToast();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [err, setErr] = useState<Record<string, string>>({});
+  const [formErr, setFormErr] = useState('');
+  const [busy, setBusy] = useState(false);
   const [seeds, setSeeds] = useState<User[] | null>(null);
   const [claiming, setClaiming] = useState<string | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
+  useEffect(() => { if (me) router.replace(me.squadId ? '/home' : '/onboarding'); }, [me, router]);
   useEffect(() => {
     if (!DEMO) return;
     let alive = true;
     listSeedUsers().then((r) => { if (alive && r.ok) setSeeds(r.data); });
     return () => { alive = false; };
   }, []);
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (busy) return;
+    setFormErr('');
+    const next: Record<string, string> = {};
+    if (!username.trim()) next.username = 'Enter your username.';
+    if (!password) next.password = 'Enter your password.';
+    setErr(next);
+    if (Object.keys(next).length) return focusFirstInvalid(formRef.current);
+    setBusy(true);
+    const r = await login(username, password);
+    setBusy(false);
+    if (!r.ok) return setFormErr(errorText(r.error));
+    router.replace(r.data.squadId ? '/home' : '/onboarding');
+  };
 
   const claim = async (id: string) => {
     setClaiming(id);
@@ -35,26 +60,24 @@ export default function Welcome() {
   };
 
   return (
-    <main className="mx-auto max-w-md min-h-dvh px-5 py-8 flex flex-col">
-      <div className="flex-1 flex flex-col items-center justify-center text-center gap-3">
-        <Flakey mood="cheer" size={150} />
-        <h1 className="text-5xl"><Wordmark /></h1>
-        <p className="font-display font-extrabold text-xl text-ink-soft max-w-[18rem]">Flake on your goals. Pay your friends.</p>
-      </div>
-
-      <div className="space-y-3 mt-6">
-        {me ? (
-          <Button href={me.squadId ? '/home' : '/onboarding'}>Continue as <Avatar value={me.avatar} size={24} /> {me.name}</Button>
-        ) : (
-          <>
-            <Button href="/onboarding">Get started</Button>
-            <Button variant="secondary" href="/onboarding?join=1">I have an invite code</Button>
-          </>
-        )}
+    <AuthShell big mood={formErr ? 'worried' : 'cheer'} title="Welcome back" subtitle="Sign in to your account">
+      <form ref={formRef} onSubmit={submit} noValidate className="space-y-4">
+        <Field label="Username" value={username} onChange={(e) => setUsername(e.target.value)} error={err.username}
+          placeholder="Enter your username" autoComplete="username" autoCapitalize="none" autoCorrect="off" spellCheck={false} enterKeyHint="next" />
+        <PasswordField label="Password" value={password} onChange={(e) => setPassword(e.target.value)} error={err.password}
+          placeholder="Enter your password" autoComplete="current-password" enterKeyHint="go" />
+        {formErr && <p className="text-sm text-ember-dark font-extrabold text-center" role="alert">{formErr}</p>}
+        <Button type="submit" loading={busy}>Sign in</Button>
+      </form>
+      <div className="border-t-2 border-surface-line my-5" />
+      <div className="space-y-3">
+        <Button variant="secondary" href="/register">Create an account</Button>
+        <Button variant="ghost" href="/forgot-password">Forgot password?</Button>
+        {DEV_SKIP && <Button variant="secondary" type="button" loading={claiming === 'seed_kevin'} onClick={() => claim('seed_kevin')}>Skip sign-in (dev only)</Button>}
       </div>
 
       {DEMO && (
-        <section className="mt-8" aria-labelledby="who">
+        <section className="mt-6" aria-labelledby="who">
           <h2 id="who" className="font-display font-black text-lg mb-2">Demo: who are you?</h2>
           {!seeds ? (
             <p className="text-ink-faint font-bold">Loading squad…</p>
@@ -72,6 +95,6 @@ export default function Welcome() {
           )}
         </section>
       )}
-    </main>
+    </AuthShell>
   );
 }

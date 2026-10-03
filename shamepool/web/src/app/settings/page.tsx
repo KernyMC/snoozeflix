@@ -1,6 +1,6 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import { resetDemoData, useConnection, useMe, useSquad } from '@/data';
+import { logout, resetDemoData, useConnection, useMe, useSquad } from '@/data';
 import { AppShell } from '@/components/AppShell';
 import { NewPoolGoal } from '@/components/Cashout';
 import { Avatar } from '@/components/ui/Avatar';
@@ -32,7 +32,7 @@ function Settings() {
         {DEMO && <p className="text-sm font-bold text-ink-soft mt-1">Demo controls live in the 🛠 button. Add <code>?mockSlow=1</code> or <code>?mockError=1</code> to any URL to test loading and error states.</p>}
       </Card>
       <Button variant="secondary" href="/squad?tv=1">📺 Open projector view</Button>
-      <Button variant="secondary" onClick={() => router.push('/')}>Switch user</Button>
+      <Button variant="secondary" onClick={async () => { await logout(); router.replace('/'); }}>Sign out</Button>
       {DEMO && <Button variant="danger" onClick={async () => { await resetDemoData(); router.push('/'); }}>Reset demo data</Button>}
     </div>
   );

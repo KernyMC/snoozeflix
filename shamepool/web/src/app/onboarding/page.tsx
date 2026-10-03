@@ -31,6 +31,7 @@ function Onboarding() {
   const [created, setCreated] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  useEffect(() => { if (me === null) router.replace('/'); }, [me, router]); // sign in first
   useEffect(() => { if (me?.squadId && !created) router.replace('/home'); }, [me, created, router]);
 
   if (me === undefined) return <div className="mx-auto max-w-md p-5 space-y-3"><Skeleton className="h-40" /><Skeleton className="h-24" /></div>;
