@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation';
 import { resetDemoData, useConnection, useMe, useSquad } from '@/data';
 import { AppShell } from '@/components/AppShell';
 import { NewPoolGoal } from '@/components/Cashout';
+import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { MoneyText } from '@/components/ui/Money';
@@ -18,7 +19,7 @@ function Settings() {
     <div className="space-y-5">
       <h1 className="font-display font-black text-3xl">Settings</h1>
       <Card className="flex items-center gap-4">
-        <div className="size-16 rounded-full bg-sky-light grid place-items-center text-4xl">{me?.avatar}</div>
+        <div className="size-16 rounded-full bg-sky-light grid place-items-center text-4xl"><Avatar value={me?.avatar} size={64} /></div>
         <div>
           <p className="font-display font-black text-2xl">{me?.name}</p>
           <p className="font-bold text-ink-soft">Balance <MoneyText cents={me?.balanceCents ?? 0} /></p>

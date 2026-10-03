@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { claimSeedUser, listSeedUsers, useMe, type User } from '@/data';
 import { Wordmark } from '@/components/AppShell';
+import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Flakey } from '@/components/ui/Flakey';
@@ -43,7 +44,7 @@ export default function Welcome() {
 
       <div className="space-y-3 mt-6">
         {me ? (
-          <Button href={me.squadId ? '/home' : '/onboarding'}>Continue as {me.avatar} {me.name}</Button>
+          <Button href={me.squadId ? '/home' : '/onboarding'}>Continue as <Avatar value={me.avatar} size={24} /> {me.name}</Button>
         ) : (
           <>
             <Button href="/onboarding">Get started</Button>
@@ -63,7 +64,7 @@ export default function Welcome() {
                 <Card key={u.id} tappable role="button" tabIndex={0} aria-label={`Play as ${u.name}`}
                   onClick={() => claim(u.id)} onKeyDown={(e) => e.key === 'Enter' && claim(u.id)}
                   className={`text-center ${claiming === u.id ? 'opacity-60' : ''}`}>
-                  <div className="text-4xl">{u.avatar}</div>
+                  <div className="text-4xl"><Avatar value={u.avatar} size={48} /></div>
                   <div className="font-display font-extrabold">{u.name}</div>
                 </Card>
               ))}

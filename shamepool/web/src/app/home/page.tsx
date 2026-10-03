@@ -2,6 +2,7 @@
 import { useConnection, useMe, useMyGoals } from '@/data';
 import { AppShell } from '@/components/AppShell';
 import { GoalCard } from '@/components/GoalCard';
+import { Avatar } from '@/components/ui/Avatar';
 import { EmptyState, ListSkeleton } from '@/components/ui/States';
 import { Button } from '@/components/ui/Button';
 import { MoneyText } from '@/components/ui/Money';
@@ -14,7 +15,7 @@ function HomeInner() {
   const paid = usePenaltyTotal();
   return (
     <>
-      <h1 className="font-display font-black text-3xl">Hey {me?.name} {me?.avatar}</h1>
+      <h1 className="font-display font-black text-3xl">Hey {me?.name} <Avatar value={me?.avatar} size={32} /></h1>
       <div className="grid grid-cols-2 gap-3 my-4">
         <div className="rounded-2xl border-2 border-surface-line p-3 shadow-chunky-sm">
           <p className="text-xs font-extrabold uppercase tracking-wide text-ink-soft">Balance</p>

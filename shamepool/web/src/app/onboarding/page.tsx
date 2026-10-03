@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from 'react';
 import { Check, Copy, Share2 } from 'lucide-react';
 import { createSquad, joinSquad, registerUser, useMe, useSquad } from '@/data';
 import { Wordmark } from '@/components/AppShell';
+import { Avatar, AVATARS } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { dollarsToCents, Field } from '@/components/ui/Field';
@@ -11,8 +12,6 @@ import { Flakey } from '@/components/ui/Flakey';
 import { errorText, Skeleton } from '@/components/ui/States';
 import { useToast } from '@/components/ui/Toast';
 import { fireConfetti } from '@/components/effects';
-
-const EMOJIS = ['🦊', '🐼', '🐸', '🦄', '🐙', '🚀', '🍕', '🎧', '🏀', '🌮', '🐧', '🦖'];
 
 function Onboarding() {
   const me = useMe();
@@ -22,7 +21,7 @@ function Onboarding() {
   const { toast } = useToast();
   const [mode, setMode] = useState<'create' | 'join'>(params.get('join') ? 'join' : 'create');
   const [name, setName] = useState('');
-  const [avatar, setAvatar] = useState(EMOJIS[0]);
+  const [avatar, setAvatar] = useState(AVATARS[0]);
   const [squadName, setSquadName] = useState('');
   const [poolName, setPoolName] = useState('Pizza night');
   const [poolAmount, setPoolAmount] = useState('60');
@@ -98,10 +97,10 @@ function Onboarding() {
           <Field label="Your name" value={name} maxLength={20} onChange={(e) => setName(e.target.value)} placeholder="Kevin" error={err.name} autoFocus />
           <div>
             <p className="text-xs font-extrabold uppercase tracking-wide text-ink-soft mb-1.5">Pick an avatar</p>
-            <div className="grid grid-cols-6 gap-2" role="radiogroup" aria-label="Avatar">
-              {EMOJIS.map((e) => (
+            <div className="grid grid-cols-5 gap-2" role="radiogroup" aria-label="Avatar">
+              {AVATARS.map((e) => (
                 <button key={e} role="radio" aria-checked={avatar === e} onClick={() => setAvatar(e)}
-                  className={`aspect-square rounded-xl border-2 text-2xl shadow-chunky-sm ${avatar === e ? 'border-sky bg-sky-light [--edge:var(--color-sky-dark)]' : 'border-surface-line bg-white'}`}>{e}</button>
+                  className={`aspect-square rounded-xl border-2 p-1 grid place-items-center shadow-chunky-sm ${avatar === e ? 'border-sky bg-sky-light [--edge:var(--color-sky-dark)]' : 'border-surface-line bg-white'}`}><Avatar value={e} size={48} /></button>
               ))}
             </div>
           </div>

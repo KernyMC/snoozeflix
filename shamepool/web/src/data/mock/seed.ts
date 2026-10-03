@@ -18,7 +18,7 @@ export function makeSeed(now: number): MockState {
     poolBalanceCents: 0, timezone: tz, relayLinked: false,
   };
   const people: Array<[string, string, string]> = [
-    ['kevin', 'Kevin', '💻'], ['ana', 'Ana', '🏋️'], ['leo', 'Leo', '🎧'], ['maya', 'Maya', '📚'],
+    ['kevin', 'Kevin', '/assets/avatar/01-coin-thief.png'], ['ana', 'Ana', '/assets/avatar/02-savings-buddy.png'], ['leo', 'Leo', '/assets/avatar/03-wallet-friend.png'], ['maya', 'Maya', '/assets/avatar/04-fist-bump.png'],
   ];
   for (const [k, name, avatar] of people) {
     const u: User = { id: `seed_${k}`, name, avatar, squadId, balanceCents: 20000 };
