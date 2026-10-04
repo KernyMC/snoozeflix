@@ -1,4 +1,4 @@
-import type { Cents, Checkin, ErrorCode, Goal, GoalInput, LeaderboardRow, Penalty, Pos, User } from './types';
+import type { Cents, Checkin, ErrorCode, Goal, GoalInput, LeaderboardRow, Penalty, Pos, StakeItem, User } from './types';
 
 export const MAX_ESCALATION_EXPONENT = 10;
 export const DEFAULT_TZ = 'America/Detroit';
@@ -216,4 +216,67 @@ export function generateInviteCode(rng: () => number = Math.random): string {
   let s = '';
   for (let i = 0; i < 6; i++) s += CODE_CHARS[Math.floor(rng() * CODE_CHARS.length)];
   return s;
+}
+
+/* ---------- wallet / withdrawals ---------- */
+export const MIN_WITHDRAW_CENTS = 500;
+export const STAKE_LOOKAHEAD_DAYS = 3;
+export const WITHDRAW_COOLDOWN_REAL_MS = 24 * 3600_000;
+export const WITHDRAW_COOLDOWN_DEMO_MS = 20_000;
+
+/**
+ * Check-ins still ahead in the next 3 days (rolling). Today counts only if it is
+ * scheduled, not already done/flaked and the deadline has not passed.
+ */
+export function upcomingOccurrences(
+  goal: Pick<Goal, 'daysOfWeek' | 'deadlineMinutes' | 'active'>, now: number, tz: string, todayHandled: boolean,
+): number {
+  if (!goal.active) return 0;
+  const today = localDate(now, tz);
+  let n = 0;
+  for (let i = 0; i < STAKE_LOOKAHEAD_DAYS; i++) {
+    const d = dateAddDays(today, i);
+    if (!isScheduledOn(goal, d)) continue;
+    if (i === 0 && (todayHandled || deadlinePassed(goal, now, tz))) continue;
+    n++;
+  }
+  return n;
+}
+
+/** Sum of escalating penalties if every one of `occurrences` is flaked. */
+export function worstCaseExposureCents(
+  goal: Pick<Goal, 'basePenaltyCents' | 'maxPenaltyCents' | 'consecutiveFlakes'>, occurrences: number,
+): Cents {
+  let sum = 0;
+  for (let i = 0; i < occurrences; i++) sum += nextPenaltyCents({ ...goal, consecutiveFlakes: goal.consecutiveFlakes + i });
+  return sum;
+}
+
+export function stakeBreakdown(
+  goals: Goal[], now: number, tz: string, handledToday: (goalId: string) => boolean,
+): StakeItem[] {
+  return goals.filter((g) => g.active).map((g) => {
+    const occurrences = upcomingOccurrences(g, now, tz, handledToday(g.id));
+    return { goalId: g.id, title: g.title, emoji: g.emoji, occurrences, cents: worstCaseExposureCents(g, occurrences) };
+  }).filter((s) => s.occurrences > 0);
+}
+
+export function availableToWithdraw(balanceCents: Cents, stakeCents: Cents): Cents {
+  return Math.max(0, balanceCents - stakeCents);
+}
+
+export function validateWithdrawal(amountCents: number, availableCents: Cents): ErrorCode | null {
+  if (!Number.isInteger(amountCents) || amountCents <= 0) return 'invalid_amount';
+  if (amountCents < MIN_WITHDRAW_CENTS) return 'below_minimum';
+  if (amountCents > availableCents) return 'insufficient_available';
+  return null;
+}
+
+/* ---------- auth (mock-grade validation) ---------- */
+export const normalizeEmail = (s: string) => s.trim().toLowerCase();
+export function validateEmail(email: string): ErrorCode | null {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(normalizeEmail(email)) && email.length <= 80 ? null : 'invalid_email';
+}
+export function validatePassword(pw: string): ErrorCode | null {
+  return typeof pw === 'string' && pw.length >= 8 && pw.length <= 72 ? null : 'weak_password';
 }

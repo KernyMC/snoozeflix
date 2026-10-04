@@ -1,10 +1,11 @@
 import {
-  applyPenalty, buildLeaderboard, dateAddDays, deadlinePassed, formatCents, formatDistance, generateInviteCode, haversineM,
+  applyPenalty, availableToWithdraw, buildLeaderboard, MIN_WITHDRAW_CENTS, normalizeEmail, stakeBreakdown, validateEmail,
+  validatePassword, validateWithdrawal, WITHDRAW_COOLDOWN_DEMO_MS, WITHDRAW_COOLDOWN_REAL_MS, dateAddDays, deadlinePassed, formatCents, formatDistance, generateInviteCode, haversineM,
   isDueToday, isInside, LIMITS, localDate, localMinutes, missedDates, nextPenaltyCents, normalizeInviteCode, penaltyKey,
   validateGoalInput, validateName, validatePoolGoal,
 } from '../logic';
 import type {
-  BotReply, CashoutProposal, Checkin, FeedEvent, Goal, GoalInput, PhotoVerdict, Penalty, Pos, Result, Squad, User,
+  BotReply, CashoutProposal, Checkin, FeedEvent, Goal, GoalInput, PhotoVerdict, Penalty, Pos, Result, Squad, User, Wallet, Withdrawal,
 } from '../types';
 import { answer, brokeLine, hypeLine, photoRoast, roastLine } from './bot';
 import { type Ctx, type MockState, err, ok, pushFeed, squadMembers, uid } from './state';
@@ -28,6 +29,29 @@ export function registerUser(c: Ctx, input: { name: string; avatar: string }): R
   const u: User = { id: uid(c.s, 'u'), name: input.name.trim(), avatar: input.avatar || '🙂', squadId: null, balanceCents: 20000 };
   c.s.users[u.id] = u;
   return ok(u);
+}
+
+export function signUp(c: Ctx, input: { name: string; email: string; password: string; avatar: string }): Result<User> {
+  const badName = validateName(input.name);
+  if (badName) return err(badName);
+  const badEmail = validateEmail(input.email);
+  if (badEmail) return err(badEmail);
+  const badPw = validatePassword(input.password);
+  if (badPw) return err(badPw);
+  const email = normalizeEmail(input.email);
+  if (Object.values(c.s.users).some((u) => u.email === email)) return err('email_taken');
+  const r = registerUser(c, { name: input.name, avatar: input.avatar });
+  if (r.ok) r.data.email = email; // the password is validated and discarded (mock)
+  return r;
+}
+
+export function signIn(c: Ctx, input: { email: string; password: string }): Result<User> {
+  const badEmail = validateEmail(input.email);
+  if (badEmail) return err(badEmail);
+  const badPw = validatePassword(input.password);
+  if (badPw) return err(badPw);
+  const user = Object.values(c.s.users).find((u) => u.email === normalizeEmail(input.email));
+  return user ? ok(user) : err('no_account');
 }
 
 export function claimSeedUser(c: Ctx, userId: string): Result<User> {
@@ -421,4 +445,69 @@ export function leaderboardFor(s: MockState, squadId: string, now: number) {
     members, Object.values(s.goals).filter((g) => ids.has(g.userId)), Object.values(s.checkins).filter((x) => ids.has(x.userId)),
     Object.values(s.penalties).filter((p) => p.squadId === squadId), now, tzOf(s, squadId),
   );
+}
+
+/* ---------- wallet / withdrawals ---------- */
+export const cooldownMs = (): number =>
+  process.env.NEXT_PUBLIC_DEMO === 'true' ? WITHDRAW_COOLDOWN_DEMO_MS : WITHDRAW_COOLDOWN_REAL_MS;
+export const WITHDRAW_DESTINATION = 'Capital One \u2022\u2022\u2022\u20224821';
+
+export function walletFor(s: MockState, userId: string, now: number): Wallet {
+  const user = s.users[userId];
+  const tz = tzOf(s, user?.squadId ?? null);
+  const today = localDate(now, tz);
+  const goals = Object.values(s.goals).filter((g) => g.userId === userId && g.active);
+  const handled = (goalId: string) =>
+    checkinFor(s, goalId, today)?.status === 'completed' || !!s.penalties[penaltyKey(goalId, today)];
+  const stake = stakeBreakdown(goals, now, tz, handled);
+  const stakeCents = stake.reduce((a, x) => a + x.cents, 0);
+  const pendingCents = Object.values(s.withdrawals).filter((w) => w.userId === userId && w.status === 'pending').reduce((a, w) => a + w.amountCents, 0);
+  const balanceCents = user?.balanceCents ?? 0;
+  return {
+    balanceCents, stakeCents, availableCents: availableToWithdraw(balanceCents, stakeCents), pendingCents, stake,
+    minWithdrawCents: MIN_WITHDRAW_CENTS, cooldownMs: cooldownMs(),
+  };
+}
+
+export function requestWithdrawal(c: Ctx, amountCents: number): Result<Withdrawal> {
+  const me = meOf(c);
+  if (!me) return err('no_user');
+  if (!me.squadId) return err('not_in_squad');
+  if (!Number.isInteger(amountCents) || amountCents <= 0) return err('invalid_amount');
+  if (Object.values(c.s.withdrawals).some((w) => w.userId === me.id && w.status === 'pending')) return err('withdrawal_pending');
+  const wallet = walletFor(c.s, me.id, c.now);
+  const bad = validateWithdrawal(amountCents, wallet.availableCents);
+  if (bad) return err(bad, { availableCents: wallet.availableCents, stakeCents: wallet.stakeCents, minCents: MIN_WITHDRAW_CENTS });
+  me.balanceCents -= amountCents; // escrow
+  const w: Withdrawal = {
+    id: uid(c.s, 'w'), userId: me.id, squadId: me.squadId, amountCents, status: 'pending',
+    destination: WITHDRAW_DESTINATION, createdAt: c.now, availableAt: c.now + cooldownMs(),
+  };
+  c.s.withdrawals[w.id] = w;
+  pushFeed(c.s, me.squadId, me.id, 'withdrawal', `${me.name} is withdrawing ${formatCents(amountCents)}. Cooling off...`, c.now, { withdrawalId: w.id });
+  return ok(w);
+}
+
+export function cancelWithdrawal(c: Ctx, id: string): Result<Withdrawal> {
+  const me = meOf(c);
+  if (!me) return err('no_user');
+  const w = c.s.withdrawals[id];
+  if (!w || w.userId !== me.id || w.status !== 'pending') return err('withdrawal_not_found');
+  w.status = 'cancelled';
+  me.balanceCents += w.amountCents;
+  pushFeed(c.s, w.squadId, me.id, 'withdrawal', `${me.name} changed their mind and cancelled the withdrawal. Back in the game.`, c.now);
+  return ok(w);
+}
+
+/** Scheduler: complete withdrawals whose cooling period ended. Returns how many. */
+export function settleWithdrawals(c: Ctx): number {
+  let n = 0;
+  for (const w of Object.values(c.s.withdrawals)) {
+    if (w.status !== 'pending' || c.now < w.availableAt) continue;
+    w.status = 'completed';
+    n++;
+    const u = c.s.users[w.userId];
+    pushFeed(c.s, w.squadId, u?.id ?? null, 'withdrawal', `${u?.name ?? 'Someone'} withdrew ${formatCents(w.amountCents)} to ${w.destination}.`, c.now);
+  }
+  return n;
 }

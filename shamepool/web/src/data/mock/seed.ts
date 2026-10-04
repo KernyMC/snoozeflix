@@ -8,7 +8,7 @@ export function makeSeed(now: number): MockState {
   const tz = DEFAULT_TZ;
   const today = localDate(now, tz);
   const s: MockState = {
-    version: MOCK_VERSION, users: {}, squads: {}, goals: {}, checkins: {}, penalties: {}, feed: [], cashouts: {},
+    version: MOCK_VERSION, users: {}, squads: {}, goals: {}, checkins: {}, penalties: {}, feed: [], cashouts: {}, withdrawals: {},
     botThreads: {}, pendingActions: {}, milestones: {}, msgTimes: {}, seedUserIds: [],
     demo: { nextPhotoFails: false, fakeLocation: null, timeOffsetMs: 0 }, seq: 1, rev: 1,
   };
@@ -21,7 +21,7 @@ export function makeSeed(now: number): MockState {
     ['kevin', 'Kevin', '💻'], ['ana', 'Ana', '🏋️'], ['leo', 'Leo', '🎧'], ['maya', 'Maya', '📚'],
   ];
   for (const [k, name, avatar] of people) {
-    const u: User = { id: `seed_${k}`, name, avatar, squadId, balanceCents: 20000 };
+    const u: User = { id: `seed_${k}`, name, avatar, squadId, balanceCents: 20000, email: `${k}@demo.test` };
     s.users[u.id] = u;
     s.seedUserIds.push(u.id);
   }

@@ -27,6 +27,11 @@ After every phase: `npm run build` + `npm test` pass.
 ## A4 US1 · A5 US2 · A6 US3 · A7 US4/US5 · A8 US6/US7
 - [x] T015–T027 per ui-spec.md
 
+## A8b — Wallet & auth UI (see withdrawals.md)
+- [x] T027a Wallet logic (stake, available, validation) + tests
+- [x] T027b Mock: signUp/signIn/signOut, requestWithdrawal/cancelWithdrawal, settle scheduler + tests
+- [x] T027c `/register`, `/login`, `/wallet`, `WithdrawSheet`, welcome + onboarding + settings wiring (built, not yet checked in a browser)
+
 ## A9 — Hardening & polish
 - [ ] T028 Walk `edge-cases.md` row by row; reduced motion; 44 px targets
 - [ ] T029 Run full demo script with 2 tabs

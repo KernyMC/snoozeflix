@@ -108,6 +108,15 @@ proposeCashout(merchantName): Result<CashoutProposal>
 voteCashout(proposalId, approve): Result<CashoutProposal>
 cancelCashout(proposalId): Result<CashoutProposal>
 setPoolGoal(name, cents): Result<Squad>
+// auth (mock-grade; see withdrawals.md)
+signUp({ name, email, password, avatar }): Result<User>   // invalid_email | weak_password | email_taken | invalid_name
+signIn({ email, password }): Result<User>                 // no_account | invalid_email | weak_password
+signOut(): Result<true>
+// wallet
+useWallet(): Wallet | null          // balance, stake (locked), available, pending, stake breakdown
+useWithdrawals(): Withdrawal[]
+requestWithdrawal(amountCents): Result<Withdrawal>   // below_minimum | insufficient_available | withdrawal_pending | invalid_amount
+cancelWithdrawal(id): Result<Withdrawal>             // withdrawal_not_found
 // demo
 resetDemoData(): Result<true>
 setDemoFlags({ nextPhotoFails?, fakeLocation?: {lat,lng}|null, timeOffsetMs? }): Result<true>

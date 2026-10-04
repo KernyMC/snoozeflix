@@ -5,7 +5,7 @@ import * as mock from './mock';
 export * from './types';
 export {
   buildLeaderboard, formatCents, formatCountdown, formatDeadline, formatDistance, haversineM, isInside, localDate, LIMITS,
-  msUntilDeadline, nextPenaltyCents, deadlinePassed, isDueToday, localMinutes,
+  msUntilDeadline, nextPenaltyCents, deadlinePassed, isDueToday, localMinutes, validateEmail, validatePassword, MIN_WITHDRAW_CENTS,
 } from './logic';
 
 const impl = process.env.NEXT_PUBLIC_DATA_MODE === 'live' ? live : mock;
@@ -28,6 +28,13 @@ export const useBotThread = impl.useBotThread;
 export const useDemoFlags = impl.useDemoFlags;
 
 export const registerUser = impl.registerUser;
+export const signUp = impl.signUp;
+export const signIn = impl.signIn;
+export const signOut = impl.signOut;
+export const requestWithdrawal = impl.requestWithdrawal;
+export const cancelWithdrawal = impl.cancelWithdrawal;
+export const useWallet = impl.useWallet;
+export const useWithdrawals = impl.useWithdrawals;
 export const claimSeedUser = impl.claimSeedUser;
 export const listSeedUsers = impl.listSeedUsers;
 export const createSquad = impl.createSquad;

@@ -46,8 +46,9 @@ export default function Welcome() {
           <Button href={me.squadId ? '/home' : '/onboarding'}>Continue as {me.avatar} {me.name}</Button>
         ) : (
           <>
-            <Button href="/onboarding">Get started</Button>
-            <Button variant="secondary" href="/onboarding?join=1">I have an invite code</Button>
+            <Button href="/register">Get started</Button>
+            <Button variant="secondary" href="/login">I already have an account</Button>
+            <Button variant="ghost" href="/register?join=1">I have an invite code</Button>
           </>
         )}
       </div>

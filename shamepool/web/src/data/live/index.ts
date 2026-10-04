@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // Phase B: implement the same hooks/actions with SpacetimeDB + server routes.
 // Until then every export throws so a mis-set NEXT_PUBLIC_DATA_MODE fails loudly.
-import type { BotReply, BotThreadMessage, CashoutProposal, Checkin, DemoFlags, FeedEvent, Goal, GoalInput, LeaderboardRow, PhotoVerdict, Penalty, Pos, Result, Squad, User, Cents } from '../types';
+import type { BotReply, BotThreadMessage, CashoutProposal, Checkin, DemoFlags, FeedEvent, Goal, GoalInput, LeaderboardRow, PhotoVerdict, Penalty, Pos, Result, Squad, User, Cents, Wallet, Withdrawal } from '../types';
 
 const nope = (): never => { throw new Error('Live mode is not connected yet (Phase B).'); };
 const rej = <T>(): Promise<Result<T>> => Promise.reject(new Error('Live mode is not connected yet (Phase B).'));
@@ -23,6 +23,13 @@ export const useOpenCashout = (): CashoutProposal | null => nope();
 export const useBotThread = (): BotThreadMessage[] => nope();
 export const useDemoFlags = (): DemoFlags => nope();
 
+export const signUp = (_i: { name: string; email: string; password: string; avatar: string }): Promise<Result<User>> => rej();
+export const signIn = (_i: { email: string; password: string }): Promise<Result<User>> => rej();
+export const signOut = (): Promise<Result<true>> => rej();
+export const requestWithdrawal = (_c: Cents): Promise<Result<Withdrawal>> => rej();
+export const cancelWithdrawal = (_id: string): Promise<Result<Withdrawal>> => rej();
+export const useWallet = (): Wallet | null => nope();
+export const useWithdrawals = (): Withdrawal[] => nope();
 export const registerUser = (_i: { name: string; avatar: string }): Promise<Result<User>> => rej();
 export const claimSeedUser = (_id: string): Promise<Result<User>> => rej();
 export const listSeedUsers = (): Promise<Result<User[]>> => rej();

@@ -1,5 +1,5 @@
 import type {
-  BotReply, CashoutProposal, Checkin, DemoFlags, FeedEvent, Goal, GoalInput, PhotoVerdict, Penalty, Pos, Result, Squad, User,
+  BotReply, CashoutProposal, Checkin, DemoFlags, FeedEvent, Goal, GoalInput, PhotoVerdict, Penalty, Pos, Result, Squad, User, Withdrawal,
 } from '../types';
 import * as E from './engine';
 import { err } from './state';
@@ -31,6 +31,20 @@ export async function registerUser(input: { name: string; avatar: string }): Pro
   const r = await run((c) => E.registerUser(c, input));
   if (r.ok) setIdentity(r.data.id);
   return r;
+}
+export async function signUp(input: { name: string; email: string; password: string; avatar: string }): Promise<Result<User>> {
+  const r = await run((c) => E.signUp(c, input));
+  if (r.ok) setIdentity(r.data.id);
+  return r;
+}
+export async function signIn(input: { email: string; password: string }): Promise<Result<User>> {
+  const r = await run((c) => E.signIn(c, input));
+  if (r.ok) setIdentity(r.data.id);
+  return r;
+}
+export async function signOut(): Promise<Result<true>> {
+  setIdentity(null);
+  return { ok: true, data: true };
 }
 export async function claimSeedUser(userId: string): Promise<Result<User>> {
   const r = await run((c) => E.claimSeedUser(c, userId));
@@ -68,6 +82,10 @@ export const proposeCashout = (m: string): Promise<Result<CashoutProposal>> => r
 export const voteCashout = (id: string, approve: boolean): Promise<Result<CashoutProposal>> => run((c) => E.voteCashout(c, id, approve));
 export const cancelCashout = (id: string): Promise<Result<CashoutProposal>> => run((c) => E.cancelCashout(c, id));
 export const setPoolGoal = (name: string, cents: number): Promise<Result<Squad>> => run((c) => E.setPoolGoal(c, name, cents));
+
+/* wallet */
+export const requestWithdrawal = (cents: number): Promise<Result<Withdrawal>> => run((c) => E.requestWithdrawal(c, cents));
+export const cancelWithdrawal = (id: string): Promise<Result<Withdrawal>> => run((c) => E.cancelWithdrawal(c, id));
 
 /* demo */
 export async function resetDemoData(): Promise<Result<true>> {

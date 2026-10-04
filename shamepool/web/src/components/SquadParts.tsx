@@ -94,6 +94,7 @@ const KIND: Record<FeedKind, { icon: string; bubble: string }> = {
   bot: { icon: '', bubble: 'bg-grape-light' },
   message: { icon: '💬', bubble: 'bg-surface-muted' },
   cashout: { icon: '🍕', bubble: 'bg-sun-light' },
+  withdrawal: { icon: '🏧', bubble: 'bg-sky-light' },
 };
 
 export function Feed({ limit = 50, big = false, autoScroll = false }: { limit?: number; big?: boolean; autoScroll?: boolean }) {

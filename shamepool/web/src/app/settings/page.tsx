@@ -1,6 +1,6 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import { resetDemoData, useConnection, useMe, useSquad } from '@/data';
+import { resetDemoData, signOut, useConnection, useMe, useSquad } from '@/data';
 import { AppShell } from '@/components/AppShell';
 import { NewPoolGoal } from '@/components/Cashout';
 import { Button } from '@/components/ui/Button';
@@ -22,6 +22,7 @@ function Settings() {
         <div>
           <p className="font-display font-black text-2xl">{me?.name}</p>
           <p className="font-bold text-ink-soft">Balance <MoneyText cents={me?.balanceCents ?? 0} /></p>
+          {me?.email && <p className="text-sm font-bold text-ink-faint">{me.email}</p>}
         </div>
       </Card>
       {squad && <Card tone="sun"><p className="text-xs font-extrabold uppercase tracking-wide text-ink-soft">Squad</p><p className="font-display font-black text-xl">{squad.name}</p><p className="font-bold">Invite code <b className="tracking-widest">{squad.inviteCode}</b></p></Card>}
@@ -31,7 +32,8 @@ function Settings() {
         {DEMO && <p className="text-sm font-bold text-ink-soft mt-1">Demo controls live in the 🛠 button. Add <code>?mockSlow=1</code> or <code>?mockError=1</code> to any URL to test loading and error states.</p>}
       </Card>
       <Button variant="secondary" href="/squad?tv=1">📺 Open projector view</Button>
-      <Button variant="secondary" onClick={() => router.push('/')}>Switch user</Button>
+      <Button variant="secondary" href="/wallet">💵 Wallet and withdrawals</Button>
+      <Button variant="secondary" onClick={async () => { await signOut(); router.replace('/'); }}>Sign out</Button>
       {DEMO && <Button variant="danger" onClick={async () => { await resetDemoData(); router.push('/'); }}>Reset demo data</Button>}
     </div>
   );
