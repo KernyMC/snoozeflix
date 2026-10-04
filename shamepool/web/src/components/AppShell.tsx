@@ -67,8 +67,12 @@ function TabBar() {
       <div className="mx-auto max-w-md flex items-end">
         {tab('/home', 'Home', Home, 'text-sky')}
         {tab('/squad', 'Squad', Users, 'text-sun-dark')}
-        <Link href="/goals/new" aria-label="New goal" className="flex-1 flex justify-center -mt-5 min-h-[56px]">
-          <span className="size-14 rounded-full bg-primary text-white grid place-items-center shadow-chunky [--edge:var(--color-primary-dark)] active:translate-y-1 active:shadow-none"><Plus size={30} strokeWidth={3.5} /></span>
+        <Link href="/goals/new" aria-label="New goal" className="group relative flex-1 min-h-[56px]">
+          {/* The bar rising to wrap the button: a 3px white rim carrying the bar's own 2px line. */}
+          <span aria-hidden className="absolute left-1/2 -top-[25px] size-[58px] -translate-x-1/2 rounded-full bg-white border-2 border-surface-line" />
+          {/* Hides the lower half of that rim, so the line only runs over the top of the button. */}
+          <span aria-hidden className="absolute left-1/2 top-0 h-9 w-[58px] -translate-x-1/2 bg-white" />
+          <span className="absolute left-1/2 -top-5 size-12 -translate-x-1/2 rounded-full bg-primary text-white grid place-items-center shadow-chunky [--edge:var(--color-primary-dark)] group-active:translate-y-1 group-active:shadow-none"><Plus size={26} strokeWidth={3.5} /></span>
         </Link>
         {tab('/settings', 'Profile', User, 'text-sky')}
         {tab('/bot', 'Bot', Bot, 'text-grape')}
