@@ -7,7 +7,7 @@ const nunito = Nunito({ subsets: ['latin'], weight: ['600', '700', '800', '900']
 
 export const metadata: Metadata = {
   title: 'ShamePool',
-  description: 'Skip the task. Loose the cash.',
+  description: 'Skip the task. Lose the cash.',
   manifest: '/assets/favicon/site.webmanifest',
   icons: {
     icon: [
