@@ -95,11 +95,12 @@ export function login(env: Env, username: string, passwordHash: string): Result<
   return ok(userOf(u));
 }
 
-export function claimSeedUser(env: Env, userId: string): Result<User> {
-  const u = env.ctx.db.user.id.find(userId);
-  if (!u || !u.isSeed) return err('no_user');
-  bindSession(env, u.id);
-  return ok(userOf(u));
+/**
+ * Password-less sign-in as a seed user. On the shared live database that would let anyone act as Kevin, so it is off:
+ * seed users sign in with their demo password like everyone else.
+ */
+export function claimSeedUser(_env: Env, _userId: string): Result<User> {
+  return err('not_available');
 }
 
 export function logout(env: Env): void {

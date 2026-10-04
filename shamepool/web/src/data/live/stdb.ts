@@ -1,7 +1,7 @@
 'use client';
 // One Spacetime connection per browser tab, mirrored into a zustand store the hooks read from.
-// Identity: anonymous Spacetime identity whose token lives in sessionStorage (one identity per tab, like the mock's
-// per-tab session), so several tabs can be signed in as different users. The module maps identity -> user in `session`.
+// Identity: anonymous Spacetime identity whose token lives in localStorage, so a phone that closes the tab (or a guest
+// who joined from a QR code) is still the same user when it comes back. The module maps identity -> user in `session`.
 import { create } from 'zustand';
 import { DbConnection, tables, type SubscriptionHandle } from './bindings';
 import type {
@@ -21,12 +21,16 @@ export interface LiveState {
   users: UserRow[]; squads: SquadRow[]; goals: GoalRow[]; checkins: CheckinRow[]; penalties: PenaltyRow[]; feed: FeedRow[];
   cashouts: CashoutRow[]; votes: VoteRow[]; withdrawals: WithdrawalRow[];
   flags: FlagsRow | null;
+  /** Demo "pretend I'm there" location. Per tab: the module's flags are global, so it is never sent to Spacetime. */
+  fakeLocation: { lat: number; lng: number; accuracyM?: number } | null;
+  /** Squad whose scoped subscription is applied ('' = none needed). Until it matches me.squadId the squad rows are incomplete. */
+  squadSynced: string;
   me: UserRow | null; account: AccountView | null; plan: PlanRow | null; addresses: AddressRow[]; payments: PaymentRow[]; bot: BotRow[];
 }
 
 export const useLive = create<LiveState>(() => ({
   status: 'connecting', users: [], squads: [], goals: [], checkins: [], penalties: [], feed: [], cashouts: [], votes: [], withdrawals: [],
-  flags: null, me: null, account: null, plan: null, addresses: [], payments: [], bot: [],
+  flags: null, fakeLocation: null, squadSynced: '', me: null, account: null, plan: null, addresses: [], payments: [], bot: [],
 }));
 
 /** Demo clock offset (ms) for code outside React. */
@@ -34,11 +38,21 @@ export const offsetMs = (): number => useLive.getState().flags?.timeOffsetMs ?? 
 export const nowMs = (): number => Date.now() + offsetMs();
 
 /* ---------- token ---------- */
-function loadToken(): string | undefined {
-  try { return sessionStorage.getItem(TOKEN_KEY) ?? undefined; } catch { return undefined; }
+/** Reads the saved token: localStorage first, then the per-tab copy older builds kept in sessionStorage. */
+export function loadToken(store: { local?: Storage | null; session?: Storage | null } = browserStores()): string | undefined {
+  for (const s of [store.local, store.session]) {
+    try { const t = s?.getItem(TOKEN_KEY); if (t) return t; } catch { /* blocked */ }
+  }
+  return undefined;
 }
-function saveToken(token: string): void {
-  try { sessionStorage.setItem(TOKEN_KEY, token); } catch { /* blocked: identity lasts until reload */ }
+export function saveToken(token: string, store: { local?: Storage | null; session?: Storage | null } = browserStores()): void {
+  for (const s of [store.local, store.session]) {
+    try { s?.setItem(TOKEN_KEY, token); } catch { /* blocked: identity lasts until reload */ }
+  }
+}
+function browserStores(): { local: Storage | null; session: Storage | null } {
+  const get = (k: 'localStorage' | 'sessionStorage') => { try { return typeof window === 'undefined' ? null : window[k]; } catch { return null; } };
+  return { local: get('localStorage'), session: get('sessionStorage') };
 }
 
 /* ---------- table mirroring ---------- */
@@ -94,8 +108,17 @@ function syncSquadSubscription(): void {
   squadSub = null;
   if (squadId) {
     const next = c.subscriptionBuilder()
-      .onApplied(() => { try { old?.unsubscribe(); } catch { /* already gone */ } markDirty(...MIRROR.map(([k]) => k)); })
-      .onError((ctx) => console.warn('[live] squad subscription failed', ctx.event))
+      .onApplied(() => {
+        try { old?.unsubscribe(); } catch { /* already gone */ }
+        markDirty(...MIRROR.map(([k]) => k));
+        if (flushTimer) clearTimeout(flushTimer);
+        flush();
+        if (squadSubFor === squadId) useLive.setState({ squadSynced: squadId });
+      })
+      .onError((ctx) => {
+        console.warn('[live] squad subscription failed', ctx.event);
+        if (squadSubFor === squadId) useLive.setState({ squadSynced: squadId }); // do not leave the app loading forever
+      })
       .subscribe([
         tables.squad.where((r) => r.id.eq(squadId)),
         tables.user.where((r) => r.squadId.eq(squadId)),
@@ -111,12 +134,13 @@ function syncSquadSubscription(): void {
   } else {
     try { old?.unsubscribe(); } catch { /* already gone */ }
     markDirty(...MIRROR.map(([k]) => k));
+    useLive.setState({ squadSynced: '' });
   }
 }
 
 function connect(): void {
   if (conn || typeof window === 'undefined') return;
-  useLive.setState({ status: 'connecting' });
+  useLive.setState({ status: 'connecting', squadSynced: '' });
   const gen = ++generation;
   squadSubFor = '';
   squadSub = null;
@@ -192,11 +216,15 @@ export function startLive(): () => void {
 export function whenReady(timeoutMs = 8000): Promise<DbConnection> {
   if (conn && useLive.getState().status === 'ready') return Promise.resolve(conn);
   return new Promise((resolve, reject) => {
-    const t = setTimeout(() => reject(new Error('offline')), timeoutMs);
     const check = () => {
       if (conn && useLive.getState().status === 'ready') { clearTimeout(t); resolve(conn); return; }
       waiters.push(check);
     };
+    const t = setTimeout(() => {
+      const i = waiters.indexOf(check);
+      if (i >= 0) waiters.splice(i, 1); // L17: do not leak the closure
+      reject(new Error('offline'));
+    }, timeoutMs);
     check();
   });
 }

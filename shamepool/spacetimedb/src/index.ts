@@ -131,10 +131,17 @@ const DemoPatch = t.object('DemoPatch', {
   setNextPhotoFails: t.bool(), nextPhotoFails: t.bool(), setFake: t.bool(), fakeOn: t.bool(), fakeLat: t.f64(), fakeLng: t.f64(), fakeAcc: t.f64(),
   setOffset: t.bool(), timeOffsetMs: t.f64(),
 });
+/**
+ * Demo flags are global (every connected user shares them), so on the shared live database a regular client may only
+ * toggle "next photo fails". Moving the clock or spoofing location for everyone is reserved to the bridge identity:
+ * a global clock jump would make the scheduler charge every squad. Fake location is kept per tab in the client instead.
+ */
 export const setDemoFlags = spacetimedb.reducer({ patch: DemoPatch }, (ctx, { patch }) => {
   const f = ctx.db.demoFlags.id.find(0);
   if (!f) throw new SenderError('unknown');
   if (!f.demoMode) throw new SenderError('unknown');
+  if ((patch.setOffset || patch.setFake) && !isBridge(ctx)) throw new SenderError('not_available');
+  if (!isBridge(ctx) && !sessionUser(ctx)) throw new SenderError('no_user');
   ctx.db.demoFlags.id.update({
     ...f,
     nextPhotoFails: patch.setNextPhotoFails ? patch.nextPhotoFails : f.nextPhotoFails,
@@ -145,9 +152,9 @@ export const setDemoFlags = spacetimedb.reducer({ patch: DemoPatch }, (ctx, { pa
     timeOffsetMs: patch.setOffset ? patch.timeOffsetMs : f.timeOffsetMs,
   });
 });
+/** Wipes every squad and account, so on the shared database only the bridge identity may call it. */
 export const resetDemo = spacetimedb.reducer((ctx) => {
-  const f = ctx.db.demoFlags.id.find(0);
-  if (f && !f.demoMode) throw new SenderError('unknown');
+  requireBridge(ctx);
   seedDemo(ctx);
 });
 /** Bridge only: turn demo helpers (force flake, fake location, reset) on or off. */
@@ -161,9 +168,12 @@ export const setDemoMode = spacetimedb.reducer({ on: t.bool() }, (ctx, { on }) =
 function bridgeIdentity(ctx: Ctx) {
   return ctx.db.bridge.id.find(0)?.identity ?? null;
 }
-function requireBridge(ctx: Ctx): void {
+function isBridge(ctx: Ctx): boolean {
   const b = bridgeIdentity(ctx);
-  if (!b || !b.isEqual(ctx.sender)) throw new SenderError('not_bridge');
+  return !!b && b.isEqual(ctx.sender);
+}
+function requireBridge(ctx: Ctx): void {
+  if (!isBridge(ctx)) throw new SenderError('not_bridge');
 }
 
 /** First caller wins. Run once with scripts/bridge-token.ts. */

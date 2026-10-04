@@ -6,6 +6,7 @@ import { DEMO_ENABLED } from '@/lib/demo';
 import { useToast } from './ui/Toast';
 import { Select } from './ui/Select';
 import { Icon, isIconName } from './ui/Icon';
+import { errorText } from './ui/States';
 
 const DEMO = DEMO_ENABLED;
 const DEMO_TZ = 'America/Detroit';
@@ -25,11 +26,16 @@ export function DemoPanel() {
   const goal = goals.find((g) => g.id === (goalId || goals[0]?.id));
   const tz = squad?.timezone ?? DEMO_TZ;
 
-  const run = async (label: string, fn: () => Promise<unknown>) => {
+  /** Runs a demo action; a failed Result (e.g. `not_available` on the shared live server) shows its error instead. */
+  const run = async (label: string, fn: () => Promise<unknown>): Promise<boolean> => {
     setBusy(true);
-    await fn();
+    const r = await fn();
     setBusy(false);
-    toast(label, 'info');
+    const res = r as { ok?: boolean; error?: string } | null | undefined;
+    const failed = res?.ok === false;
+    if (failed) toast(errorText(res?.error ?? 'unknown'), 'error');
+    else toast(label, 'info');
+    return !failed;
   };
   const btn = 'w-full rounded-xl border-2 border-surface-line bg-white px-3 py-2.5 text-left text-sm font-extrabold active:bg-surface-muted disabled:opacity-50';
 
@@ -51,7 +57,7 @@ export function DemoPanel() {
             flags.fakeLocation ? 'Location is real again' : 'Pretending you are there',
             () => setDemoFlags({ fakeLocation: flags.fakeLocation ? null : { lat: goal.lat, lng: goal.lng, accuracyM: 5 } }),
           )}><Icon name="pin" /> Pretend I&apos;m there: <b>{flags.fakeLocation ? 'ON' : 'off'}</b></button>
-          <button className={btn} onClick={() => setDemoFlags({ nextPhotoFails: !flags.nextPhotoFails })}>
+          <button className={btn} onClick={() => run(flags.nextPhotoFails ? 'Photos pass again' : 'The next photo will fail', () => setDemoFlags({ nextPhotoFails: !flags.nextPhotoFails }))}>
             <Icon name="camera" /> Next photo fails: <b>{flags.nextPhotoFails ? 'ON' : 'off'}</b>
           </button>
           <button className={btn} disabled={!goal} onClick={() => goal && run('Jumped to 1 min before deadline', () =>
@@ -59,11 +65,12 @@ export function DemoPanel() {
             <Icon name="clock" /> Skip to 1 min before deadline
           </button>
           <button className={btn} disabled={busy || !squad || squad.poolBalanceCents < squad.poolGoalCents}
-            onClick={() => run('Pool deadline skipped', async () => { const r = await demoExpirePoolDeadline(); if (!r.ok) toast('The pool is not full yet', 'error'); })}>
+            onClick={() => run('Pool deadline skipped', () => demoExpirePoolDeadline())}>
             <Icon name="hourglass" /> Skip pool deadline (charity)
           </button>
-          <button className={btn} disabled={flags.timeOffsetMs === 0} onClick={() => setDemoFlags({ timeOffsetMs: 0 })}><Icon name="undo" /> Reset clock</button>
-          <button className={`${btn} text-ember-dark`} disabled={busy} onClick={() => run('Demo data reset', async () => { await resetDemoData(); window.location.href = '/'; })}><Icon name="trash" /> Reset demo data</button>
+          <button className={btn} disabled={flags.timeOffsetMs === 0} onClick={() => run('Clock reset', () => setDemoFlags({ timeOffsetMs: 0 }))}><Icon name="undo" /> Reset clock</button>
+          <button className={`${btn} text-ember-dark`} disabled={busy}
+            onClick={async () => { if (await run('Demo data reset', () => resetDemoData())) window.location.href = '/'; }}><Icon name="trash" /> Reset demo data</button>
         </div>
       ) : (
         <button onClick={() => setOpen(true)} aria-label="Open demo controls"

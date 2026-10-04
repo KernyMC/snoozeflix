@@ -116,6 +116,7 @@ export const ERROR_COPY: Record<string, string> = {
   too_many_addresses: 'You can save up to 5 addresses. Remove one first.',
   address_not_found: 'That address is already gone.',
   mock_error: 'Simulated error (mockError=1).',
+  not_available: 'Not available on the shared live server yet.',
   offline: 'You are offline.',
 };
 export const errorText = (code: string) => ERROR_COPY[code] ?? 'Something went wrong. Try again.';

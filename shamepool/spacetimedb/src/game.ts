@@ -273,7 +273,8 @@ export function forceFlake(env: Env, goalId: string) {
   if (!me) return err('no_user');
   const goal = c.db.goal.id.find(goalId);
   if (!goal) return err('goal_not_found');
-  if (goal.squadId !== me.squadId) return err('not_in_squad');
+  if (goal.userId !== me.id) return err('not_your_goal'); // M7: never flake a friend's goal
+  if (!goal.active) return err('goal_not_found');
   const date = localDate(env.now, tzOfSquad(c, goal.squadId));
   const existing = c.db.penalty.key.find(penaltyKey(goal.id, date));
   if (existing) return ok(penaltyOf(existing));

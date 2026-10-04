@@ -1,6 +1,6 @@
 'use client';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { Check, Copy, Share2 } from 'lucide-react';
 import { createSquad, decodeSnapshot, joinSquad, registerUser, useMe, useSquad } from '@/data';
 import { Wordmark } from '@/components/AppShell';
@@ -34,7 +34,10 @@ function Onboarding() {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => { if (me === null) router.replace('/'); }, [me, router]); // sign in first
-  useEffect(() => { if (me?.squadId && !created) router.replace('/home'); }, [me, created, router]);
+  // While our own createSquad is in flight the user already has a squad (live mode waits for that row before it
+  // resolves), so the guard must not bounce to /home before the invite code screen shows.
+  const creating = useRef(false);
+  useEffect(() => { if (me?.squadId && !created && !creating.current) router.replace('/home'); }, [me, created, router]);
 
   if (me === undefined) return <div className="mx-auto max-w-md p-5 space-y-3"><Skeleton className="h-40" /><Skeleton className="h-24" /></div>;
 
@@ -55,9 +58,10 @@ function Onboarding() {
     if (squadName.trim().length < 1) return setErr({ squadName: 'Name your squad.' });
     if (!Number.isInteger(cents) || cents <= 0 || cents > 100_000) return setErr({ poolAmount: errorText('invalid_amount') });
     setBusy(true);
+    creating.current = true;
     const r = await createSquad({ name: squadName, poolGoalName: poolName, poolGoalCents: cents });
     setBusy(false);
-    if (!r.ok) return toast(errorText(r.error), 'error');
+    if (!r.ok) { creating.current = false; return toast(errorText(r.error), 'error'); }
     setCreated(true);
     fireConfetti();
   };

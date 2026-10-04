@@ -14,10 +14,18 @@ export interface Wallet {
   stake: StakeItem[]; minWithdrawCents: Cents; cooldownMs: number;
 }
 
+/** What an invite link carries so a device that has never seen the squad can still join it. */
+export interface InviteSnapshot {
+  code: string; id: string; name: string; poolGoalName: string; poolGoalCents: Cents;
+  ownerName?: string; ownerAvatar?: string;
+}
+
 export interface Squad {
   id: string; name: string; inviteCode: string;
   poolGoalName: string; poolGoalCents: Cents; poolBalanceCents: Cents;
   timezone: string; relayLinked: boolean;
+  charityId: string; // where a full pool goes if nobody spends it in time
+  poolFullAt: number | null; // when the pool first reached its goal (starts the cash-out clock)
 }
 
 export interface Goal {
@@ -37,6 +45,7 @@ export interface Checkin {
   id: string; goalId: string; userId: string; localDate: string;
   status: CheckinStatus; startedAt: number; lastDistanceM: number; lastPingAt: number;
   attempts: number;
+  aiUnavailableCount?: number; // photo checks skipped because the AI was down (fail-open allowed once)
   aiVerified?: boolean; aiReason?: string; aiRoast?: string | null;
 }
 
@@ -62,11 +71,22 @@ export interface CashoutProposal {
   id: string; squadId: string; proposerUserId: string; merchantName: string;
   amountCents: Cents; status: 'open' | 'approved' | 'rejected' | 'paid' | 'cancelled';
   votes: Record<string, boolean>; createdAt: number;
+  kind?: 'spend' | 'donate'; // default 'spend'
+  charityId?: string;
 }
+
+export interface Donation {
+  id: string; squadId: string; charityId: string; amountCents: Cents;
+  reason: 'auto_deadline' | 'vote'; createdAt: number;
+}
+export interface CharityStatus { charityId: string; deadlineAt: number | null; windowMs: number }
 
 export interface PhotoVerdict { verified: boolean; confidence: number; reason: string; roast: string | null; }
 
 export interface PendingAction { id: string; label: string; kind: 'update_goal_penalty'; args: Record<string, unknown>; expiresAt: number; }
+/** An answer produced by the AI bot (server side). The engine validates the action before it becomes a pending action. */
+export interface AiBotInput { text: string; action?: { goalTitle: string; dollars: number } | null }
+
 export interface BotReply { text: string; pendingAction?: PendingAction; }
 export interface BotThreadMessage { id: string; from: 'me' | 'bot'; text: string; pendingAction?: PendingAction; createdAt: number; }
 
@@ -80,12 +100,13 @@ export type ErrorCode =
   | 'username_taken' | 'email_taken' | 'invalid_security' | 'invalid_credentials' | 'account_not_found' | 'wrong_answers'
   | 'auth_locked' | 'invalid_reset'
   | 'no_account' | 'wrong_password' | 'same_email' | 'same_password' | 'invalid_avatar'
+  | 'invalid_charity' | 'charity_locked' | 'goal_locked' | 'ai_unavailable'
   | 'below_minimum' | 'insufficient_available' | 'withdrawal_pending' | 'withdrawal_not_found'
   | 'invalid_card_name' | 'invalid_card_number' | 'unsupported_card' | 'invalid_expiry' | 'card_expired' | 'invalid_cvc' | 'invalid_nickname'
   | 'duplicate_card' | 'too_many_payments' | 'payment_not_found' | 'payment_in_use' | 'payment_required' | 'invalid_tier' | 'same_tier'
   | 'invalid_label' | 'invalid_address_name' | 'invalid_street' | 'invalid_unit' | 'invalid_city' | 'invalid_state' | 'invalid_zip'
   | 'too_many_addresses' | 'address_not_found'
-  | 'offline' | 'mock_error' | 'unknown';
+  | 'offline' | 'mock_error' | 'not_available' | 'unknown';
 
 export interface SecurityAnswer { qId: string; answerHash: number }
 export interface Account {

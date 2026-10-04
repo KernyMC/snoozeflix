@@ -11,6 +11,8 @@ import { VoiceSettings } from '@/components/voice/VoiceSettings';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Icon } from '@/components/ui/Icon';
+import { errorText } from '@/components/ui/States';
+import { useToast } from '@/components/ui/Toast';
 import { DEMO_ENABLED } from '@/lib/demo';
 
 const DEMO = DEMO_ENABLED;
@@ -20,6 +22,7 @@ function Settings() {
   const me = useMe();
   const squad = useSquad();
   const router = useRouter();
+  const { toast } = useToast();
   const h2 = 'font-display font-black text-xl';
   return (
     <div className="space-y-6">
@@ -61,7 +64,7 @@ function Settings() {
 
       <div className="space-y-3">
         <Button variant="secondary" onClick={async () => { await logout(); router.replace('/'); }}>Sign out{me ? ` (${me.name})` : ''}</Button>
-        {DEMO && <Button variant="danger" onClick={async () => { await resetDemoData(); router.push('/'); }}>Reset demo data</Button>}
+        {DEMO && <Button variant="danger" onClick={async () => { const r = await resetDemoData(); if (r.ok) router.push('/'); else toast(errorText(r.error), 'error'); }}>Reset demo data</Button>}
       </div>
     </div>
   );
