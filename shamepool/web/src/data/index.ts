@@ -3,6 +3,7 @@ import * as live from './live';
 import * as mock from './mock';
 
 export * from './types';
+
 export { CHARITIES, charityById, DEFAULT_CHARITY_ID, type Charity, type CharityKind } from './charities';
 export {
   SECURITY_QUESTIONS, validateFirstName, validateLastName, validateEmail, validateUsername, validatePassword, validateConfirm,
@@ -13,6 +14,7 @@ export {
   isExpired, validateAddressLabel, validateAddressName, validateCardName, validateCardNumber, validateCity, validateCvc, validateExpiry,
   validateNickname, validateState, validateStreet, validateUnit, validateZip,
 } from './billingLogic';
+export { encodeSnapshot, decodeSnapshot } from './inviteSnapshot';
 export {
   buildLeaderboard, formatCents, formatCountdown, formatDeadline, formatDistance, haversineM, isInside, localDate, LIMITS,
   msUntilDeadline, nextPenaltyCents, deadlinePassed, isDueToday, localMinutes, MIN_WITHDRAW_CENTS,

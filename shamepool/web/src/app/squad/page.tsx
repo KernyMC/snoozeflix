@@ -34,7 +34,7 @@ function Dashboard() {
         <div className="min-w-0">
           <p className="text-xs font-extrabold uppercase tracking-wide">Invite code</p>
           <p className="font-display font-black text-2xl tracking-widest">{squad.inviteCode}</p>
-          <p className="text-sm font-bold text-ink-soft">Scan to sign up and join.</p>
+          <p className="text-sm font-bold text-ink-soft">Scan to join.</p>
         </div>
       </Card>
       <section aria-labelledby="fd" className="space-y-3">

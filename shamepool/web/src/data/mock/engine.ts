@@ -4,8 +4,9 @@ import {
   isDueToday, isInside, LIMITS, localDate, localMinutes, missedDates, nextPenaltyCents, normalizeInviteCode, penaltyKey,
   validateGoalInput, validateName, validatePoolGoal,
 } from '../logic';
+import { isValidSnapshot } from '../inviteSnapshot';
 import type {
-  BotReply, CashoutProposal, Checkin, FeedEvent, Goal, GoalInput, PhotoVerdict, Penalty, Pos, Result, Squad, User, Wallet, Withdrawal, Donation, CharityStatus, AiBotInput,
+  BotReply, InviteSnapshot, CashoutProposal, Checkin, FeedEvent, Goal, GoalInput, PhotoVerdict, Penalty, Pos, Result, Squad, User, Wallet, Withdrawal, Donation, CharityStatus, AiBotInput,
 } from '../types';
 import { answer, brokeLine, hypeLine, photoRoast, roastLine, type BotAnswer } from './bot';
 import { CASHOUT_WINDOW_DEMO_MS, CASHOUT_WINDOW_REAL_MS, DEFAULT_CHARITY_ID, charityById, isCharityId } from '../charities';
@@ -58,12 +59,25 @@ export function createSquad(c: Ctx, input: { name: string; poolGoalName: string;
   return ok(squad);
 }
 
-export function joinSquad(c: Ctx, rawCode: string): Result<Squad> {
+export function joinSquad(c: Ctx, rawCode: string, invite?: InviteSnapshot | null): Result<Squad> {
   const me = meOf(c);
   if (!me) return err('no_user');
   if (me.squadId) return err('already_in_squad');
   const code = normalizeInviteCode(rawCode);
-  const squad = Object.values(c.s.squads).find((q) => q.inviteCode === code);
+  let squad = Object.values(c.s.squads).find((q) => q.inviteCode === code);
+  // Scanned on a device that has never seen this squad: rebuild it from the link, unless that would clash with something we already hold.
+  if (!squad && invite && isValidSnapshot(invite) && normalizeInviteCode(invite.code) === code && !c.s.squads[invite.id]) {
+    squad = {
+      id: invite.id, name: invite.name.trim(), inviteCode: code, poolGoalName: invite.poolGoalName.trim(), poolGoalCents: invite.poolGoalCents,
+      poolBalanceCents: 0, timezone: 'America/Detroit', relayLinked: false, charityId: DEFAULT_CHARITY_ID, poolFullAt: null,
+    };
+    c.s.squads[squad.id] = squad;
+    if (invite.ownerName) {
+      const ownerId = `u_inv_${invite.id}`;
+      c.s.users[ownerId] = { id: ownerId, name: invite.ownerName.trim(), avatar: invite.ownerAvatar || '/assets/avatar/01-coin-thief.png', squadId: squad.id, balanceCents: 20000 };
+      pushFeed(c.s, squad.id, ownerId, 'commit', `${invite.ownerName.trim()} started the squad "${squad.name}". Goal: ${squad.poolGoalName}.`, c.now);
+    }
+  }
   if (!squad) return err('invalid_code');
   if (squadMembers(c.s, squad.id).length >= LIMITS.maxSquadSize) return err('squad_full');
   me.squadId = squad.id;

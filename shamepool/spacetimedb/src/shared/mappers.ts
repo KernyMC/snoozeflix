@@ -39,6 +39,7 @@ export const userOf = (r: UserRow): User => ({ id: r.id, name: r.name, avatar: r
 export const squadOf = (r: SquadRow): Squad => ({
   id: r.id, name: r.name, inviteCode: r.inviteCode, poolGoalName: r.poolGoalName, poolGoalCents: r.poolGoalCents,
   poolBalanceCents: r.poolBalanceCents, timezone: r.timezone, relayLinked: r.relayLinked,
+  charityId: 'food-bank', poolFullAt: null, // charity rule is mock-only until the module gets these columns
 });
 export const goalOf = (r: GoalRow): Goal => ({
   id: r.id, userId: r.userId, squadId: r.squadId, title: r.title, emoji: r.emoji, lat: r.lat, lng: r.lng, radiusM: r.radiusM,

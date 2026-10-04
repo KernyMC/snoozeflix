@@ -2,7 +2,7 @@
 
 **Skip the task. Lose the cash.** Friends commit to goals (gym, study, run), prove them with **GPS + a photo checked by AI**, and every flake moves money from the flaker into a **shared squad pool**. Nobody wins anyone else's money: the pool is spent together by vote, and if nobody spends it in time it goes to the squad's **charity**. Built for MHacks 2026 (FinTech track).
 
-Live demo: https://shamepool.vercel.app (demo accounts: `kevin`, `ana`, `leo`, `maya`, password `Password1`, see `web/src/data/mock/demoUsers.json`).
+Live demo: https://shamepool.vercel.app, running on the real Spacetime backend (shared state across devices: create a squad on one phone, scan its QR on another). Demo accounts: `kevin`, `ana`, `leo`, `maya`, password `Password1` (see `web/src/data/mock/demoUsers.json`).
 
 ## What makes it different
 - **Behavioral finance, not gambling.** Penalties escalate (x2 per flake in a row, capped), fund a shared pool, and can never be paid out as cash or refunded to the flaker. Members can withdraw only their own balance minus a **locked stake** (the worst case of the next 3 days) after a cooling period, so nobody can flake-and-run. See `specs/001-shamepool/withdrawals.md`.

@@ -13,6 +13,12 @@ export interface Wallet {
   stake: StakeItem[]; minWithdrawCents: Cents; cooldownMs: number;
 }
 
+/** What an invite link carries so a device that has never seen the squad can still join it. */
+export interface InviteSnapshot {
+  code: string; id: string; name: string; poolGoalName: string; poolGoalCents: Cents;
+  ownerName?: string; ownerAvatar?: string;
+}
+
 export interface Squad {
   id: string; name: string; inviteCode: string;
   poolGoalName: string; poolGoalCents: Cents; poolBalanceCents: Cents;
@@ -99,7 +105,7 @@ export type ErrorCode =
   | 'duplicate_card' | 'too_many_payments' | 'payment_not_found' | 'payment_in_use' | 'payment_required' | 'invalid_tier' | 'same_tier'
   | 'invalid_label' | 'invalid_address_name' | 'invalid_street' | 'invalid_unit' | 'invalid_city' | 'invalid_state' | 'invalid_zip'
   | 'too_many_addresses' | 'address_not_found'
-  | 'offline' | 'mock_error' | 'unknown';
+  | 'offline' | 'mock_error' | 'not_available' | 'unknown';
 
 export interface SecurityAnswer { qId: string; answerHash: number }
 export interface Account {

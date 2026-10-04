@@ -14,6 +14,7 @@ import type {
 } from '../types';
 import type { DbConnection } from './bindings';
 import { demoFlagsOf } from './hooks';
+import { planDemoPatch } from './demo';
 import { type ActionResult, resultOf } from './mappers';
 import { secretHash, sha256Hex } from './sha256';
 import { getConn, nowMs, settle, startLive, useLive, whenReady } from './stdb';
@@ -23,12 +24,20 @@ const fail = (error: ErrorCode): Result<never> => ({ ok: false, error });
 
 /* ---------- Nessie bridge ---------- */
 let lastPoke = 0;
-/** Ask the server to drain the outbox now (no secret needed: it only runs legitimate queued jobs). Fire and forget. */
+let bridgeMissing = false;
+/**
+ * Ask the server to drain the outbox now (no secret needed: it only runs legitimate queued jobs). Fire and forget.
+ * A deploy without the bridge token answers 503 `bridge_not_configured`; the tab then stops asking.
+ */
 export function pokeBridge(force = false): void {
   const t = Date.now();
-  if (!force && t - lastPoke < 3000) return;
+  if (bridgeMissing || (!force && t - lastPoke < 3000)) return;
   lastPoke = t;
-  try { void fetch('/api/bridge/poke', { method: 'POST', keepalive: true }).catch(() => {}); } catch { /* ignore */ }
+  try {
+    void fetch('/api/bridge/poke', { method: 'POST', keepalive: true })
+      .then((r) => { if (r.status === 503) bridgeMissing = true; })
+      .catch(() => {});
+  } catch { /* ignore */ }
 }
 
 /** Opens the connection and keeps the bridge ticking while a tab is visible. */
@@ -55,8 +64,8 @@ async function run<T>(fn: (c: DbConnection) => Promise<ActionResult>, bridge = f
 }
 
 const effectivePos = (pos: Pos): Pos => {
-  const f = useLive.getState().flags;
-  return DEMO && f?.fakeOn ? { lat: f.fakeLat, lng: f.fakeLng, accuracyM: f.fakeAcc } : pos;
+  const fake = useLive.getState().fakeLocation;
+  return DEMO && fake ? fake : pos; // spoofing only in demo builds, and only for this tab
 };
 const myUsername = (): string | null => useLive.getState().account?.username ?? null;
 const hashAnswer = (username: string, answer: string) => secretHash(username, 'ans', normalizeAnswer(answer));
@@ -108,10 +117,9 @@ export async function resetPassword(username: string, token: string, password: s
   return run<true>((c) => c.procedures.resetPassword({ username, token, passwordHash: secretHash(username, 'pw', password) }));
 }
 
-export async function claimSeedUser(userId: string): Promise<Result<User>> {
-  const r = await run<User>((c) => c.procedures.claimSeedUser({ userId }));
-  if (r.ok) await settle((s) => s.me?.id === r.data.id);
-  return r;
+/** Password-less seed sign-in is off on the shared database (anyone could act as Kevin). Seed users log in with a password. */
+export async function claimSeedUser(_userId: string): Promise<Result<User>> { // eslint-disable-line @typescript-eslint/no-unused-vars
+  return fail('not_available');
 }
 
 export async function listSeedUsers(): Promise<Result<User[]>> {
@@ -208,7 +216,8 @@ export async function createSquad(i: { name: string; poolGoalName: string; poolG
   if (r.ok) await settle((s) => s.me?.squadId === r.data.id && s.squads.some((q) => q.id === r.data.id));
   return r;
 }
-export async function joinSquad(code: string): Promise<Result<Squad>> {
+/** The invite snapshot (`s=` in QR links) only helps mock devices that never saw the squad; live squads really exist. */
+export async function joinSquad(code: string, _invite?: unknown): Promise<Result<Squad>> { // eslint-disable-line @typescript-eslint/no-unused-vars
   const r = await run<Squad>((c) => c.procedures.joinSquad({ code }));
   if (r.ok) await settle((s) => s.me?.squadId === r.data.id && s.squads.some((q) => q.id === r.data.id));
   return r;
@@ -290,25 +299,25 @@ export async function cancelWithdrawal(id: string): Promise<Result<Withdrawal>> 
 }
 
 /* ---------- demo ---------- */
+/** Wiping the shared database would delete every real squad, so only the bridge identity may reset it (not a browser). */
 export async function resetDemoData(): Promise<Result<true>> {
-  try {
-    const c = await whenReady();
-    await c.reducers.resetDemo({});
-    return { ok: true, data: true };
-  } catch (e) {
-    console.warn('[live] reset failed', e);
-    return fail('unknown');
-  }
+  return fail('not_available');
 }
+/**
+ * Fake location stays in this tab. "Next photo fails" goes to the module. Moving the clock is global on the shared
+ * database (the scheduler would charge every squad), so it is refused with `not_available`.
+ */
 export async function setDemoFlags(patch: Partial<DemoFlags>): Promise<Result<true>> {
+  const plan = planDemoPatch(patch, useLive.getState().flags?.timeOffsetMs ?? 0);
+  if (plan.refuse) return fail('not_available');
+  if (plan.fake !== undefined) useLive.setState({ fakeLocation: plan.fake });
+  if (plan.nextPhotoFails === undefined) return { ok: true, data: true };
   try {
     const c = await whenReady();
-    const f = patch.fakeLocation;
     await c.reducers.setDemoFlags({
       patch: {
-        setNextPhotoFails: patch.nextPhotoFails !== undefined, nextPhotoFails: patch.nextPhotoFails ?? false,
-        setFake: 'fakeLocation' in patch, fakeOn: !!f, fakeLat: f?.lat ?? 0, fakeLng: f?.lng ?? 0, fakeAcc: f?.accuracyM ?? 0,
-        setOffset: patch.timeOffsetMs !== undefined, timeOffsetMs: patch.timeOffsetMs ?? 0,
+        setNextPhotoFails: true, nextPhotoFails: plan.nextPhotoFails, setFake: false, fakeOn: false, fakeLat: 0, fakeLng: 0, fakeAcc: 0,
+        setOffset: false, timeOffsetMs: 0,
       },
     });
     return { ok: true, data: true };
@@ -317,4 +326,4 @@ export async function setDemoFlags(patch: Partial<DemoFlags>): Promise<Result<tr
     return fail('unknown');
   }
 }
-export const getDemoFlags = (): DemoFlags => demoFlagsOf(useLive.getState().flags);
+export const getDemoFlags = (): DemoFlags => demoFlagsOf(useLive.getState().flags, useLive.getState().fakeLocation);

@@ -13,8 +13,8 @@ export {
 
 // Charity rule (mock-only for now): the Spacetime module still needs charity_id/pool_full_at columns and procedures.
 import type { CashoutProposal, CharityStatus, Donation, Result, Squad } from '../types';
-const notLive = <T>(): Promise<Result<T>> => Promise.resolve({ ok: false, error: 'unknown' });
-export const setCharity = (_id: string): Promise<Result<Squad>> => notLive();
+const notLive = <T>(): Promise<Result<T>> => Promise.resolve({ ok: false, error: 'not_available' });
+export const setCharity = (_id: string): Promise<Result<Squad>> => notLive(); // eslint-disable-line @typescript-eslint/no-unused-vars
 export const proposeDonation = (): Promise<Result<CashoutProposal>> => notLive();
 export const demoExpirePoolDeadline = (): Promise<Result<Squad>> => notLive();
 export const useCharityStatus = (): CharityStatus | null => null;

@@ -15,3 +15,11 @@
 - **Paid routes:** only same-origin browsers or a caller with `AGENT_API_KEY` are allowed, per-IP key comes from the platform headers, lower hourly ceilings, and the guard runs before the key check.
 - **Voice confirm** accepts only whole-utterance "yes/confirm/do it". Keyword bot uses the number after "to".
 - **Not fixed (live mode only, tracked in the audit):** unauthenticated `reset_demo`/`set_demo_flags`, `claimSeedUser` without password, public balances, `claim_bridge` race.
+
+## Live mode on (Spacetime, 2026-10-04)
+- **Production runs `NEXT_PUBLIC_DATA_MODE=live`** against Maincloud database `shamepool-mvp` (`NEXT_PUBLIC_STDB_URI=wss://maincloud.spacetimedb.com`, `NEXT_PUBLIC_STDB_DB=shamepool-mvp`), so a squad created on one phone is the same squad on every other device. Mock stays the default for local dev.
+- **Shared-database hardening (closes the live items above):** `reset_demo` is bridge-only; `set_demo_flags` lets a signed-in user toggle only "next photo fails" (clock offset and fake location need the bridge identity); `claim_seed_user` returns `not_available` (seed users sign in with `Password1`); `force_flake` only on your own active goal.
+- **Demo tools in live:** "Pretend I'm there" is kept per tab in the client (never sent to Spacetime); "Skip to 1 min before deadline" and "Reset demo data" answer `not_available` with a toast, because the clock and the data are shared by every squad.
+- **Identity token in localStorage** (was sessionStorage), so a guest who joined from a QR keeps their user after closing the tab. A new tab is the same user.
+- **`useMe` waits for the squad subscription** before resolving, so screens never see a half-loaded squad (it made the flake modal fire again on reload).
+- **Still mock-only in live:** charity rule (page says "not available"), AI context for Squad Bot (live answers with the keyword bot), AI photo verdict (live accepts the photo and records "AI check not connected"). The Nessie bridge needs `STDB_BRIDGE_TOKEN` (+ `NESSIE_API_KEY`) on Vercel; without it penalties still move inside Spacetime and the outbox simply waits.

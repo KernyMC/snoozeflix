@@ -7,10 +7,10 @@ import {
   WITHDRAW_COOLDOWN_REAL_MS,
 } from '../logic';
 import type {
-  AccountInfo, Billing, BotThreadMessage, CashoutProposal, Cents, Checkin, DemoFlags, FeedEvent, Goal, LeaderboardRow, Penalty, Squad, User, Wallet, Withdrawal,
+  AccountInfo, Billing, BotThreadMessage, CashoutProposal, Cents, Checkin, DemoFlags, FeedEvent, Goal, LeaderboardRow, Penalty, Pos, Squad, User, Wallet, Withdrawal,
 } from '../types';
 import {
-  accountInfoOf, billingOf, botMessageOf, cashoutOf, checkinOf, feedOf, goalOf, penaltyOf, squadOf, userOf, withdrawalOf,
+  accountInfoOf, billingOf, botMessageOf, cashoutOf, checkinOf, feedOf, goalOf, penaltyOf, squadOf, userOf, withdrawalOf, type UserRow,
 } from './mappers';
 import { useLive } from './stdb';
 
@@ -33,11 +33,21 @@ export function useConnection(): { status: 'connecting' | 'ready' | 'error'; mod
   return { status, mode: 'live' };
 }
 
-/** undefined = loading, null = no identity */
+/**
+ * undefined = loading, null = no identity. A user with a squad stays "loading" until that squad's rows are synced, so
+ * screens never see a half-loaded squad (empty feed or leaderboard) that later fills in as if it were new activity.
+ */
 export function useMe(): User | null | undefined {
   const status = useLive((s) => s.status);
   const row = useLive((s) => s.me);
-  return useMemo(() => (status !== 'ready' ? undefined : row ? userOf(row) : null), [status, row]);
+  const synced = useLive((s) => s.squadSynced);
+  return useMemo(() => meState(status, row, synced), [status, row, synced]);
+}
+export function meState(status: string, row: UserRow | null, squadSynced: string): User | null | undefined {
+  if (status !== 'ready') return undefined;
+  if (!row) return null;
+  if (row.squadId && row.squadId !== squadSynced) return undefined;
+  return userOf(row);
 }
 
 export function useAccount(): AccountInfo | null {
@@ -159,17 +169,20 @@ export function useBotThread(): BotThreadMessage[] {
   return useMemo(() => [...bot].sort((a, b) => a.createdAt - b.createdAt || a.id.localeCompare(b.id)).map(botMessageOf), [bot]);
 }
 
-const NO_FLAGS: DemoFlags = { nextPhotoFails: false, fakeLocation: null, timeOffsetMs: 0 };
-export function demoFlagsOf(f: { nextPhotoFails: boolean; fakeOn: boolean; fakeLat: number; fakeLng: number; fakeAcc: number; timeOffsetMs: number } | null): DemoFlags {
-  if (!f) return NO_FLAGS;
-  return {
-    nextPhotoFails: f.nextPhotoFails, timeOffsetMs: f.timeOffsetMs,
-    fakeLocation: f.fakeOn ? { lat: f.fakeLat, lng: f.fakeLng, accuracyM: f.fakeAcc } : null,
-  };
+/**
+ * Module flags (shared by everyone) merged with this tab's own fake location. The module's global fake location is
+ * ignored on purpose: one user's "pretend I'm there" must not move every other user on the shared database.
+ */
+export function demoFlagsOf(
+  f: { nextPhotoFails: boolean; timeOffsetMs: number } | null,
+  localFake: Pos | null = null,
+): DemoFlags {
+  return { nextPhotoFails: f?.nextPhotoFails ?? false, timeOffsetMs: f?.timeOffsetMs ?? 0, fakeLocation: localFake };
 }
 export function useDemoFlags(): DemoFlags {
   const f = useLive((s) => s.flags);
-  return useMemo(() => demoFlagsOf(f), [f]);
+  const fake = useLive((s) => s.fakeLocation);
+  return useMemo(() => demoFlagsOf(f, fake), [f, fake]);
 }
 
 export function useWallet(): Wallet | null {

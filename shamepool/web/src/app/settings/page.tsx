@@ -1,7 +1,7 @@
 'use client';
 import { Heart } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { logout, resetDemoData, useConnection, useMe, useSquad } from '@/data';
+import { logout, resetDemoData, useMe, useSquad } from '@/data';
 import { AccountSettings, ProfileCard } from '@/components/AccountForms';
 import { AppShell } from '@/components/AppShell';
 import { PlanCard } from '@/components/BillingForms';
@@ -11,15 +11,18 @@ import { VoiceSettings } from '@/components/voice/VoiceSettings';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Icon } from '@/components/ui/Icon';
+import { errorText } from '@/components/ui/States';
+import { useToast } from '@/components/ui/Toast';
 import { DEMO_ENABLED } from '@/lib/demo';
 
 const DEMO = DEMO_ENABLED;
 
+
 function Settings() {
   const me = useMe();
   const squad = useSquad();
-  const conn = useConnection();
   const router = useRouter();
+  const { toast } = useToast();
   const h2 = 'font-display font-black text-xl';
   return (
     <div className="space-y-6">
@@ -44,7 +47,7 @@ function Settings() {
             <div className="min-w-0">
               <p className="font-display font-black text-xl truncate">{squad.name}</p>
               <p className="font-bold">Invite code <b className="tracking-widest">{squad.inviteCode}</b></p>
-              <p className="text-sm font-bold text-ink-soft">Scan to sign up and join.</p>
+              <p className="text-sm font-bold text-ink-soft">Scan to join.</p>
             </div>
           </Card>
           <NewPoolGoal />
@@ -57,15 +60,11 @@ function Settings() {
         <Button variant="secondary" href="/wallet"><Icon name="cash" /> Wallet and withdrawals</Button>
         <Button variant="secondary" href="/charity"><Heart size={20} strokeWidth={2.5} /> Squad charity</Button>
         <Button variant="secondary" href="/squad?tv=1"><Icon name="tv" /> Open projector view</Button>
-        <Card>
-          <p className="font-extrabold">Backend: <b className="text-sky-dark">{conn.mode}</b> ({conn.status})</p>
-          {DEMO && <p className="text-sm font-bold text-ink-soft mt-1">Demo controls live in the <Icon name="wrench" /> button. Add <code>?mockSlow=1</code> or <code>?mockError=1</code> to any URL to test loading and error states.</p>}
-        </Card>
       </section>
 
       <div className="space-y-3">
         <Button variant="secondary" onClick={async () => { await logout(); router.replace('/'); }}>Sign out{me ? ` (${me.name})` : ''}</Button>
-        {DEMO && <Button variant="danger" onClick={async () => { await resetDemoData(); router.push('/'); }}>Reset demo data</Button>}
+        {DEMO && <Button variant="danger" onClick={async () => { const r = await resetDemoData(); if (r.ok) router.push('/'); else toast(errorText(r.error), 'error'); }}>Reset demo data</Button>}
       </div>
     </div>
   );

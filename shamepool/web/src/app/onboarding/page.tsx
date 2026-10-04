@@ -1,10 +1,10 @@
 'use client';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { Check, Copy, Share2 } from 'lucide-react';
-import { createSquad, joinSquad, registerUser, useMe, useSquad } from '@/data';
+import { createSquad, decodeSnapshot, joinSquad, registerUser, useMe, useSquad } from '@/data';
 import { Wordmark } from '@/components/AppShell';
-import { InviteQr, inviteUrl } from '@/components/InviteQr';
+import { InviteQr, inviteUrl, useInviteSnapshot } from '@/components/InviteQr';
 import { Avatar, AVATARS } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -17,6 +17,7 @@ import { fireConfetti } from '@/components/effects';
 function Onboarding() {
   const me = useMe();
   const squad = useSquad();
+  const snapshot = useInviteSnapshot();
   const router = useRouter();
   const params = useSearchParams();
   const { toast } = useToast();
@@ -33,7 +34,10 @@ function Onboarding() {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => { if (me === null) router.replace('/'); }, [me, router]); // sign in first
-  useEffect(() => { if (me?.squadId && !created) router.replace('/home'); }, [me, created, router]);
+  // While our own createSquad is in flight the user already has a squad (live mode waits for that row before it
+  // resolves), so the guard must not bounce to /home before the invite code screen shows.
+  const creating = useRef(false);
+  useEffect(() => { if (me?.squadId && !created && !creating.current) router.replace('/home'); }, [me, created, router]);
 
   if (me === undefined) return <div className="mx-auto max-w-md p-5 space-y-3"><Skeleton className="h-40" /><Skeleton className="h-24" /></div>;
 
@@ -54,9 +58,10 @@ function Onboarding() {
     if (squadName.trim().length < 1) return setErr({ squadName: 'Name your squad.' });
     if (!Number.isInteger(cents) || cents <= 0 || cents > 100_000) return setErr({ poolAmount: errorText('invalid_amount') });
     setBusy(true);
+    creating.current = true;
     const r = await createSquad({ name: squadName, poolGoalName: poolName, poolGoalCents: cents });
     setBusy(false);
-    if (!r.ok) return toast(errorText(r.error), 'error');
+    if (!r.ok) { creating.current = false; return toast(errorText(r.error), 'error'); }
     setCreated(true);
     fireConfetti();
   };
@@ -64,14 +69,14 @@ function Onboarding() {
   const doJoin = async () => {
     setErr({});
     setBusy(true);
-    const r = await joinSquad(code);
+    const r = await joinSquad(code, decodeSnapshot(params.get('s')));
     setBusy(false);
     if (!r.ok) return setErr({ code: errorText(r.error) });
     fireConfetti();
     router.replace('/home');
   };
 
-  const link = typeof window !== 'undefined' && squad ? inviteUrl(window.location.origin, squad.inviteCode) : '';
+  const link = typeof window !== 'undefined' && squad ? inviteUrl(window.location.origin, squad.inviteCode, snapshot) : '';
   const copy = async () => {
     try { await navigator.clipboard.writeText(squad?.inviteCode ?? ''); setCopied(true); setTimeout(() => setCopied(false), 1500); }
     catch { toast('Could not copy. Long-press the code instead.', 'error'); }
@@ -148,7 +153,7 @@ function Onboarding() {
             <p className="font-display font-black text-5xl tracking-[0.25em] tabular mt-1" aria-label={`Invite code ${squad.inviteCode.split('').join(' ')}`}>{squad.inviteCode}</p>
             <div className="mt-4 flex flex-col items-center gap-2">
               <InviteQr code={squad.inviteCode} size={132} />
-              <p className="text-sm font-bold text-ink-soft">Or have them scan this to sign up and join.</p>
+              <p className="text-sm font-bold text-ink-soft">Or have them scan this to join.</p>
             </div>
           </Card>
           <div className="grid grid-cols-2 gap-3">
