@@ -55,7 +55,9 @@ Mock mode keeps data **in one browser**, so run every screen as **windows of the
 
 ## Honest limits
 - Nessie's sandbox records ledger entries but does **not** move balances; balances live in Spacetime/the mock. Every penalty still produces a real Nessie transfer record.
-- The charity rule and the AI bot context run in **mock mode only**; the live Spacetime module still needs them (and the demo-reducer authorization fixes listed in `docs/audit-report.md`).
+- The charities are fictional demo organisations and donations are simulated (no real money moves).
+- The AI photo verdict is computed by the server route and passed to Spacetime by the client, so a modified client could skip it. A production version would have the server sign the verdict.
+- On the shared live database the demo clock skip and "Reset demo data" are disabled, because they would affect every squad.
 - Notifications work while the app is open (no server push yet).
 
 ## Future work
