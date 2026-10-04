@@ -8,6 +8,7 @@ import {
 } from '@/data';
 import { AuthShell, focusFirstInvalid } from '@/components/auth/AuthShell';
 import { PasswordField } from '@/components/auth/PasswordField';
+import { cleanCode, withJoin } from '@/components/InviteQr';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Field, inputCls } from '@/components/ui/Field';
@@ -39,6 +40,8 @@ export default function RegisterPage() {
   const me = useMe();
   const router = useRouter();
   const [f, setF] = useState<Form>(EMPTY);
+  // Optional. Screen-level only: the code is handed to the join step that follows sign-up, which does the joining.
+  const [code, setCode] = useState('');
   const [qs, setQs] = useState(['', '', '']);
   const [ans, setAns] = useState(['', '', '']);
   const [err, setErr] = useState<Record<string, string>>({});
@@ -46,7 +49,7 @@ export default function RegisterPage() {
   const [busy, setBusy] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
-  useEffect(() => { if (me) router.replace(me.squadId ? '/home' : '/onboarding'); }, [me, router]);
+  useEffect(() => { if (me) router.replace(me.squadId ? '/home' : withJoin('/onboarding', code)); }, [me, router, code]);
 
   const upd = (k: keyof Form) => (e: React.ChangeEvent<HTMLInputElement>) => setF((p) => ({ ...p, [k]: e.target.value }));
   /** Validate one field when the user leaves it, so errors appear early but not while typing. */
@@ -69,7 +72,7 @@ export default function RegisterPage() {
     setBusy(true);
     const r = await registerAccount({ ...f, security: qs.map((qId, i) => ({ qId, answer: ans[i] })) });
     setBusy(false);
-    if (r.ok) return router.replace('/onboarding');
+    if (r.ok) return router.replace(withJoin('/onboarding', code));
     const field: Partial<Record<ErrorCode, string>> = { username_taken: 'username', email_taken: 'email' };
     const k = field[r.error];
     if (k) { setErr({ [k]: errorText(r.error) }); focusFirstInvalid(formRef.current); } else setFormErr(errorText(r.error));
@@ -93,6 +96,10 @@ export default function RegisterPage() {
           maxLength={72} placeholder="At least 8 characters" hint="Use a letter and a number." autoComplete="new-password" enterKeyHint="next" />
         <PasswordField label="Confirm password" value={f.confirm} onChange={upd('confirm')} onBlur={blur('confirm')} error={err.confirm}
           maxLength={72} placeholder="Re-enter your password" autoComplete="new-password" enterKeyHint="next" />
+        <Field label="Invite code (optional)" value={code} onChange={(e) => setCode(cleanCode(e.target.value))} maxLength={8} placeholder="PIZZA6"
+          hint="Got a code from your squad? Enter it here. Leave it blank to pick a squad after."
+          autoComplete="off" autoCapitalize="characters" autoCorrect="off" spellCheck={false} enterKeyHint="next"
+          className="tracking-[0.3em] text-xl font-black uppercase" />
 
         <div className="pt-2">
           <h2 className="font-display font-black text-xl">Security questions</h2>
