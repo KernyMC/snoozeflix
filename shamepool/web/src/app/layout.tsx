@@ -22,8 +22,10 @@ export const viewport: Viewport = { width: 'device-width', initialScale: 1, them
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={nunito.variable}>
-      <body>
+    // Browser extensions (Grammarly, device simulators) add attributes to <html> and <body>
+    // before React loads; suppressHydrationWarning ignores those on these two tags only.
+    <html lang="en" className={nunito.variable} suppressHydrationWarning>
+      <body suppressHydrationWarning>
         <Providers>{children}</Providers>
       </body>
     </html>
