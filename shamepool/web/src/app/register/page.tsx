@@ -10,7 +10,8 @@ import { AuthShell, focusFirstInvalid } from '@/components/auth/AuthShell';
 import { PasswordField } from '@/components/auth/PasswordField';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { Field, inputCls, Select } from '@/components/ui/Field';
+import { Field, inputCls } from '@/components/ui/Field';
+import { Select } from '@/components/ui/Select';
 import { errorText } from '@/components/ui/States';
 
 interface Form { firstName: string; lastName: string; email: string; username: string; password: string; confirm: string }
@@ -102,12 +103,10 @@ export default function RegisterPage() {
             <p className="text-xs font-black uppercase tracking-wide text-primary">Question {i + 1}</p>
             <div>
               <label htmlFor={`q${i}`} className="block text-xs font-extrabold uppercase tracking-wide text-ink-soft mb-1.5">Select a question</label>
-              <Select id={`q${i}`} value={qs[i]} aria-invalid={!!err[`q${i}`] || undefined}
-                onChange={(e) => setQs((p) => p.map((v, j) => (j === i ? e.target.value : v)))} onBlur={blur(`q${i}`)}
-                className={`${inputCls} ${err[`q${i}`] ? 'border-ember bg-ember-light' : ''}`}>
-                <option value="">Choose a question…</option>
-                {SECURITY_QUESTIONS.filter((q) => q.id === qs[i] || !qs.includes(q.id)).map((q) => <option key={q.id} value={q.id}>{q.text}</option>)}
-              </Select>
+              <Select id={`q${i}`} value={qs[i]} invalid={!!err[`q${i}`]} placeholder="Choose a question…"
+                options={SECURITY_QUESTIONS.filter((q) => q.id === qs[i] || !qs.includes(q.id)).map((q) => ({ value: q.id, label: q.text }))}
+                onChange={(v) => setQs((p) => p.map((old, j) => (j === i ? v : old)))} onBlur={blur(`q${i}`)}
+                className={`${inputCls} ${err[`q${i}`] ? 'border-ember bg-ember-light' : ''}`} />
               {err[`q${i}`] && <p className="text-sm text-ember-dark font-extrabold mt-1" role="alert">{err[`q${i}`]}</p>}
             </div>
             <Field label="Your answer" value={ans[i]} maxLength={50} placeholder="Enter your answer" error={err[`a${i}`]}

@@ -11,7 +11,8 @@ import { PasswordField } from '@/components/auth/PasswordField';
 import { Avatar, AVATARS } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { Field, inputCls, Select } from '@/components/ui/Field';
+import { Field, inputCls } from '@/components/ui/Field';
+import { Select } from '@/components/ui/Select';
 import { MoneyText } from '@/components/ui/Money';
 import { errorText } from '@/components/ui/States';
 import { useToast } from '@/components/ui/Toast';
@@ -275,12 +276,10 @@ function SecurityForm({ account, onDone }: { account: AccountInfo; onDone: () =>
           <p className="text-xs font-black uppercase tracking-wide text-primary">Question {i + 1}</p>
           <div>
             <label htmlFor={`sq${i}`} className="block text-xs font-extrabold uppercase tracking-wide text-ink-soft mb-1.5">Select a question</label>
-            <Select id={`sq${i}`} value={qs[i]} aria-invalid={!!err[`q${i}`] || undefined}
-              onChange={(e) => setQs((p) => p.map((v, j) => (j === i ? e.target.value : v)))} onBlur={blur(`q${i}`)}
-              className={`${inputCls} ${err[`q${i}`] ? 'border-ember bg-ember-light' : ''}`}>
-              <option value="">Choose a question…</option>
-              {SECURITY_QUESTIONS.filter((q) => q.id === qs[i] || !qs.includes(q.id)).map((q) => <option key={q.id} value={q.id}>{q.text}</option>)}
-            </Select>
+            <Select id={`sq${i}`} value={qs[i]} invalid={!!err[`q${i}`]} placeholder="Choose a question…"
+              options={SECURITY_QUESTIONS.filter((q) => q.id === qs[i] || !qs.includes(q.id)).map((q) => ({ value: q.id, label: q.text }))}
+              onChange={(v) => setQs((p) => p.map((old, j) => (j === i ? v : old)))} onBlur={blur(`q${i}`)}
+              className={`${inputCls} ${err[`q${i}`] ? 'border-ember bg-ember-light' : ''}`} />
             {err[`q${i}`] && <p className="text-sm text-ember-dark font-extrabold mt-1" role="alert">{err[`q${i}`]}</p>}
           </div>
           <Field label="Your answer" value={ans[i]} maxLength={50} placeholder="Enter your answer" error={err[`a${i}`]}
@@ -303,10 +302,10 @@ function Row({ id, icon, title, summary, open, onToggle, children }: {
   id: Key; icon: ReactNode; title: string; summary: string; open: boolean; onToggle: () => void; children: ReactNode;
 }) {
   return (
-    <Card className="!p-0 overflow-hidden">
+    <Card className="!p-0">
       <h3>
         <button type="button" id={`acct-${id}-btn`} aria-expanded={open} aria-controls={`acct-${id}-panel`} onClick={onToggle}
-          className="w-full flex items-center gap-3 p-4 min-h-[64px] text-left active:bg-surface-muted">
+          className={`w-full flex items-center gap-3 p-4 min-h-[64px] text-left active:bg-surface-muted ${open ? 'rounded-t-[18px]' : 'rounded-[18px]'}`}>
           <span className="size-10 rounded-xl bg-sky-light text-sky-dark grid place-items-center shrink-0" aria-hidden>{icon}</span>
           <span className="min-w-0 flex-1">
             <span className="block font-display font-black text-lg leading-tight">{title}</span>

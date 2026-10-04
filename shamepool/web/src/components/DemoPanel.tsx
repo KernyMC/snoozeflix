@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Wrench, X } from 'lucide-react';
 import { forceFlake, localMinutes, resetDemoData, setDemoFlags, useDemoFlags, useMyGoals, useSquad } from '@/data';
 import { useToast } from './ui/Toast';
-import { Select } from './ui/Field';
+import { Select } from './ui/Select';
 import { Icon, isIconName } from './ui/Icon';
 
 const DEMO = process.env.NEXT_PUBLIC_DEMO === 'true';
@@ -38,10 +38,9 @@ export function DemoPanel() {
             <button onClick={() => setOpen(false)} aria-label="Close demo controls" className="p-2 -m-2"><X size={20} /></button>
           </div>
           {goals.length > 0 ? (
-            <Select value={goal?.id ?? ''} onChange={(e) => setGoalId(e.target.value)} aria-label="Goal"
-              className="w-full rounded-xl border-2 border-surface-line bg-surface-muted px-3 py-2 font-bold">
-              {goals.map((g) => <option key={g.id} value={g.id}>{isIconName(g.emoji) ? g.title : `${g.emoji} ${g.title}`}</option>)}
-            </Select>
+            <Select value={goal?.id ?? ''} onChange={setGoalId} aria-label="Goal"
+              options={goals.map((g) => ({ value: g.id, label: isIconName(g.emoji) ? g.title : `${g.emoji} ${g.title}` }))}
+              className="w-full rounded-xl border-2 border-surface-line bg-surface-muted px-3 py-2 font-bold outline-none focus:border-sky" />
           ) : <p className="text-sm text-ink-soft font-bold">Create a goal to use these.</p>}
           <button className={btn} disabled={busy || !goal} onClick={() => goal && run('Flaked', () => forceFlake(goal.id))}><Icon name="money-wings" /> Flake now</button>
           <button className={btn} disabled={busy || !goal} onClick={() => goal && run(
