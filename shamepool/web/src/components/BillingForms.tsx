@@ -3,13 +3,14 @@ import { useRef, useState } from 'react';
 import { Crown, MapPin, Plus, Sprout, Trash2 } from 'lucide-react';
 import {
   addAddress, addPaymentMethod, BRAND_LABEL, detectBrand, formatAddress, formatCardNumber, formatExpiry, formatExpiryInput, isExpired,
-  MAX_ADDRESSES, MAX_PAYMENT_METHODS, removeAddress, removePaymentMethod, setPlanTier, useBilling, useConnection, useNow,
+  formatCents, MAX_ADDRESSES, MAX_PAYMENT_METHODS, removeAddress, removePaymentMethod, setPlanTier, useBilling, useConnection, useNow,
   validateAddressLabel, validateAddressName, validateCardName, validateCardNumber, validateCity, validateCvc, validateExpiry, validateNickname,
   validateState, validateStreet, validateUnit, validateZip, type Address, type ErrorCode, type PaymentMethod, type Result,
 } from '@/data';
 import { type Errs, FormError, useErrors } from '@/components/AccountParts';
 import { focusFirstInvalid } from '@/components/auth/AuthShell';
 import { fireConfetti } from '@/components/effects';
+import { GOAL_LIMITS, PAID_TIER_PRICE_CENTS } from '@/components/UpgradeBanner';
 import { Button } from '@/components/ui/Button';
 import { Card, Pill } from '@/components/ui/Card';
 import { Field } from '@/components/ui/Field';
@@ -59,6 +60,9 @@ export function PlanCard() {
         <div className="min-w-0">
           <p className="text-xs font-extrabold uppercase tracking-wide text-ink-soft">Your plan</p>
           <p className="font-display font-black text-2xl leading-tight">{paid ? 'Paid tier' : 'Free tier'}</p>
+          <p className="text-sm font-bold text-ink-soft">
+            {paid ? `Up to ${GOAL_LIMITS.paid} goals` : `${GOAL_LIMITS.free} goal. Pay ${formatCents(PAID_TIER_PRICE_CENTS)} to get all ${GOAL_LIMITS.paid}.`}
+          </p>
         </div>
       </div>
       {paid ? (

@@ -1,11 +1,13 @@
 'use client';
-import { useConnection, useMe, useMyGoals } from '@/data';
+import { useBilling, useConnection, useMe, useMyGoals } from '@/data';
 import { AppShell } from '@/components/AppShell';
+import { TierPill } from '@/components/BillingForms';
 import { GoalCard } from '@/components/GoalCard';
 import { Avatar } from '@/components/ui/Avatar';
 import { EmptyState, ListSkeleton } from '@/components/ui/States';
 import { Button } from '@/components/ui/Button';
 import { MoneyText } from '@/components/ui/Money';
+import { GOAL_LIMITS, UpgradeBanner } from '@/components/UpgradeBanner';
 import { usePenaltyTotal } from '@/components/usePenaltyTotal';
 
 function HomeInner() {
@@ -13,9 +15,14 @@ function HomeInner() {
   const goals = useMyGoals();
   const conn = useConnection();
   const paid = usePenaltyTotal();
+  const limit = GOAL_LIMITS[useBilling().tier];
   return (
     <>
-      <h1 className="font-display font-black text-3xl">Hey {me?.name} <Avatar value={me?.avatar} size={32} /></h1>
+      <UpgradeBanner className="mb-4" />
+      <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+        <h1 className="font-display font-black text-3xl">Hey {me?.name} <Avatar value={me?.avatar} size={32} /></h1>
+        <TierPill />
+      </div>
       <div className="grid grid-cols-2 gap-3 my-4">
         <div className="rounded-2xl border-2 border-surface-line p-3 shadow-chunky-sm">
           <p className="text-xs font-extrabold uppercase tracking-wide text-ink-soft">Balance</p>
@@ -28,14 +35,14 @@ function HomeInner() {
       </div>
       <div className="flex items-center justify-between mb-3">
         <h2 className="font-display font-black text-xl">My goals</h2>
-        <span className="text-sm font-extrabold text-ink-faint">{goals.length}/5</span>
+        <span className="text-sm font-extrabold text-ink-faint">{goals.length}/{limit}</span>
       </div>
       {conn.status === 'connecting' ? <ListSkeleton /> : goals.length === 0 ? (
         <EmptyState title="No commitments yet. Scared?" line="Pick something you keep dodging. We will make it hurt to skip." cta="Make a commitment" href="/goals/new" />
       ) : (
         <div className="space-y-3">
           {goals.map((g) => <GoalCard key={g.id} goal={g} />)}
-          {goals.length < 5 && <Button variant="secondary" href="/goals/new">+ New commitment</Button>}
+          {goals.length < limit && <Button variant="secondary" href="/goals/new">+ New commitment</Button>}
         </div>
       )}
     </>

@@ -1,11 +1,13 @@
 'use client';
 import { ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { createGoal, useMyGoals } from '@/data';
+import { createGoal, formatCents, useBilling, useMyGoals } from '@/data';
 import { AppShell } from '@/components/AppShell';
 import { DayChips, EscalationPreview, PenaltyStepper } from '@/components/GoalFormParts';
 import { LocationPicker } from '@/components/LocationPicker';
+import { GOAL_LIMITS, PAID_TIER_PRICE_CENTS } from '@/components/UpgradeBanner';
 import { Button } from '@/components/ui/Button';
 import { Field } from '@/components/ui/Field';
 import { GOAL_ICONS, Icon } from '@/components/ui/Icon';
@@ -30,7 +32,8 @@ function NewGoal() {
   const [base, setBase] = useState(500);
   const [busy, setBusy] = useState(false);
   const [errs, setErrs] = useState<Record<string, string>>({});
-  const full = goals.length >= 5;
+  const { tier } = useBilling();
+  const full = goals.length >= GOAL_LIMITS[tier];
 
   const submit = async () => {
     const [h, m] = time.split(':').map(Number);
@@ -58,7 +61,11 @@ function NewGoal() {
         <button onClick={() => router.back()} aria-label="Back" className="size-11 -ml-2 grid place-items-center"><ArrowLeft strokeWidth={3} /></button>
         <h1 className="font-display font-black text-3xl">New commitment</h1>
       </div>
-      {full && <p role="alert" className="rounded-xl bg-flame-light p-3 font-extrabold text-flame-dark">You already have 5 active goals. That is the max.</p>}
+      {full && (tier === 'free' ? (
+        <p role="alert" className="rounded-xl border-2 border-sun bg-sun-light p-3 font-extrabold">
+          The free tier has {GOAL_LIMITS.free} goal. <Link href="/settings#plan" className="font-black underline decoration-2 underline-offset-2">Upgrade for {formatCents(PAID_TIER_PRICE_CENTS)}</Link> to get all {GOAL_LIMITS.paid}.
+        </p>
+      ) : <p role="alert" className="rounded-xl bg-flame-light p-3 font-extrabold text-flame-dark">You already have {GOAL_LIMITS.paid} active goals. That is the max.</p>)}
 
       <div>
         <p className={label}>What</p>

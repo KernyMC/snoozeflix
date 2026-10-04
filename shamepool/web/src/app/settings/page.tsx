@@ -24,7 +24,7 @@ function Settings() {
       <ProfileCard />
 
       <section aria-labelledby="plan" className="space-y-3">
-        <h2 id="plan" className={h2}>Plan</h2>
+        <h2 id="plan" className={`${h2} scroll-mt-20`}>Plan</h2>
         <PlanCard />
       </section>
 
