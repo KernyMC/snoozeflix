@@ -26,7 +26,7 @@ const hash = (str: string) => [...str].reduce((a, ch) => (a * 31 + ch.charCodeAt
 export function registerUser(c: Ctx, input: { name: string; avatar: string }): Result<User> {
   const bad = validateName(input.name);
   if (bad) return err(bad);
-  const u: User = { id: uid(c.s, 'u'), name: input.name.trim(), avatar: input.avatar || '🙂', squadId: null, balanceCents: 20000 };
+  const u: User = { id: uid(c.s, 'u'), name: input.name.trim(), avatar: input.avatar || '/assets/avatar/01-coin-thief.png', squadId: null, balanceCents: 20000 };
   c.s.users[u.id] = u;
   return ok(u);
 }

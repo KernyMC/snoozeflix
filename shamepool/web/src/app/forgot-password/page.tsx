@@ -1,4 +1,5 @@
 'use client';
+import { ArrowRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
 import {
@@ -113,7 +114,7 @@ export default function ForgotPasswordPage() {
           </>
         )}
         {formErr && <p className="text-sm text-ember-dark font-extrabold text-center" role="alert">{formErr}</p>}
-        <Button type="submit" loading={busy}>{step === 1 ? 'Continue →' : step === 2 ? 'Verify' : 'Reset password'}</Button>
+        <Button type="submit" loading={busy}>{step === 1 ? <>Continue<ArrowRight aria-hidden size={20} strokeWidth={3} /></> : step === 2 ? 'Verify' : 'Reset password'}</Button>
         <div className="border-t-2 border-surface-line" />
         {step === 1 ? (
           <Button variant="secondary" href="/">Back to sign in</Button>

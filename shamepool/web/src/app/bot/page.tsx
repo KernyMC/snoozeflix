@@ -1,12 +1,13 @@
 'use client';
 import { motion } from 'framer-motion';
-import { Send } from 'lucide-react';
+import { Ellipsis, Send } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { askBot, confirmBotAction, useBotThread, useNow } from '@/data';
 import { AppShell } from '@/components/AppShell';
 import { Button } from '@/components/ui/Button';
 import { inputCls } from '@/components/ui/Field';
 import { Flakey } from '@/components/ui/Flakey';
+import { IconText } from '@/components/ui/IconText';
 import { errorText } from '@/components/ui/States';
 import { useToast } from '@/components/ui/Toast';
 
@@ -55,11 +56,11 @@ function Chat() {
           <motion.div key={m.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex gap-2 items-end">
             <Flakey mood="smug" size={44} />
             <div className="max-w-[80%] space-y-2">
-              <div className="rounded-2xl rounded-bl-md bg-grape-light px-4 py-3 font-bold text-grape-dark break-words">{m.text}</div>
+              <div className="rounded-2xl rounded-bl-md bg-grape-light px-4 py-3 font-bold text-grape-dark break-words"><IconText>{m.text}</IconText></div>
               {m.pendingAction && !dismissed.has(m.pendingAction.id) && (
                 <div className="rounded-2xl border-2 border-grape bg-white p-3 space-y-2" role="group" aria-label="Confirm action">
                   <p className="text-xs font-extrabold uppercase tracking-wide text-grape-dark">Confirm action</p>
-                  <p className="font-extrabold">{m.pendingAction.label}</p>
+                  <p className="font-extrabold"><IconText>{m.pendingAction.label}</IconText></p>
                   {now > m.pendingAction.expiresAt ? <p className="text-sm font-bold text-ink-faint">Expired. Ask again.</p> : (
                     <div className="grid grid-cols-2 gap-2">
                       <Button variant="bot" onClick={() => confirm(m.pendingAction!.id)} className="min-h-11 py-2">Confirm</Button>
@@ -74,7 +75,7 @@ function Chat() {
         {typing && (
           <div className="flex gap-2 items-end" role="status" aria-label="Squad Bot is typing">
             <Flakey mood="smug" size={44} />
-            <div className="rounded-2xl rounded-bl-md bg-grape-light px-4 py-3 font-black text-grape-dark tracking-widest animate-pulse">•••</div>
+            <div className="rounded-2xl rounded-bl-md bg-grape-light px-4 py-2.5 text-grape-dark animate-pulse"><Ellipsis aria-hidden size={28} strokeWidth={3} fill="currentColor" /></div>
           </div>
         )}
         <div ref={end} />

@@ -1,6 +1,7 @@
 'use client';
-import { Minus, Plus } from 'lucide-react';
+import { ArrowRight, Minus, Plus } from 'lucide-react';
 import { formatCents, nextPenaltyCents } from '@/data';
+import { InlineIcon } from './ui/IconText';
 import { DAY_LABELS, DAY_NAMES } from './goalStatus';
 
 export function DayChips({ value, onChange }: { value: number[]; onChange: (v: number[]) => void }) {
@@ -40,7 +41,7 @@ export function EscalationPreview({ base, max }: { base: number; max: number }) 
   const rows = [0, 1, 2, 3].map((n) => ({ n, c: nextPenaltyCents({ basePenaltyCents: base, maxPenaltyCents: max, consecutiveFlakes: n }) }));
   return (
     <div className="rounded-2xl bg-ember-light/60 border-2 border-ember/20 p-3">
-      <p className="font-extrabold text-ember-dark mb-2">Miss it twice in a row → {formatCents(rows[1].c)}</p>
+      <p className="font-extrabold text-ember-dark mb-2">Miss it twice in a row <InlineIcon icon={ArrowRight} /> {formatCents(rows[1].c)}</p>
       <div className="grid grid-cols-4 gap-2 text-center">
         {rows.map((r) => (
           <div key={r.n} className="rounded-xl bg-white py-2 border-2 border-surface-line">

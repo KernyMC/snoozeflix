@@ -10,6 +10,7 @@ import { Button } from './ui/Button';
 import { Card, Pill } from './ui/Card';
 import { Flakey } from './ui/Flakey';
 import { Icon, type IconName } from './ui/Icon';
+import { IconText } from './ui/IconText';
 import { CountUpMoney, MoneyText } from './ui/Money';
 import { ProgressBar } from './ui/ProgressBar';
 import { EmptyState, errorText } from './ui/States';
@@ -135,7 +136,7 @@ export function Feed({ limit = 50, big = false, autoScroll = false }: { limit?: 
                 <div className="min-w-0 flex-1">
                   <p className={`font-extrabold break-words ${big ? 'text-2xl' : 'text-[15px]'} ${bot ? 'text-grape-dark' : ''}`}>
                     {bot && <span className="text-xs font-black uppercase tracking-wide mr-1.5 text-grape-dark/70">Squad Bot</span>}
-                    {f.text}
+                    {f.kind === 'message' ? f.text : <IconText>{f.text}</IconText>}
                   </p>
                   <p className={`font-bold text-ink-faint ${big ? 'text-base' : 'text-xs'}`}>{relTime(f.createdAt, now)}</p>
                 </div>
