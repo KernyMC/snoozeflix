@@ -8,6 +8,11 @@ export {
   validateSecurity, passwordStrength, normalizeAnswer,
 } from './authLogic';
 export {
+  BRAND_LABEL, US_STATES, MAX_PAYMENT_METHODS, MAX_ADDRESSES, cardDigits, detectBrand, formatAddress, formatCardNumber, formatExpiry, formatExpiryInput,
+  isExpired, validateAddressLabel, validateAddressName, validateCardName, validateCardNumber, validateCity, validateCvc, validateExpiry,
+  validateNickname, validateState, validateStreet, validateUnit, validateZip,
+} from './billingLogic';
+export {
   buildLeaderboard, formatCents, formatCountdown, formatDeadline, formatDistance, haversineM, isInside, localDate, LIMITS,
   msUntilDeadline, nextPenaltyCents, deadlinePassed, isDueToday, localMinutes, MIN_WITHDRAW_CENTS,
 } from './logic';
@@ -19,6 +24,7 @@ export const useNow = impl.useNow;
 export const useConnection = impl.useConnection;
 export const useMe = impl.useMe;
 export const useAccount = impl.useAccount;
+export const useBilling = impl.useBilling;
 export const useSquad = impl.useSquad;
 export const useSquadMembers = impl.useSquadMembers;
 export const useMyGoals = impl.useMyGoals;
@@ -48,6 +54,11 @@ export const updateAccountName = impl.updateAccountName;
 export const changeEmail = impl.changeEmail;
 export const changePassword = impl.changePassword;
 export const updateSecurity = impl.updateSecurity;
+export const setPlanTier = impl.setPlanTier;
+export const addPaymentMethod = impl.addPaymentMethod;
+export const removePaymentMethod = impl.removePaymentMethod;
+export const addAddress = impl.addAddress;
+export const removeAddress = impl.removeAddress;
 export const claimSeedUser = impl.claimSeedUser;
 export const listSeedUsers = impl.listSeedUsers;
 export const createSquad = impl.createSquad;

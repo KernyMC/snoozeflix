@@ -1,5 +1,5 @@
 import type {
-  Account, BotThreadMessage, CashoutProposal, Checkin, DemoFlags, ErrorCode, FeedEvent, Goal, PendingAction, Penalty, Result, Squad, User, Withdrawal,
+  Account, Billing, BotThreadMessage, CashoutProposal, Checkin, DemoFlags, ErrorCode, FeedEvent, Goal, PendingAction, Penalty, Result, Squad, User, Withdrawal,
 } from '../types';
 
 export const MOCK_VERSION = 3;
@@ -18,6 +18,8 @@ export interface MockState {
   feed: FeedEvent[]; // newest first
   cashouts: Record<string, CashoutProposal>;
   withdrawals: Record<string, Withdrawal>;
+  /** Plan, cards and addresses by user id. Optional because states saved before it existed do not have it. */
+  billing?: Record<string, Billing>;
   botThreads: Record<string, BotThreadMessage[]>;
   pendingActions: Record<string, PendingAction & { userId: string }>;
   milestones: Record<string, true>;

@@ -120,6 +120,19 @@ changeEmail(newEmail, currentPassword): Result<AccountInfo>            // invali
 changePassword(current, next, confirm): Result<true>                   // weak_password | password_mismatch | same_password | wrong_password | auth_locked
 updateSecurity(currentPassword, [{ qId, answer }] x3): Result<AccountInfo> // invalid_security | wrong_password | auth_locked
 // all five: no_user (signed out) | no_account (profile without a login). 5 wrong current passwords lock confirmation for 30 s.
+// plan, payment methods, addresses (signed-in user; every action: no_user when signed out)
+useBilling(): Billing               // { tier: 'free' | 'paid', payments: PaymentMethod[], addresses: Address[] }
+setPlanTier(tier): Result<PlanTier>                       // same_tier | invalid_tier | payment_required (paid needs a card that has not expired)
+addPaymentMethod({ nickname, nameOnCard, cardNumber, expiry, cvc, addressId }): Result<PaymentMethod>
+                                                          // invalid_card_name | invalid_card_number | unsupported_card | invalid_expiry | card_expired
+                                                          // | invalid_cvc | invalid_nickname | address_not_found | too_many_payments (5) | duplicate_card
+removePaymentMethod(id): Result<true>                     // payment_not_found | payment_in_use (last working card while on paid)
+addAddress({ label, fullName, line1, line2, city, state, zip }): Result<Address>
+                                                          // invalid_label | invalid_address_name | invalid_street | invalid_unit | invalid_city
+                                                          // | invalid_state | invalid_zip | too_many_addresses (5)
+removeAddress(id): Result<true>                           // address_not_found; cards billed to it keep working with addressId = null
+// PaymentMethod keeps brand, last4 and expiry only. Mock: number and CVC are validated then dropped. Phase B: the card form must post
+// to the payment processor and the backend stores its token; raw card data never reaches our server.
 // wallet
 useWallet(): Wallet | null          // balance, stake (locked), available, pending, stake breakdown
 useWithdrawals(): Withdrawal[]

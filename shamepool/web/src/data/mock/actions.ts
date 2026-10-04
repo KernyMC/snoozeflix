@@ -1,8 +1,9 @@
 import type {
-  AccountInfo, RegisterInput, BotReply, CashoutProposal, Checkin, DemoFlags, FeedEvent, Goal, GoalInput, PhotoVerdict, Penalty, Pos, Result, Squad, User, Withdrawal,
+  AccountInfo, Address, AddressInput, PaymentMethod, PaymentMethodInput, PlanTier, RegisterInput, BotReply, CashoutProposal, Checkin, DemoFlags, FeedEvent, Goal, GoalInput, PhotoVerdict, Penalty, Pos, Result, Squad, User, Withdrawal,
 } from '../types';
 import * as E from './engine';
 import * as A from './authEngine';
+import * as B from './billingEngine';
 import { err } from './state';
 import { commit, resetAll, setIdentity, useMockStore } from './store';
 
@@ -101,6 +102,13 @@ export const setPoolGoal = (name: string, cents: number): Promise<Result<Squad>>
 /* wallet */
 export const requestWithdrawal = (cents: number): Promise<Result<Withdrawal>> => run((c) => E.requestWithdrawal(c, cents));
 export const cancelWithdrawal = (id: string): Promise<Result<Withdrawal>> => run((c) => E.cancelWithdrawal(c, id));
+
+/* plan, payment methods, addresses */
+export const setPlanTier = (tier: PlanTier): Promise<Result<PlanTier>> => run((c) => B.setPlanTier(c, tier));
+export const addPaymentMethod = (i: PaymentMethodInput): Promise<Result<PaymentMethod>> => run((c) => B.addPaymentMethod(c, i));
+export const removePaymentMethod = (id: string): Promise<Result<true>> => run((c) => B.removePaymentMethod(c, id));
+export const addAddress = (i: AddressInput): Promise<Result<Address>> => run((c) => B.addAddress(c, i));
+export const removeAddress = (id: string): Promise<Result<true>> => run((c) => B.removeAddress(c, id));
 
 /* demo */
 export async function resetDemoData(): Promise<Result<true>> {

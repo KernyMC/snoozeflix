@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // Phase B: implement the same hooks/actions with SpacetimeDB + server routes.
 // Until then every export throws so a mis-set NEXT_PUBLIC_DATA_MODE fails loudly.
-import type { AccountInfo, RegisterInput, BotReply, BotThreadMessage, CashoutProposal, Checkin, DemoFlags, FeedEvent, Goal, GoalInput, LeaderboardRow, PhotoVerdict, Penalty, Pos, Result, Squad, User, Cents, Wallet, Withdrawal } from '../types';
+import type { AccountInfo, Address, AddressInput, Billing, PaymentMethod, PaymentMethodInput, PlanTier, RegisterInput, BotReply, BotThreadMessage, CashoutProposal, Checkin, DemoFlags, FeedEvent, Goal, GoalInput, LeaderboardRow, PhotoVerdict, Penalty, Pos, Result, Squad, User, Cents, Wallet, Withdrawal } from '../types';
 
 const nope = (): never => { throw new Error('Live mode is not connected yet (Phase B).'); };
 const rej = <T>(): Promise<Result<T>> => Promise.reject(new Error('Live mode is not connected yet (Phase B).'));
@@ -60,3 +60,9 @@ export const updateAccountName = (_i: { firstName: string; lastName: string }): 
 export const changeEmail = (_e: string, _p: string): Promise<Result<AccountInfo>> => rej();
 export const changePassword = (_c: string, _n: string, _k: string): Promise<Result<true>> => rej();
 export const updateSecurity = (_p: string, _i: { qId: string; answer: string }[]): Promise<Result<AccountInfo>> => rej();
+export const useBilling = (): Billing => nope();
+export const setPlanTier = (_t: PlanTier): Promise<Result<PlanTier>> => rej();
+export const addPaymentMethod = (_i: PaymentMethodInput): Promise<Result<PaymentMethod>> => rej();
+export const removePaymentMethod = (_id: string): Promise<Result<true>> => rej();
+export const addAddress = (_i: AddressInput): Promise<Result<Address>> => rej();
+export const removeAddress = (_id: string): Promise<Result<true>> => rej();
