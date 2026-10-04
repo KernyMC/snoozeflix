@@ -35,7 +35,7 @@ export function VoiceMic({ onTranscript, disabled }: { onTranscript: (text: stri
   if (!supported) return null;
 
   const begin = async () => {
-    stopSpeaking(); // don't record Flakey talking
+    stopSpeaking(); // don't record Benny the Penny talking
     try {
       const r = await startRecording(MAX_MS);
       rec.current = r;
@@ -64,7 +64,7 @@ export function VoiceMic({ onTranscript, disabled }: { onTranscript: (text: stri
 
   return (
     <button type="button" onClick={click} disabled={disabled || phase === 'transcribing'} aria-pressed={phase === 'listening'}
-      aria-label={phase === 'listening' ? 'Stop and send' : 'Talk to Flakey'}
+      aria-label={phase === 'listening' ? 'Stop and send' : 'Talk to Benny the Penny'}
       className={`relative shrink-0 size-12 rounded-2xl grid place-items-center text-white shadow-chunky active:translate-y-1 active:shadow-none disabled:opacity-60 ${
         phase === 'listening' ? 'bg-ember [--edge:var(--color-ember-dark)]' : 'bg-primary [--edge:var(--color-primary-dark)]'}`}>
       {phase === 'listening' && <span className="absolute inset-0 rounded-2xl bg-ember/40 animate-ping" aria-hidden />}

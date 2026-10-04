@@ -7,7 +7,7 @@ Live demo: https://shamepool.vercel.app (demo accounts: `kevin`, `ana`, `leo`, `
 ## What makes it different
 - **Behavioral finance, not gambling.** Penalties escalate (x2 per flake in a row, capped), fund a shared pool, and can never be paid out as cash or refunded to the flaker. Members can withdraw only their own balance minus a **locked stake** (the worst case of the next 3 days) after a cooling period, so nobody can flake-and-run. See `specs/001-shamepool/withdrawals.md`.
 - **Real AI doing real work (Grok / xAI):** the Squad Bot answers any question with the squad's real data and proposes penalty changes that the engine validates and the user confirms; vision verifies check-in photos (a couch is rejected with a roast); a coach turns one sentence into a full commitment. Replies are always English.
-- **Voice (ElevenLabs):** talk to Flakey and hear it answer, sound effects, deadline reminders and notifications.
+- **Voice (ElevenLabs):** talk to Benny the Penny and hear it answer, sound effects, deadline reminders and notifications.
 - **Charity rule:** a full pool nobody spends within 7 days (3 minutes in demo mode) is donated automatically. See `specs/001-shamepool/charity.md`.
 - **Same agent on iMessage (Photon Spectrum):** the Squad Bot brain is reachable by text. See `photon/` notes below.
 

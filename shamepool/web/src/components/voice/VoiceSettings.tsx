@@ -36,19 +36,19 @@ export function VoiceSettings() {
     if (!on) return setPrefs({ notify: false });
     const p = await enableNotifications();
     setPerm(p);
-    if (p === 'granted') { setPrefs({ notify: true }); void notify('Notifications on', 'Flakey will nudge you before deadlines.', 'welcome'); }
+    if (p === 'granted') { setPrefs({ notify: true }); void notify('Notifications on', 'Benny the Penny will nudge you before deadlines.', 'welcome'); }
     else toast(p === 'unsupported' ? 'This browser has no notifications.' : 'Notifications are blocked. Allow them in your browser settings.', 'error');
   };
 
   return (
     <Card className="space-y-2" aria-label="Voice and notifications">
       <h2 className="font-display font-black text-lg">Voice and notifications</h2>
-      <Switch checked={prefs.voice} onChange={toggleVoice} label="Flakey speaks" hint="Squad Bot roasts and hype are read out loud." />
+      <Switch checked={prefs.voice} onChange={toggleVoice} label="Benny the Penny speaks" hint="Squad Bot roasts and hype are read out loud." />
       <Switch checked={prefs.sfx} onChange={(v) => { setPrefs({ sfx: v }); if (v) playSfx('success'); }} label="Sound effects" hint="Trombone when you flake, fanfare when you nail it, ka-ching for money." />
       <Switch checked={prefs.notify && perm === 'granted'} onChange={toggleNotify} label="Notifications" hint="Deadline reminders and squad activity while the app is open." />
       <div className="grid grid-cols-2 gap-3 pt-1">
         <Button variant="secondary" className="min-h-11 py-2" onClick={() => speak('Kevin flaked on the gym. The pool says thanks.')}>Test voice</Button>
-        <Button variant="secondary" className="min-h-11 py-2" disabled={perm !== 'granted'} onClick={() => notify('Deadline soon', 'Gym closes in 25 minutes. Flakey is sweating.', 'test')}>Test alert</Button>
+        <Button variant="secondary" className="min-h-11 py-2" disabled={perm !== 'granted'} onClick={() => notify('Deadline soon', 'Gym closes in 25 minutes. Benny the Penny is sweating.', 'test')}>Test alert</Button>
       </div>
     </Card>
   );

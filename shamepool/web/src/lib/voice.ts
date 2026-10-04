@@ -70,7 +70,7 @@ async function fetchUrl(text: string): Promise<string | null> {
   }
 }
 
-/** Speaks `raw` with Flakey's voice. Resolves when playback ends. Only one voice plays at a time. */
+/** Speaks `raw` with Benny the Penny's voice. Resolves when playback ends. Only one voice plays at a time. */
 export async function speak(raw: string): Promise<SpeakResult> {
   const text = sanitizeSpeech(raw);
   if (!text) return 'empty';

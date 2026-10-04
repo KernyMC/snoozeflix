@@ -68,12 +68,12 @@ export function Projector() {
   );
 }
 
-/** Browsers block autoplay: one tap on the big screen unlocks Flakey's voice for the room. */
+/** Browsers block autoplay: one tap on the big screen unlocks Benny the Penny's voice for the room. */
 function SoundToggle() {
   const prefs = usePrefs();
   return (
     <button type="button" aria-pressed={prefs.voice}
-      onClick={() => { const on = !prefs.voice; setPrefs({ voice: on }); if (on) void speak("Sound is on. Flakey is watching you."); }}
+      onClick={() => { const on = !prefs.voice; setPrefs({ voice: on }); if (on) void speak("Sound is on. Benny the Penny is watching you."); }}
       className="fixed bottom-4 right-4 z-50 rounded-full bg-primary text-white px-5 py-3 font-display font-extrabold shadow-chunky [--edge:var(--color-primary-dark)] active:translate-y-1 active:shadow-none">
       {prefs.voice ? 'Sound on' : 'Enable sound'}
     </button>

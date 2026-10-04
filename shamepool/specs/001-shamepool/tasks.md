@@ -20,7 +20,7 @@ After every phase: `npm run build` + `npm test` pass.
 - [x] T011b mock tests (idempotency, balance floor, invariants)
 
 ## A3 — Shell & design system
-- [x] T012 AppShell, ProjectorShell, Button, Card, Chip, ProgressBar, Flakey
+- [x] T012 AppShell, ProjectorShell, Button, Card, Chip, ProgressBar, Benny the Penny
 - [x] T013 MoneyText, CountUp, Toast, Skeleton, Empty/Error, OfflineBanner
 - [x] T014 DemoPanel
 

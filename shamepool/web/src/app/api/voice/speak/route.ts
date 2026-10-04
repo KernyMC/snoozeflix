@@ -6,7 +6,7 @@ import { guardRequest } from '@/lib/server/limits';
 // Server-only: the ElevenLabs key never reaches the browser.
 export const runtime = 'nodejs';
 
-const DEFAULT_VOICE = 'EXAVITQu4vr4xnSDxMaL';
+const DEFAULT_VOICE = 'DtQLDxHbTiQTpVVanTy1';
 const MODEL = 'eleven_flash_v2_5';
 const CACHE_MAX = 60;
 const RATE_PER_MIN = 20;

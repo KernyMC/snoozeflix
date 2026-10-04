@@ -1,13 +1,13 @@
 # UI Spec: ShamePool
 
 ## Design direction
-**Use the `playful-gamified-ui` skill** (`.claude/skills/playful-gamified-ui/SKILL.md`). It is authoritative for tokens, theme (LIGHT), fonts (Nunito), buttons, cards, mascot (Flakey), motion and copy. The old dark theme is dropped. Routes, components and states below still apply.
+**Use the `playful-gamified-ui` skill** (`.claude/skills/playful-gamified-ui/SKILL.md`). It is authoritative for tokens, theme (LIGHT), fonts (Nunito), buttons, cards, mascot (Benny the Penny), motion and copy. The old dark theme is dropped. Routes, components and states below still apply.
 
 ## Routes & screens
 
 | Route | Screen | Key content |
 |---|---|---|
-| `/` | Welcome | Wordmark, Flakey, tagline "Flake on your goals. Pay your friends.", buttons: Get started / I have an invite code. Demo: "Who are you?" seeded user picker |
+| `/` | Welcome | Wordmark, Benny the Penny, tagline "Flake on your goals. Pay your friends.", buttons: Get started / I have an invite code. Demo: "Who are you?" seeded user picker |
 | `/onboarding` | Profile + squad | Step 1 name + emoji. Step 2 create squad or join (code). Step 3 invite code card Copy/Share |
 | `/home` | My goals | Greeting, balance, total paid (red), `GoalCard`s, empty state |
 | `/goals/new` | Create goal | Title, `LocationPicker`, radius, day chips, deadline, min stay, penalty stepper, escalation preview |
@@ -17,11 +17,11 @@
 | `/squad?tv=1` | Projector | 3 columns, no nav, QR to join |
 | `/bot` | Squad Bot chat | Chat, suggestion chips, confirmation cards |
 | `/settings` | My profile | Profile card + avatar, account (name, email, password, security questions), squad, wallet link, sign out, demo reset |
-| `*` | 404 | Flakey sleepy + "Nothing here" |
+| `*` | 404 | Benny the Penny sleepy + "Nothing here" |
 
 ## Components
 - `AppShell`, `ProjectorShell`, `Button`, `Card`, `Chip`, `ProgressBar`
-- `Flakey` (mascot, 6 moods), `MoneyText`, `CountUp`, `Toast`, `Skeleton`, `EmptyState`, `ErrorState`, `OfflineBanner`
+- `Benny the Penny` (mascot, 6 moods), `MoneyText`, `CountUp`, `Toast`, `Skeleton`, `EmptyState`, `ErrorState`, `OfflineBanner`
 - `GoalCard`, `LocationPicker`, `DayChips`, `PenaltyStepper`, `EscalationPreview`
 - `CheckinFlow`, `StayTimerRing`, `PhotoCapture`, `VerdictCard`, `ResultSheet`
 - `PoolCard`, `Leaderboard`, `Feed`, `MessageBox`, `BotChat`, `ActionConfirmCard`
@@ -29,7 +29,7 @@
 - `DemoPanel` (only when `NEXT_PUBLIC_DEMO=true`)
 
 ## Required states for every data screen
-Loading (skeletons), empty (Flakey sleepy + CTA), error (retry), live update (animated). Mock supports `?mockError=1`, `?mockSlow=1`.
+Loading (skeletons), empty (Benny the Penny sleepy + CTA), error (retry), live update (animated). Mock supports `?mockError=1`, `?mockSlow=1`.
 
 ## Accessibility
 Tap targets ≥ 44 px; color never the only signal; `prefers-reduced-motion`; labels on all inputs; focus rings; `aria-live="polite"` on feed + toasts.

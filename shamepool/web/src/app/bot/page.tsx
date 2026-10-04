@@ -28,7 +28,7 @@ function Chat() {
   const end = useRef<HTMLDivElement>(null);
   useEffect(() => { end.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }); }, [thread.length, typing]);
 
-  /** `spoken` = the question came from the microphone, so Flakey answers out loud. */
+  /** `spoken` = the question came from the microphone, so Benny the Penny answers out loud. */
   const send = async (t: string, spoken = false) => {
     const msg = t.trim();
     if (!msg || typing) return;

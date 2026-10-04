@@ -1,7 +1,7 @@
 # Login, Register & Forgot Password (ShamePool, mock backend)
 
 ## Context
-ShamePool (`shamepool/web`, Next.js 15 App Router, Tailwind v4, mock data layer) has no auth. Identity is just a `userId` in `sessionStorage`. The user wants mobile-first login, registration and forgot-password pages, with all front-end validation, as the first screen. Backend comes later, so everything goes through the existing mock data facade. Style follows ShamePool (indigo/cream, Nunito, chunky buttons), with Benny (`Flakey` component) and the existing copy voice. Layout and flow come from the screenshots.
+ShamePool (`shamepool/web`, Next.js 15 App Router, Tailwind v4, mock data layer) has no auth. Identity is just a `userId` in `sessionStorage`. The user wants mobile-first login, registration and forgot-password pages, with all front-end validation, as the first screen. Backend comes later, so everything goes through the existing mock data facade. Style follows ShamePool (indigo/cream, Nunito, chunky buttons), with Benny (`Benny the Penny` component) and the existing copy voice. Layout and flow come from the screenshots.
 
 ## Decisions (confirmed)
 - ShamePool style, not the screenshots' blue/orange.
@@ -19,7 +19,7 @@ Deep Indigo `#24215B` (primary button, headings), Warm Gold `#F6C445` (the "pool
 ## Shared UI
 - `web/src/components/auth/AuthShell.tsx`: shared page wrapper (Benny, heading, subtitle, step slot). Cuts duplication across the 3 pages.
 - `web/src/components/auth/PasswordField.tsx`: wraps `Field` and `inputCls` from `ui/Field.tsx` with a show/hide button (44px target, `aria-label`), plus an optional `PasswordStrength` bar.
-- Reuse `Button` (`full`, `loading`, `href`), `Field`, `Card`, `useToast`, `Flakey`, `Wordmark` as they are. Mobile details: `inputMode`, `autoComplete` (`username`, `current-password`, `new-password`, `email`), `enterKeyHint`, 16px+ input text to avoid iOS zoom, `pb-[env(safe-area-inset-bottom)]`.
+- Reuse `Button` (`full`, `loading`, `href`), `Field`, `Card`, `useToast`, `Benny the Penny`, `Wordmark` as they are. Mobile details: `inputMode`, `autoComplete` (`username`, `current-password`, `new-password`, `email`), `enterKeyHint`, 16px+ input text to avoid iOS zoom, `pb-[env(safe-area-inset-bottom)]`.
 
 ## Validation (pure, testable)
 `web/src/data/authLogic.ts`, following the `validateName` pattern in `data/logic.ts`. Each function returns `ErrorCode | null`.

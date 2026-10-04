@@ -23,7 +23,7 @@ import { DEMO_ENABLED } from '@/lib/demo';
 type Step = 'locating' | 'too_far' | 'geo_error' | 'blocked' | 'stay' | 'photo' | 'verifying' | 'success' | 'rejected' | 'failed';
 const SEGMENTS = ['Locate', 'Stay', 'Photo', 'Verify'];
 const segIndex = (s: Step) => ({ locating: 0, too_far: 0, geo_error: 0, blocked: 0, stay: 1, photo: 2, verifying: 3, success: 3, rejected: 3, failed: 1 }[s]);
-const LOADING_LINES = ['Asking the AI nicely…', 'Squinting at your photo…', 'Checking for couches…', 'Consulting Flakey…', 'Counting your abs (kidding)…'];
+const LOADING_LINES = ['Asking the AI nicely…', 'Squinting at your photo…', 'Checking for couches…', 'Consulting Benny the Penny…', 'Counting your abs (kidding)…'];
 const DEMO = DEMO_ENABLED;
 
 function getPos(): Promise<Pos> {

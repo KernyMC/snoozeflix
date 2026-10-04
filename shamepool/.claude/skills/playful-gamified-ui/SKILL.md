@@ -16,7 +16,7 @@ This skill **overrides the dark theme** in `ui-spec.md`: the app is **light by d
 ## 1. Brand
 
 - **Name/wordmark:** "shamepool" in lowercase, Nunito 900: "shame" in `ink`, "pool" in `sun-dark`. Never stylize it like another brand's wordmark.
-- **Mascot: "Flakey"** — a chubby, round snowflake/ice-cube character with big eyes. Drawn as simple inline SVG (circles + rounded hexagon arms), flat colors `sky-400`/white, 2–3 px `ink` outline.
+- **Mascot: "Benny the Penny"** — a chubby, round snowflake/ice-cube character with big eyes. Drawn as simple inline SVG (circles + rounded hexagon arms), flat colors `sky-400`/white, 2–3 px `ink` outline.
   Moods (one SVG with variant props):
   - `happy` (default, smiling, slight bob animation)
   - `cheer` (arms up, sparkles) → successful check-in, streak milestone
@@ -139,7 +139,7 @@ Light background `surface-muted`, three big white cards (Pool / Leaderboard / Fe
 | Photo rejected | Gemini roast, e.g. "That's a couch. Bold strategy." |
 | Too far | "You're 1.2 km away. Nice try." |
 | Flake | "-$10. The pool thanks you for your service." |
-| Deadline soon | "2 hours left. Flakey is sweating." |
+| Deadline soon | "2 hours left. Benny the Penny is sweating." |
 | Pool milestone | "Halfway to Pizza night! 🍕" |
 | Empty goals | "No commitments yet. Scared?" |
 

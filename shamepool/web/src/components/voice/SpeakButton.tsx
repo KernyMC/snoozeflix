@@ -22,7 +22,7 @@ export function SpeakButton({ text, className = '' }: { text: string; className?
     const r = await p;
     clearTimeout(timer);
     setLoading(false);
-    if (r === 'failed') toast('Flakey lost their voice. Try again.', 'error');
+    if (r === 'failed') toast('Benny the Penny lost their voice. Try again.', 'error');
     if (r === 'blocked') toast('Your browser blocked the sound. Tap again.', 'error');
   };
 

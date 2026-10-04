@@ -87,7 +87,7 @@ export const ERROR_COPY: Record<string, string> = {
   same_password: 'Pick a password you are not already using.',
   invalid_avatar: 'Pick an avatar.',
   goal_locked: 'The pool goal is locked while the cash-out clock runs. Spend or donate the pool first.',
-  ai_unavailable: 'Flakey\u2019s eyes are tired. Try the photo again in a moment.',
+  ai_unavailable: 'Benny the Penny\u2019s eyes are tired. Try the photo again in a moment.',
   below_minimum: 'Minimum withdrawal is $5.',
   insufficient_available: 'That is more than you can withdraw right now.',
   withdrawal_pending: 'You already have a withdrawal in progress.',

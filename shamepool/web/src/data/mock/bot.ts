@@ -6,14 +6,14 @@ import { squadMembers } from './state';
 
 const ROASTS = [
   'The pool says thanks.',
-  'Flakey is melting. Again.',
+  'Benny the Penny is melting. Again.',
   'Bold strategy, skipping it.',
   'Your couch sends its regards.',
   'Receipts do not lie.',
   'Promises are free. Flaking is not.',
 ];
 const HYPE: Record<number, string> = {
-  3: '3 in a row! Flakey is doing a little dance 🔥',
+  3: '3 in a row! Benny the Penny is doing a little dance 🔥',
   5: '5 in a row! Someone is on fire 🔥🔥',
   10: '10 in a row! Legend behavior 🏆',
 };
@@ -24,7 +24,7 @@ export const roastLine = (n: number) => pick(ROASTS, n);
 export const brokeLine = (n: number) => pick(BROKE, n);
 export const hypeLine = (streak: number): string | null => HYPE[streak] ?? null;
 export const photoRoast = (n: number) =>
-  pick(["That's a couch. Bold strategy.", 'Nice try. That is not the gym.', 'I see a selfie, not a squat rack.', 'Flakey is not fooled.'], n);
+  pick(["That's a couch. Bold strategy.", 'Nice try. That is not the gym.', 'I see a selfie, not a squat rack.', 'Benny the Penny is not fooled.'], n);
 
 export interface BotAnswer { text: string; action?: { label: string; args: { goalId: string; baseCents: number } } }
 

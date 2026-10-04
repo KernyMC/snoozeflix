@@ -21,7 +21,7 @@ function Reminder({ goal }: { goal: Goal }) {
     const key = `shamepool-remind:${goal.id}:${today}`;
     try { if (localStorage.getItem(key)) return; localStorage.setItem(key, '1'); } catch { /* no storage: may repeat */ }
     const mins = Math.max(1, Math.ceil(msLeft / 60_000));
-    const line = `${goal.title} closes in ${mins} ${mins === 1 ? 'minute' : 'minutes'}. Flakey is sweating.`;
+    const line = `${goal.title} closes in ${mins} ${mins === 1 ? 'minute' : 'minutes'}. Benny the Penny is sweating.`;
     playSfx('nudge');
     if (prefs.notify) void notify('Deadline soon', line, key);
     if (prefs.voice) void speak(line);

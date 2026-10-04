@@ -133,4 +133,4 @@ See `withdrawals.md` (W1–W13 and auth validation). Same rules in mock and live
 | U10 | Very long names/titles | Truncate with ellipsis, never break layout at 375 px |
 | U11 | Leaflet SSR | Dynamic import `ssr:false` |
 | U12 | HTTPS missing on phone | Geolocation fails → message "Open the https link" |
-| U13 | Unknown route / unknown goal id | Friendly 404 with Flakey |
+| U13 | Unknown route / unknown goal id | Friendly 404 with Benny the Penny |
