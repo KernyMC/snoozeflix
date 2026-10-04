@@ -81,6 +81,18 @@ export const removeAddress = spacetimedb.procedure({ id: t.string() }, ActionRes
 export const createSquad = spacetimedb.procedure({ name: t.string(), poolGoalName: t.string(), poolGoalCents: t.i32() }, ActionResultT,
   (ctx, a) => act(ctx, (e) => Game.createSquad(e, a)));
 export const joinSquad = spacetimedb.procedure({ code: t.string() }, ActionResultT, (ctx, a) => act(ctx, (e) => Game.joinSquad(e, a.code)));
+export const kickMember = spacetimedb.procedure({ userId: t.string() }, ActionResultT, (ctx, a) => act(ctx, (e) => Game.kickMember(e, a.userId) as Result<unknown>));
+/** Data fix: pauses goals beyond each user's plan limit (free = 1). Idempotent and rule-derived, so anyone may run it. */
+export const enforceGoalLimits = spacetimedb.reducer((ctx) => {
+  let n = 0;
+  for (const u of [...ctx.db.user.iter()]) n += Game.enforceGoalLimit(ctx, u.id);
+  if (n) console.info(`enforce_goal_limits: paused ${n} goals`);
+});
+/** Fills squad_owner for squads created before it existed. Idempotent and derived only from data, so anyone may run it. */
+export const backfillSquadOwners = spacetimedb.reducer((ctx) => {
+  const n = Game.backfillOwners(ctx);
+  if (n) console.info(`backfill_squad_owners: ${n} squads`);
+});
 export const createGoal = spacetimedb.procedure(
   {
     title: t.string(), emoji: t.string(), lat: t.f64(), lng: t.f64(), radiusM: t.f64(), daysOfWeek: t.array(t.u8()), deadlineMinutes: t.i32(),
@@ -97,10 +109,21 @@ export const pingCheckin = spacetimedb.procedure({ checkinId: t.string(), lat: t
 export const finishCheckin = spacetimedb.procedure({ checkinId: t.string(), photoLen: t.f64(), photoFingerprint: t.string() }, ActionResultT,
   (ctx, a) => act(ctx, (e) => Game.finishCheckin(e, a.checkinId, a.photoLen) as Result<unknown>));
 
+/** Same as finishCheckin, plus the AI verdict from /api/ai/verify-photo. aiMode: 'verdict' | 'unavailable' | 'none'. */
+const AiVerdictT = t.object('AiVerdict', { verified: t.bool(), confidence: t.f64(), reason: t.string(), roast: t.string() });
+export const finishCheckinAi = spacetimedb.procedure(
+  { checkinId: t.string(), photoLen: t.f64(), photoFingerprint: t.string(), aiMode: t.string(), verdict: AiVerdictT }, ActionResultT,
+  (ctx, a) => act(ctx, (e) => Game.finishCheckin(e, a.checkinId, a.photoLen,
+    a.aiMode === 'verdict' ? { ...a.verdict, roast: a.verdict.roast || null } : a.aiMode === 'unavailable' ? null : undefined) as Result<unknown>));
+
 /* ---------- penalties, feed, bot ---------- */
 export const forceFlake = spacetimedb.procedure({ goalId: t.string() }, ActionResultT, (ctx, a) => act(ctx, (e) => Game.forceFlake(e, a.goalId) as Result<unknown>));
 export const postMessage = spacetimedb.procedure({ text: t.string() }, ActionResultT, (ctx, a) => act(ctx, (e) => Game.postMessage(e, a.text) as Result<unknown>));
 export const askBot = spacetimedb.procedure({ text: t.string() }, ActionResultT, (ctx, a) => act(ctx, (e) => Bot.askBot(e, a.text) as Result<unknown>));
+/** Squad Bot answer written by the AI route. hasAction=false means a plain answer; the module still validates any action. */
+export const askBotAi = spacetimedb.procedure(
+  { text: t.string(), aiText: t.string(), hasAction: t.bool(), goalTitle: t.string(), dollars: t.f64() }, ActionResultT,
+  (ctx, a) => act(ctx, (e) => Bot.askBot(e, a.text, { text: a.aiText, action: a.hasAction ? { goalTitle: a.goalTitle, dollars: a.dollars } : null }) as Result<unknown>));
 export const confirmBotAction = spacetimedb.procedure({ actionId: t.string() }, ActionResultT,
   (ctx, a) => act(ctx, (e) => Bot.confirmBotAction(e, a.actionId) as Result<unknown>));
 

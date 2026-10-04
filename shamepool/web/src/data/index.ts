@@ -17,7 +17,7 @@ export {
 export { encodeSnapshot, decodeSnapshot } from './inviteSnapshot';
 export {
   buildLeaderboard, formatCents, formatCountdown, formatDeadline, formatDistance, haversineM, isInside, localDate, LIMITS,
-  msUntilDeadline, nextPenaltyCents, deadlinePassed, isDueToday, localMinutes, MIN_WITHDRAW_CENTS,
+  msUntilDeadline, nextPenaltyCents, deadlinePassed, isDueToday, localMinutes, MIN_WITHDRAW_CENTS, GOAL_LIMITS,
 } from './logic';
 
 const impl = process.env.NEXT_PUBLIC_DATA_MODE === 'live' ? live : mock;
@@ -71,6 +71,7 @@ export const claimSeedUser = impl.claimSeedUser;
 export const listSeedUsers = impl.listSeedUsers;
 export const createSquad = impl.createSquad;
 export const joinSquad = impl.joinSquad;
+export const kickMember = impl.kickMember;
 export const createGoal = impl.createGoal;
 export const updateGoalPenalty = impl.updateGoalPenalty;
 export const startCheckin = impl.startCheckin;

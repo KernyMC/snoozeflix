@@ -25,6 +25,7 @@ export interface Squad {
   timezone: string; relayLinked: boolean;
   charityId: string; // where a full pool goes if nobody spends it in time
   poolFullAt: number | null; // when the pool first reached its goal (starts the cash-out clock)
+  ownerUserId?: string | null; // who started the squad: the only one who can remove members (null = unknown)
 }
 
 export interface Goal {
@@ -105,6 +106,7 @@ export type ErrorCode =
   | 'duplicate_card' | 'too_many_payments' | 'payment_not_found' | 'payment_in_use' | 'payment_required' | 'invalid_tier' | 'same_tier'
   | 'invalid_label' | 'invalid_address_name' | 'invalid_street' | 'invalid_unit' | 'invalid_city' | 'invalid_state' | 'invalid_zip'
   | 'too_many_addresses' | 'address_not_found'
+  | 'not_owner' | 'cannot_kick_self' | 'member_not_found' | 'kicked_from_squad' | 'upgrade_required'
   | 'offline' | 'mock_error' | 'not_available' | 'unknown';
 
 export interface SecurityAnswer { qId: string; answerHash: number }

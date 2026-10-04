@@ -76,6 +76,7 @@ export async function listSeedUsers(): Promise<Result<User[]>> {
 }
 export const createSquad = (i: { name: string; poolGoalName: string; poolGoalCents: number }): Promise<Result<Squad>> => run((c) => E.createSquad(c, i));
 export const joinSquad = (code: string, invite?: InviteSnapshot | null): Promise<Result<Squad>> => run((c) => E.joinSquad(c, code, invite));
+export const kickMember = (userId: string): Promise<Result<true>> => run((c) => E.kickMember(c, userId));
 
 /* goals */
 export const createGoal = (i: GoalInput): Promise<Result<Goal>> => run((c) => E.createGoal(c, i));

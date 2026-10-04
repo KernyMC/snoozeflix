@@ -22,6 +22,8 @@ function wipe(c: Ctx): void {
   for (const r of [...c.db.feedEvent.iter()]) c.db.feedEvent.id.delete(r.id);
   for (const r of [...c.db.user.iter()]) c.db.user.id.delete(r.id);
   for (const r of [...c.db.squad.iter()]) c.db.squad.id.delete(r.id);
+  for (const r of [...c.db.squadOwner.iter()]) c.db.squadOwner.squadId.delete(r.squadId);
+  for (const r of [...c.db.squadBan.iter()]) c.db.squadBan.key.delete(r.key);
   for (const r of [...c.db.billingPlan.iter()]) c.db.billingPlan.userId.delete(r.userId);
   for (const r of [...c.db.address.iter()]) c.db.address.id.delete(r.id);
   for (const r of [...c.db.paymentMethod.iter()]) c.db.paymentMethod.id.delete(r.id);
@@ -47,6 +49,7 @@ export function seedDemo(c: Ctx, keepDemoMode = true): void {
     id: squadId, name: 'MHacks Crew', inviteCode: normalizeInviteCode('PIZZA6'), poolGoalName: 'Pizza night', poolGoalCents: 6000, poolBalanceCents: 0,
     timezone: tz, relayLinked: false,
   });
+  c.db.squadOwner.insert({ squadId, userId: 'seed_kevin' });
   enqueue(c, 'nessie_create_pool', `pool:${squadId}`, { squadId, squadName: 'MHacks Crew' });
 
   const people: [string, string, string][] = [
@@ -74,7 +77,6 @@ export function seedDemo(c: Ctx, keepDemoMode = true): void {
   // [owner, title, icon key (stored in `emoji`), lat, lng, days, deadlineMin, penalty, skipIdx[]]
   const defs: [string, string, string, number, number, number[], number, number, number[]][] = [
     ['kevin', 'Gym', 'goal-gym', 42.2762, -83.7357, [1, 2, 3, 4, 5], 18 * 60, 500, [1, 3]],
-    ['kevin', 'Study at the library', 'goal-book', 42.2768, -83.7382, [0, 1, 2, 3, 4], 21 * 60, 500, [2]],
     ['ana', 'Morning run', 'goal-run', 42.278, -83.7382, [1, 2, 3, 4, 5, 6], 9 * 60, 500, []],
     ['leo', 'Practice guitar', 'goal-guitar', 42.275, -83.7415, [1, 3, 5], 20 * 60, 500, [0]],
     ['maya', 'Yoga', 'goal-yoga', 42.2762, -83.7357, [2, 4, 6], 19 * 60, 500, []],

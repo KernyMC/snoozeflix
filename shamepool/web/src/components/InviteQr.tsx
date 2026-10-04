@@ -13,9 +13,14 @@ export function joinParam(params: { get(name: string): string | null }): string 
   return cleanCode(params.get('join') ?? '');
 }
 
-/** Appends the carried invite code to a route, so it survives sign-in and sign-up. */
-export function withJoin(path: string, code: string): string {
-  return code ? `${path}?join=${encodeURIComponent(code)}` : path;
+/** Appends the carried invite code (and the squad snapshot, if any) to a route, so it survives sign-in and sign-up. */
+export function withJoin(path: string, code: string, snapshot?: string | null): string {
+  return code ? `${path}?join=${encodeURIComponent(code)}${snapshot ? `&s=${encodeURIComponent(snapshot)}` : ''}` : path;
+}
+
+/** Where to go once signed in: back to the invite card when a code rode along, otherwise the squad setup. */
+export function afterAuth(code: string, snapshot?: string | null): string {
+  return code ? `/join?code=${encodeURIComponent(code)}${snapshot ? `&s=${encodeURIComponent(snapshot)}` : ''}` : '/onboarding';
 }
 
 /**

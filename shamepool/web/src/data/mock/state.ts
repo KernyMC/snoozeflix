@@ -3,7 +3,7 @@ import type {
 } from '../types';
 
 // Bump whenever the seed or the state shape changes: browsers keep the old seeded data until the version differs.
-export const MOCK_VERSION = 5;
+export const MOCK_VERSION = 6;
 export const STORAGE_KEY = 'shamepool-mock-v1';
 
 export interface MockState {
@@ -25,6 +25,8 @@ export interface MockState {
   botThreads: Record<string, BotThreadMessage[]>;
   pendingActions: Record<string, PendingAction & { userId: string }>;
   milestones: Record<string, true>;
+  /** banKey(squadId, userId) of members the owner removed. Optional: older saved states do not have it. */
+  bans?: Record<string, true>;
   msgTimes: Record<string, number[]>;
   seedUserIds: string[];
   demo: DemoFlags;

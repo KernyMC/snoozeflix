@@ -3,7 +3,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { login, useMe } from '@/data';
 import { AuthShell, focusFirstInvalid } from '@/components/auth/AuthShell';
-import { joinParam, withJoin } from '@/components/InviteQr';
+import { afterAuth, joinParam, withJoin } from '@/components/InviteQr';
 import { PasswordField } from '@/components/auth/PasswordField';
 import { Button } from '@/components/ui/Button';
 import { Field } from '@/components/ui/Field';
@@ -13,8 +13,10 @@ import { errorText } from '@/components/ui/States';
 function LoginPage() {
   const me = useMe();
   const router = useRouter();
-  const join = joinParam(useSearchParams()); // invite code from a scanned QR, if any
-  const onboarding = withJoin('/onboarding', join);
+  const params = useSearchParams();
+  const join = joinParam(params); // invite code from a scanned QR, if any
+  const snap = params.get('s');
+  const onboarding = afterAuth(join, snap); // with an invite: back to the join card, which joins in one tap
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [err, setErr] = useState<Record<string, string>>({});
@@ -22,7 +24,7 @@ function LoginPage() {
   const [busy, setBusy] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
-  useEffect(() => { if (me) router.replace(me.squadId ? '/home' : onboarding); }, [me, router, onboarding]);
+  useEffect(() => { if (me) router.replace(me.squadId && !join ? '/home' : onboarding); }, [me, router, onboarding, join]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,7 +39,7 @@ function LoginPage() {
     const r = await login(username, password);
     setBusy(false);
     if (!r.ok) return setFormErr(errorText(r.error));
-    router.replace(r.data.squadId ? '/home' : onboarding);
+    router.replace(r.data.squadId && !join ? '/home' : onboarding);
   };
 
   return (
@@ -52,7 +54,7 @@ function LoginPage() {
       </form>
       <div className="border-t-2 border-surface-line my-5" />
       <div className="space-y-3">
-        <Button variant="secondary" href={withJoin('/register', join)}>Create an account</Button>
+        <Button variant="secondary" href={withJoin('/register', join, snap)}>Create an account</Button>
         <Button variant="ghost" href="/forgot-password">Forgot password?</Button>
       </div>
 

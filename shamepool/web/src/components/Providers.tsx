@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { startBackend } from '@/data';
 import { DemoPanel } from './DemoPanel';
 import { FlakeWatcher } from './FlakeWatcher';
+import { KickWatcher } from './SquadMembers';
 import { Alerts } from './voice/Alerts';
 import { UpgradeBannerReset } from './UpgradeBanner';
 import { UpgradePopup } from './UpgradePopup';
@@ -20,6 +21,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <ToastProvider>
       {children}
       <FlakeWatcher />
+      <KickWatcher />
       <Alerts />
       <UpgradeBannerReset />
       <UpgradePopup />

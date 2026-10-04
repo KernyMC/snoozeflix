@@ -1,14 +1,14 @@
 'use client';
 import { ArrowLeft } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import {
   registerAccount, SECURITY_QUESTIONS, useMe, validateConfirm, validateEmail, validateFirstName, validateLastName, validatePassword,
   validateUsername, normalizeAnswer, type ErrorCode,
 } from '@/data';
 import { AuthShell, focusFirstInvalid } from '@/components/auth/AuthShell';
 import { PasswordField } from '@/components/auth/PasswordField';
-import { cleanCode, withJoin } from '@/components/InviteQr';
+import { afterAuth, cleanCode, joinParam } from '@/components/InviteQr';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Field, inputCls } from '@/components/ui/Field';
@@ -37,11 +37,17 @@ function validate(f: Form, qs: string[], ans: string[]): Record<string, string> 
 }
 
 export default function RegisterPage() {
+  return <Suspense fallback={null}><Register /></Suspense>;
+}
+
+function Register() {
   const me = useMe();
   const router = useRouter();
+  const params = useSearchParams();
+  const snap = params.get('s');
   const [f, setF] = useState<Form>(EMPTY);
   // Optional. Screen-level only: the code is handed to the join step that follows sign-up, which does the joining.
-  const [code, setCode] = useState('');
+  const [code, setCode] = useState(() => joinParam(params)); // pre-filled from a scanned QR
   const [qs, setQs] = useState(['', '', '']);
   const [ans, setAns] = useState(['', '', '']);
   const [err, setErr] = useState<Record<string, string>>({});
@@ -49,7 +55,7 @@ export default function RegisterPage() {
   const [busy, setBusy] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
-  useEffect(() => { if (me) router.replace(me.squadId ? '/home' : withJoin('/onboarding', code)); }, [me, router, code]);
+  useEffect(() => { if (me) router.replace(me.squadId ? '/home' : afterAuth(code, snap)); }, [me, router, code, snap]);
 
   const upd = (k: keyof Form) => (e: React.ChangeEvent<HTMLInputElement>) => setF((p) => ({ ...p, [k]: e.target.value }));
   /** Validate one field when the user leaves it, so errors appear early but not while typing. */
@@ -72,7 +78,7 @@ export default function RegisterPage() {
     setBusy(true);
     const r = await registerAccount({ ...f, security: qs.map((qId, i) => ({ qId, answer: ans[i] })) });
     setBusy(false);
-    if (r.ok) return router.replace(withJoin('/onboarding', code));
+    if (r.ok) return router.replace(afterAuth(code, snap));
     const field: Partial<Record<ErrorCode, string>> = { username_taken: 'username', email_taken: 'email' };
     const k = field[r.error];
     if (k) { setErr({ [k]: errorText(r.error) }); focusFirstInvalid(formRef.current); } else setFormErr(errorText(r.error));

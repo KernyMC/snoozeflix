@@ -8,6 +8,7 @@ import { CashoutBanner } from '@/components/Cashout';
 import { InviteQr } from '@/components/InviteQr';
 import { Projector } from '@/components/Projector';
 import { Feed, Leaderboard, MessageBox, PoolCard } from '@/components/SquadParts';
+import { SquadMembers } from '@/components/SquadMembers';
 import { ListSkeleton } from '@/components/ui/States';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -29,6 +30,7 @@ function Dashboard() {
       <PoolCard squad={squad} />
       <CashoutBanner />
       <section aria-labelledby="lb"><h2 id="lb" className="font-display font-black text-xl mb-2">Leaderboard</h2><Leaderboard /></section>
+      <SquadMembers />
       <Card tone="grape" className="!p-3 flex items-center gap-3 text-grape-dark">
         <InviteQr code={squad.inviteCode} size={84} />
         <div className="min-w-0">

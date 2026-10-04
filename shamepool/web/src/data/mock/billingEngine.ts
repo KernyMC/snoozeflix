@@ -1,6 +1,7 @@
 import {
   cardDigits, detectBrand, isExpired, MAX_ADDRESSES, MAX_PAYMENT_METHODS, parseExpiry, trialEnd, validateAddressInput, validatePaymentInput,
 } from '../billingLogic';
+import { enforceGoalLimit } from './engine';
 import type { Address, AddressInput, Billing, PaymentMethod, PaymentMethodInput, PlanStart, PlanTier, Result } from '../types';
 import { type Ctx, err, type MockState, ok, uid } from './state';
 
@@ -86,5 +87,6 @@ export function setPlanTier(c: Ctx, tier: PlanTier, start: PlanStart = 'monthly'
   if (tier === 'paid' && usable(b, c.now).length === 0) return err('payment_required');
   b.tier = tier;
   b.trialEndsAt = tier === 'paid' && start === 'trial' ? trialEnd(c.now) : null;
+  if (tier === 'free' && c.userId) enforceGoalLimit(c, c.userId); // downgrade: keep the oldest goal, pause the rest
   return ok(tier);
 }

@@ -219,6 +219,40 @@ export function generateInviteCode(rng: () => number = Math.random): string {
   return s;
 }
 
+/* ---------- plan goal limits ---------- */
+/** Active goals each plan allows. Enforced by the data layer (mock and Spacetime), not only by the screens. */
+export const GOAL_LIMITS = { free: 1, paid: 5 } as const;
+export const goalLimit = (tier: string | null | undefined): number => (tier === 'paid' ? GOAL_LIMITS.paid : GOAL_LIMITS.free);
+/**
+ * Which active goals to pause so a user fits their plan: everything beyond the limit, newest first (the oldest goals,
+ * the ones with history, are kept).
+ */
+export function goalsOverLimit<T extends { id: string; createdAt: number; active: boolean }>(goals: T[], limit: number): T[] {
+  const active = goals.filter((g) => g.active).sort((a, b) => a.createdAt - b.createdAt || a.id.localeCompare(b.id));
+  return active.slice(limit);
+}
+
+/* ---------- squad ownership / kicking ---------- */
+/** Who started a squad, read from its "started the squad" feed event (for squads created before the owner was stored). */
+export function ownerFromFeed(feed: { kind: string; text: string; actorUserId: string | null; createdAt: number }[]): string | null {
+  const starts = feed.filter((f) => f.kind === 'commit' && !!f.actorUserId && f.text.includes(' started the squad '))
+    .sort((a, b) => a.createdAt - b.createdAt);
+  return starts[0]?.actorUserId ?? null;
+}
+/** Key of the "removed from this squad" ban: a kicked member cannot rejoin with the same public invite code. */
+export const banKey = (squadId: string, userId: string): string => `${squadId}:${userId}`;
+/** Kick rules: only the squad's owner, only a current member of the same squad, never yourself. */
+export function kickError(
+  me: { id: string; squadId: string | null } | null | undefined, ownerId: string | null, target: { id: string; squadId: string | null } | null | undefined,
+): ErrorCode | null {
+  if (!me) return 'no_user';
+  if (!me.squadId) return 'not_in_squad';
+  if (ownerId !== me.id) return 'not_owner';
+  if (target?.id === me.id) return 'cannot_kick_self';
+  if (!target || target.squadId !== me.squadId) return 'member_not_found';
+  return null;
+}
+
 /* ---------- wallet / withdrawals ---------- */
 export const MIN_WITHDRAW_CENTS = 500;
 export const STAKE_LOOKAHEAD_DAYS = 3;

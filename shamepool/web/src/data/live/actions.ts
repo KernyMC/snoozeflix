@@ -9,15 +9,17 @@ import {
 import { cardDigits, detectBrand, parseExpiry, validatePaymentInput } from '../billingLogic';
 import { validateGoalInput } from '../logic';
 import type {
-  AccountInfo, Address, AddressInput, BotReply, CashoutProposal, Cents, Checkin, DemoFlags, ErrorCode, FeedEvent, Goal, GoalInput, PaymentMethod,
+  AccountInfo, Address, AddressInput, AiBotInput, BotReply, CashoutProposal, Cents, Checkin, DemoFlags, ErrorCode, FeedEvent, Goal, GoalInput, PaymentMethod,
   PaymentMethodInput, Penalty, PhotoVerdict, PlanStart, PlanTier, Pos, RegisterInput, Result, Squad, User, Withdrawal,
 } from '../types';
 import type { DbConnection } from './bindings';
 import { demoFlagsOf } from './hooks';
 import { planDemoPatch } from './demo';
+import { aiBotArgs, aiVerdictArgs } from './aiArgs';
+import { buildLiveBotContext } from './botContext';
 import { type ActionResult, resultOf } from './mappers';
 import { secretHash, sha256Hex } from './sha256';
-import { getConn, nowMs, settle, startLive, useLive, whenReady } from './stdb';
+import { getConn, nowMs, setFakeLocation, settle, startLive, useLive, whenReady } from './stdb';
 
 const DEMO = process.env.NEXT_PUBLIC_DEMO === 'true';
 const fail = (error: ErrorCode): Result<never> => ({ ok: false, error });
@@ -210,6 +212,12 @@ export async function removeAddress(id: string): Promise<Result<true>> {
 }
 
 /* ---------- squads and goals ---------- */
+/** Owner only. Resolves once the member is gone from this tab's mirror. */
+export async function kickMember(userId: string): Promise<Result<true>> {
+  const r = await run<true>((c) => c.procedures.kickMember({ userId }));
+  if (r.ok) await settle((s) => !s.users.some((u) => u.id === userId && u.squadId === s.me?.squadId));
+  return r;
+}
 export async function createSquad(i: { name: string; poolGoalName: string; poolGoalCents: Cents }): Promise<Result<Squad>> {
   if (!Number.isInteger(i.poolGoalCents)) return fail('invalid_amount');
   const r = await run<Squad>((c) => c.procedures.createSquad(i), true);
@@ -252,20 +260,22 @@ export function pingCheckin(checkinId: string, pos: Pos): Promise<Result<Checkin
   return run<Checkin>((c) => c.procedures.pingCheckin({ checkinId, lat: p.lat, lng: p.lng, accuracyM: p.accuracyM ?? 0 }));
 }
 /**
- * The photo itself never leaves the browser: only its size and a fingerprint go to the module (it would be megabytes of
- * base64). TODO: post it to the AI verification route and let the bridge call a verdict reducer.
+ * The photo itself never reaches the module (megabytes of base64): the check-in screen sends it to /api/ai/verify-photo
+ * (Grok vision, server side) and passes the verdict here; only size, fingerprint and verdict go to Spacetime.
+ * `ai` undefined = no AI attempted, null = the AI route failed (accepted once per check-in, then `ai_unavailable`).
  */
-export function finishCheckin(checkinId: string, photo: string, _ai?: unknown): Promise<Result<{ checkin: Checkin; verdict: PhotoVerdict }>> { // eslint-disable-line @typescript-eslint/no-unused-vars
+export function finishCheckin(checkinId: string, photo: string, ai?: PhotoVerdict | null): Promise<Result<{ checkin: Checkin; verdict: PhotoVerdict }>> {
   if (typeof photo !== 'string' || photo.length < 8) return Promise.resolve(fail('invalid_photo'));
   const fingerprint = sha256Hex(`${photo.length}:${photo.slice(0, 2048)}:${photo.slice(-2048)}`);
-  return run((c) => c.procedures.finishCheckin({ checkinId, photoLen: photo.length, photoFingerprint: fingerprint }));
+  return run((c) => c.procedures.finishCheckinAi({ checkinId, photoLen: photo.length, photoFingerprint: fingerprint, ...aiVerdictArgs(ai) }));
 }
 
 /* ---------- penalties, social, bot ---------- */
 export const forceFlake = (goalId: string): Promise<Result<Penalty>> => run<Penalty>((c) => c.procedures.forceFlake({ goalId }), true);
 export const postMessage = (text: string): Promise<Result<FeedEvent>> => run<FeedEvent>((c) => c.procedures.postMessage({ text }));
-export async function askBot(text: string, _ai?: unknown): Promise<Result<BotReply>> { // eslint-disable-line @typescript-eslint/no-unused-vars
-  const r = await run<BotReply>((c) => c.procedures.askBot({ text }));
+/** `ai` is the answer from /api/ai/chat (Grok); without it the module's keyword bot answers. */
+export async function askBot(text: string, ai?: AiBotInput): Promise<Result<BotReply>> {
+  const r = await run<BotReply>((c) => (ai ? c.procedures.askBotAi({ text, ...aiBotArgs(ai) }) : c.procedures.askBot({ text })));
   if (r.ok) await settle((s) => s.bot.some((m) => m.fromBot && m.text === r.data.text), 1500);
   return r;
 }
@@ -310,7 +320,7 @@ export async function resetDemoData(): Promise<Result<true>> {
 export async function setDemoFlags(patch: Partial<DemoFlags>): Promise<Result<true>> {
   const plan = planDemoPatch(patch, useLive.getState().flags?.timeOffsetMs ?? 0);
   if (plan.refuse) return fail('not_available');
-  if (plan.fake !== undefined) useLive.setState({ fakeLocation: plan.fake });
+  if (plan.fake !== undefined) setFakeLocation(plan.fake);
   if (plan.nextPhotoFails === undefined) return { ok: true, data: true };
   try {
     const c = await whenReady();
@@ -326,4 +336,6 @@ export async function setDemoFlags(patch: Partial<DemoFlags>): Promise<Result<tr
     return fail('unknown');
   }
 }
+/** Snapshot of the user's app data for the AI bot route. null when signed out or without a squad. */
+export const getBotContext = (): Record<string, unknown> | null => buildLiveBotContext(useLive.getState(), nowMs());
 export const getDemoFlags = (): DemoFlags => demoFlagsOf(useLive.getState().flags, useLive.getState().fakeLocation);

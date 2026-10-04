@@ -1,10 +1,10 @@
 'use client';
 import { X } from 'lucide-react';
 import { useEffect, useSyncExternalStore } from 'react';
-import { formatCents, type PlanTier, useBilling, useMe } from '@/data';
+import { formatCents, GOAL_LIMITS, useBilling, useMe } from '@/data';
 
-/** Active goals each plan shows room for. Screen-level only: the data layer still allows 5 for everyone. */
-export const GOAL_LIMITS: Record<PlanTier, number> = { free: 1, paid: 5 };
+/** Active goals each plan allows (the data layer enforces it). Re-exported for the screens that import it from here. */
+export { GOAL_LIMITS };
 /** What the paid tier costs. */
 export const PAID_TIER_PRICE_CENTS = 500;
 

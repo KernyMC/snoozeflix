@@ -67,10 +67,11 @@ const useSquadId = () => useLive((s) => s.me?.squadId ?? '');
 export function useSquad(): Squad | null {
   const id = useSquadId();
   const squads = useLive((s) => s.squads);
+  const owners = useLive((s) => s.owners);
   return useMemo(() => {
     const r = id ? squads.find((q) => q.id === id) : undefined;
-    return r ? squadOf(r) : null;
-  }, [id, squads]);
+    return r ? { ...squadOf(r), ownerUserId: owners.find((o) => o.squadId === r.id)?.userId ?? null } : null;
+  }, [id, squads, owners]);
 }
 
 export function useSquadMembers(): User[] {

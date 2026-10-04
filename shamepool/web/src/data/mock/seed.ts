@@ -24,7 +24,7 @@ export function makeSeed(now: number, profile: SeedProfile = 'demo'): MockState 
   const squadId = 'squad_mhacks';
   s.squads[squadId] = {
     id: squadId, name: 'MHacks Crew', inviteCode: 'PIZZA6', poolGoalName: 'Pizza night', poolGoalCents: 6000,
-    poolBalanceCents: 0, timezone: tz, relayLinked: false, charityId: 'food-bank', poolFullAt: null,
+    poolBalanceCents: 0, timezone: tz, relayLinked: false, charityId: 'food-bank', poolFullAt: null, ownerUserId: 'seed_kevin',
   };
   // Demo accounts come from demoUsers.json (usernames, passwords, security answers).
   for (const d of demoUsers.users) {

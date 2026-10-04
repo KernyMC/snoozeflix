@@ -2,7 +2,7 @@ import {
   applyPenalty, availableToWithdraw, buildLeaderboard, MIN_WITHDRAW_CENTS, stakeBreakdown,
   validateWithdrawal, WITHDRAW_COOLDOWN_DEMO_MS, WITHDRAW_COOLDOWN_REAL_MS, dateAddDays, deadlinePassed, formatCents, formatDistance, generateInviteCode, haversineM,
   isDueToday, isInside, LIMITS, localDate, localMinutes, missedDates, nextPenaltyCents, normalizeInviteCode, penaltyKey,
-  validateGoalInput, validateName, validatePoolGoal,
+  validateGoalInput, validateName, validatePoolGoal, banKey, kickError, ownerFromFeed, goalLimit, goalsOverLimit,
 } from '../logic';
 import { isValidSnapshot } from '../inviteSnapshot';
 import type {
@@ -52,6 +52,7 @@ export function createSquad(c: Ctx, input: { name: string; poolGoalName: string;
   const squad: Squad = {
     id: uid(c.s, 'sq'), name: input.name.trim(), inviteCode: code, poolGoalName: input.poolGoalName.trim(),
     poolGoalCents: input.poolGoalCents, poolBalanceCents: 0, timezone: 'America/Detroit', relayLinked: false, charityId: DEFAULT_CHARITY_ID, poolFullAt: null,
+    ownerUserId: me.id,
   };
   c.s.squads[squad.id] = squad;
   me.squadId = squad.id;
@@ -74,11 +75,13 @@ export function joinSquad(c: Ctx, rawCode: string, invite?: InviteSnapshot | nul
     c.s.squads[squad.id] = squad;
     if (invite.ownerName) {
       const ownerId = `u_inv_${invite.id}`;
+      squad.ownerUserId = ownerId;
       c.s.users[ownerId] = { id: ownerId, name: invite.ownerName.trim(), avatar: invite.ownerAvatar || '/assets/avatar/01-coin-thief.png', squadId: squad.id, balanceCents: 20000 };
       pushFeed(c.s, squad.id, ownerId, 'commit', `${invite.ownerName.trim()} started the squad "${squad.name}". Goal: ${squad.poolGoalName}.`, c.now);
     }
   }
   if (!squad) return err('invalid_code');
+  if (c.s.bans?.[banKey(squad.id, me.id)]) return err('kicked_from_squad');
   if (squadMembers(c.s, squad.id).length >= LIMITS.maxSquadSize) return err('squad_full');
   me.squadId = squad.id;
   pushFeed(c.s, squad.id, me.id, 'commit', `${me.name} joined the squad. Fresh money!`, c.now);
@@ -93,7 +96,8 @@ export function createGoal(c: Ctx, input: GoalInput): Result<Goal> {
   const bad = validateGoalInput(input);
   if (bad) return err(bad);
   const active = Object.values(c.s.goals).filter((g) => g.userId === me.id && g.active).length;
-  if (active >= LIMITS.maxGoalsPerUser) return err('too_many_goals');
+  const tier = c.s.billing?.[me.id]?.tier ?? 'free';
+  if (active >= Math.min(LIMITS.maxGoalsPerUser, goalLimit(tier))) return err(tier === 'paid' ? 'too_many_goals' : 'upgrade_required');
   const tz = tzOf(c.s, me.squadId);
   const goal: Goal = {
     ...input, deadlineMinutes: input.deadlineMinutes === 0 ? 1439 : input.deadlineMinutes, // 00:00 means end of day, never an impossible deadline
@@ -468,6 +472,43 @@ export function cancelCashout(c: Ctx, proposalId: string): Result<CashoutProposa
   if (!p || p.status !== 'open' || p.proposerUserId !== me.id) return err('proposal_not_found');
   p.status = 'cancelled';
   return ok(p);
+}
+
+/** Pauses the goals a user has beyond their plan's limit (newest first). Returns how many were paused. */
+export function enforceGoalLimit(c: Ctx, userId: string): number {
+  const extra = goalsOverLimit(Object.values(c.s.goals).filter((g) => g.userId === userId), goalLimit(c.s.billing?.[userId]?.tier));
+  for (const g of extra) g.active = false;
+  return extra.length;
+}
+
+/** The squad's owner: stored on the squad, or read from its "started the squad" event for older squads. */
+export function ownerOf(s: MockState, squadId: string): string | null {
+  return s.squads[squadId]?.ownerUserId ?? ownerFromFeed(s.feed.filter((f) => f.squadId === squadId));
+}
+
+/**
+ * The owner removes a member. Their money is theirs (balance and pending withdrawals stay), what they already paid into
+ * the pool stays with the squad, their goals stop (no more charges into a squad they left), an open check-in fails, a
+ * cash-out they proposed is cancelled and any open vote is re-counted with the smaller squad. They cannot rejoin with
+ * the same code.
+ */
+export function kickMember(c: Ctx, userId: string): Result<true> {
+  const me = meOf(c);
+  const target = c.s.users[userId];
+  const bad = kickError(me, me?.squadId ? ownerOf(c.s, me.squadId) : null, target);
+  if (bad || !me || !target) return err(bad ?? 'member_not_found');
+  const squadId = me.squadId as string;
+  target.squadId = null;
+  for (const g of Object.values(c.s.goals)) if (g.userId === target.id && g.squadId === squadId && g.active) g.active = false;
+  for (const ck of Object.values(c.s.checkins)) if (ck.userId === target.id && ck.status === 'in_progress') ck.status = 'failed';
+  for (const p of Object.values(c.s.cashouts)) {
+    if (p.squadId === squadId && p.status === 'open' && p.proposerUserId === target.id) p.status = 'cancelled';
+  }
+  (c.s.bans ??= {})[banKey(squadId, target.id)] = true;
+  pushFeed(c.s, squadId, me.id, 'commit', `${me.name} removed ${target.name} from the squad. What they paid stays in the pool.`, c.now);
+  const open = openProposal(c.s, squadId);
+  if (open) resolveVotes(c, open); // fewer members: the vote may be decided now
+  return ok(true);
 }
 
 /* ---------- derived (used by hooks + tests) ---------- */

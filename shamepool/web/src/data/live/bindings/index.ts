@@ -34,7 +34,9 @@ import {
 } from "spacetimedb";
 
 // Import all reducer arg schemas
+import BackfillSquadOwnersReducer from "./backfill_squad_owners_reducer";
 import ClaimBridgeReducer from "./claim_bridge_reducer";
+import EnforceGoalLimitsReducer from "./enforce_goal_limits_reducer";
 import LogoutReducer from "./logout_reducer";
 import OutboxDoneReducer from "./outbox_done_reducer";
 import OutboxFailReducer from "./outbox_fail_reducer";
@@ -47,6 +49,7 @@ import SetDemoModeReducer from "./set_demo_mode_reducer";
 import * as AddAddressProcedure from "./add_address_procedure";
 import * as AddPaymentMethodProcedure from "./add_payment_method_procedure";
 import * as AskBotProcedure from "./ask_bot_procedure";
+import * as AskBotAiProcedure from "./ask_bot_ai_procedure";
 import * as CancelCashoutProcedure from "./cancel_cashout_procedure";
 import * as CancelWithdrawalProcedure from "./cancel_withdrawal_procedure";
 import * as ChangeEmailProcedure from "./change_email_procedure";
@@ -56,9 +59,11 @@ import * as ConfirmBotActionProcedure from "./confirm_bot_action_procedure";
 import * as CreateGoalProcedure from "./create_goal_procedure";
 import * as CreateSquadProcedure from "./create_squad_procedure";
 import * as FinishCheckinProcedure from "./finish_checkin_procedure";
+import * as FinishCheckinAiProcedure from "./finish_checkin_ai_procedure";
 import * as ForceFlakeProcedure from "./force_flake_procedure";
 import * as GetSecurityQuestionIdsProcedure from "./get_security_question_ids_procedure";
 import * as JoinSquadProcedure from "./join_squad_procedure";
+import * as KickMemberProcedure from "./kick_member_procedure";
 import * as LoginProcedure from "./login_procedure";
 import * as PingCheckinProcedure from "./ping_checkin_procedure";
 import * as PostMessageProcedure from "./post_message_procedure";
@@ -96,6 +101,7 @@ import MyPaymentMethodsRow from "./my_payment_methods_table";
 import MyUserRow from "./my_user_table";
 import PenaltyRow from "./penalty_table";
 import SquadRow from "./squad_table";
+import SquadOwnerRow from "./squad_owner_table";
 import UserRow from "./user_table";
 import WithdrawalRow from "./withdrawal_table";
 
@@ -234,6 +240,17 @@ const tablesSchema = __schema({
       { name: 'squad_id_key', constraint: 'unique', columns: ['id'] },
     ],
   }, SquadRow),
+  squadOwner: __table({
+    name: 'squad_owner',
+    indexes: [
+      { accessor: 'squadId', name: 'squad_owner_squad_id_idx_btree', algorithm: 'btree', columns: [
+        'squadId',
+      ] },
+    ],
+    constraints: [
+      { name: 'squad_owner_squad_id_key', constraint: 'unique', columns: ['squadId'] },
+    ],
+  }, SquadOwnerRow),
   user: __table({
     name: 'user',
     indexes: [
@@ -328,7 +345,9 @@ const tablesSchema = __schema({
 
 /** The schema information for all reducers in this module. This is defined the same way as the reducers would have been defined in the server, except the body of the reducer is omitted in code generation. */
 const reducersSchema = __reducers(
+  __reducerSchema("backfill_squad_owners", BackfillSquadOwnersReducer),
   __reducerSchema("claim_bridge", ClaimBridgeReducer),
+  __reducerSchema("enforce_goal_limits", EnforceGoalLimitsReducer),
   __reducerSchema("logout", LogoutReducer),
   __reducerSchema("outbox_done", OutboxDoneReducer),
   __reducerSchema("outbox_fail", OutboxFailReducer),
@@ -343,6 +362,7 @@ const proceduresSchema = __procedures(
   __procedureSchema("add_address", AddAddressProcedure.params, AddAddressProcedure.returnType),
   __procedureSchema("add_payment_method", AddPaymentMethodProcedure.params, AddPaymentMethodProcedure.returnType),
   __procedureSchema("ask_bot", AskBotProcedure.params, AskBotProcedure.returnType),
+  __procedureSchema("ask_bot_ai", AskBotAiProcedure.params, AskBotAiProcedure.returnType),
   __procedureSchema("cancel_cashout", CancelCashoutProcedure.params, CancelCashoutProcedure.returnType),
   __procedureSchema("cancel_withdrawal", CancelWithdrawalProcedure.params, CancelWithdrawalProcedure.returnType),
   __procedureSchema("change_email", ChangeEmailProcedure.params, ChangeEmailProcedure.returnType),
@@ -352,9 +372,11 @@ const proceduresSchema = __procedures(
   __procedureSchema("create_goal", CreateGoalProcedure.params, CreateGoalProcedure.returnType),
   __procedureSchema("create_squad", CreateSquadProcedure.params, CreateSquadProcedure.returnType),
   __procedureSchema("finish_checkin", FinishCheckinProcedure.params, FinishCheckinProcedure.returnType),
+  __procedureSchema("finish_checkin_ai", FinishCheckinAiProcedure.params, FinishCheckinAiProcedure.returnType),
   __procedureSchema("force_flake", ForceFlakeProcedure.params, ForceFlakeProcedure.returnType),
   __procedureSchema("get_security_question_ids", GetSecurityQuestionIdsProcedure.params, GetSecurityQuestionIdsProcedure.returnType),
   __procedureSchema("join_squad", JoinSquadProcedure.params, JoinSquadProcedure.returnType),
+  __procedureSchema("kick_member", KickMemberProcedure.params, KickMemberProcedure.returnType),
   __procedureSchema("login", LoginProcedure.params, LoginProcedure.returnType),
   __procedureSchema("ping_checkin", PingCheckinProcedure.params, PingCheckinProcedure.returnType),
   __procedureSchema("post_message", PostMessageProcedure.params, PostMessageProcedure.returnType),

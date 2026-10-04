@@ -18,7 +18,7 @@ export interface FlagsRow {
 
 export interface LiveState {
   status: 'connecting' | 'ready' | 'error';
-  users: UserRow[]; squads: SquadRow[]; goals: GoalRow[]; checkins: CheckinRow[]; penalties: PenaltyRow[]; feed: FeedRow[];
+  users: UserRow[]; squads: SquadRow[]; owners: { squadId: string; userId: string }[]; goals: GoalRow[]; checkins: CheckinRow[]; penalties: PenaltyRow[]; feed: FeedRow[];
   cashouts: CashoutRow[]; votes: VoteRow[]; withdrawals: WithdrawalRow[];
   flags: FlagsRow | null;
   /** Demo "pretend I'm there" location. Per tab: the module's flags are global, so it is never sent to Spacetime. */
@@ -28,9 +28,23 @@ export interface LiveState {
   me: UserRow | null; account: AccountView | null; plan: PlanRow | null; addresses: AddressRow[]; payments: PaymentRow[]; bot: BotRow[];
 }
 
+const FAKE_KEY = 'shamepool-fake-location';
+/** The demo fake location survives reloads of this tab (sessionStorage), never other tabs or devices. */
+function loadFakeLocation(): LiveState['fakeLocation'] {
+  try {
+    if (typeof window === 'undefined') return null;
+    const v = JSON.parse(window.sessionStorage.getItem(FAKE_KEY) ?? 'null') as LiveState['fakeLocation'];
+    return v && Number.isFinite(v.lat) && Number.isFinite(v.lng) ? v : null;
+  } catch { return null; }
+}
+export function setFakeLocation(v: LiveState['fakeLocation']): void {
+  useLive.setState({ fakeLocation: v });
+  try { if (v) window.sessionStorage.setItem(FAKE_KEY, JSON.stringify(v)); else window.sessionStorage.removeItem(FAKE_KEY); } catch { /* blocked */ }
+}
+
 export const useLive = create<LiveState>(() => ({
-  status: 'connecting', users: [], squads: [], goals: [], checkins: [], penalties: [], feed: [], cashouts: [], votes: [], withdrawals: [],
-  flags: null, fakeLocation: null, squadSynced: '', me: null, account: null, plan: null, addresses: [], payments: [], bot: [],
+  status: 'connecting', users: [], squads: [], owners: [], goals: [], checkins: [], penalties: [], feed: [], cashouts: [], votes: [], withdrawals: [],
+  flags: null, fakeLocation: loadFakeLocation(), squadSynced: '', me: null, account: null, plan: null, addresses: [], payments: [], bot: [],
 }));
 
 /** Demo clock offset (ms) for code outside React. */
@@ -59,7 +73,7 @@ function browserStores(): { local: Storage | null; session: Storage | null } {
 type Key = keyof LiveState;
 // [store key, accessor on conn.db, single row?]
 const MIRROR: [Key, string, boolean?][] = [
-  ['users', 'user'], ['squads', 'squad'], ['goals', 'goal'], ['checkins', 'checkin'], ['penalties', 'penalty'], ['feed', 'feedEvent'],
+  ['users', 'user'], ['squads', 'squad'], ['owners', 'squadOwner'], ['goals', 'goal'], ['checkins', 'checkin'], ['penalties', 'penalty'], ['feed', 'feedEvent'],
   ['cashouts', 'cashout'], ['votes', 'cashoutVote'], ['withdrawals', 'withdrawal'], ['flags', 'demoFlags', true],
   ['me', 'myUser', true], ['account', 'myAccount', true], ['plan', 'myBillingPlan', true], ['addresses', 'myAddresses'], ['payments', 'myPaymentMethods'],
   ['bot', 'myBotMessages'],
@@ -121,6 +135,7 @@ function syncSquadSubscription(): void {
       })
       .subscribe([
         tables.squad.where((r) => r.id.eq(squadId)),
+        tables.squadOwner.where((r) => r.squadId.eq(squadId)),
         tables.user.where((r) => r.squadId.eq(squadId)),
         tables.goal.where((r) => r.squadId.eq(squadId)),
         tables.checkin.where((r) => r.squadId.eq(squadId)),

@@ -6,7 +6,9 @@
 import { type Infer as __Infer } from "spacetimedb";
 
 // Import all reducer arg schemas
+import BackfillSquadOwnersReducer from "../backfill_squad_owners_reducer";
 import ClaimBridgeReducer from "../claim_bridge_reducer";
+import EnforceGoalLimitsReducer from "../enforce_goal_limits_reducer";
 import LogoutReducer from "../logout_reducer";
 import OutboxDoneReducer from "../outbox_done_reducer";
 import OutboxFailReducer from "../outbox_fail_reducer";
@@ -15,7 +17,9 @@ import ResetDemoReducer from "../reset_demo_reducer";
 import SetDemoFlagsReducer from "../set_demo_flags_reducer";
 import SetDemoModeReducer from "../set_demo_mode_reducer";
 
+export type BackfillSquadOwnersParams = __Infer<typeof BackfillSquadOwnersReducer>;
 export type ClaimBridgeParams = __Infer<typeof ClaimBridgeReducer>;
+export type EnforceGoalLimitsParams = __Infer<typeof EnforceGoalLimitsReducer>;
 export type LogoutParams = __Infer<typeof LogoutReducer>;
 export type OutboxDoneParams = __Infer<typeof OutboxDoneReducer>;
 export type OutboxFailParams = __Infer<typeof OutboxFailReducer>;

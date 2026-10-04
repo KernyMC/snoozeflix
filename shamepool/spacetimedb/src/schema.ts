@@ -59,6 +59,10 @@ const squad = table({ name: 'squad', public: true }, {
   timezone: t.string(),
   relayLinked: t.bool(),
 });
+/** Who started each squad: the only member allowed to remove others. A separate table so existing squads migrate cleanly. */
+const squadOwner = table({ name: 'squad_owner', public: true }, { squadId: t.string().primaryKey(), userId: t.string() });
+/** banKey(squadId, userId) of removed members: they cannot rejoin with the squad's public invite code. */
+const squadBan = table({ name: 'squad_ban' }, { key: t.string().primaryKey() });
 const goal = table({ name: 'goal', public: true }, {
   id: t.string().primaryKey(),
   userId: t.string().index('btree'),
@@ -183,7 +187,7 @@ const nessieLink = table({ name: 'nessie_link' }, { key: t.string().primaryKey()
 const spacetimedb = schema({
   demoFlags, bridge, counter, milestone, deadlineTick,
   account, authAttempt, resetToken, session,
-  user, squad, goal, checkin, penalty, feedEvent, cashout, cashoutVote, withdrawal,
+  user, squad, squadOwner, squadBan, goal, checkin, penalty, feedEvent, cashout, cashoutVote, withdrawal,
   billingPlan, address, paymentMethod, botMessage, pendingAction, msgRate,
   outbox, nessieLink,
 });

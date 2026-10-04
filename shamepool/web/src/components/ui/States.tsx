@@ -117,6 +117,11 @@ export const ERROR_COPY: Record<string, string> = {
   address_not_found: 'That address is already gone.',
   mock_error: 'Simulated error (mockError=1).',
   not_available: 'Not available on the shared live server yet.',
+  not_owner: 'Only the person who created the squad can remove members.',
+  upgrade_required: 'The free tier has 1 goal. Upgrade to add more.',
+  cannot_kick_self: 'You cannot remove yourself.',
+  member_not_found: 'That person is not in your squad anymore.',
+  kicked_from_squad: 'You were removed from this squad, so this invite no longer works for you.',
   offline: 'You are offline.',
 };
 export const errorText = (code: string) => ERROR_COPY[code] ?? 'Something went wrong. Try again.';

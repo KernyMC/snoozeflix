@@ -1,7 +1,7 @@
 // Private bot thread (askBot / confirmBotAction). Thread rows are only visible to their owner through the my_bot_messages view.
 import { formatCents, LIMITS } from './shared/logic';
-import type { BotReply, PendingAction } from './shared/types';
-import { botAnswer } from './bot';
+import type { AiBotInput, BotReply, PendingAction } from './shared/types';
+import { botAnswer, type BotAnswer } from './bot';
 import { type Env, err, meOf, ok, uid } from './core';
 import { updateGoalPenalty } from './game';
 
@@ -13,14 +13,34 @@ function addThread(env: Env, userId: string, fromBot: boolean, text: string, pen
   });
 }
 
-export function askBot(env: Env, text: string) {
+/**
+ * Turns an answer written by the AI (server route /api/ai/chat) into a bot reply. The model never moves money: a
+ * proposed penalty change is matched to one of the user's own active goals, range-checked, and only becomes a pending
+ * action the user must confirm. Port of mock/engine.ts fromAi.
+ */
+function fromAi(env: Env, userId: string, ai: AiBotInput): BotAnswer {
+  const text = String(ai.text ?? '').replace(/\s+/g, ' ').trim().slice(0, 400) || 'Hmm, I got nothing. Try again?';
+  if (!ai.action) return { text };
+  const goals = [...env.ctx.db.goal.userId.filter(userId)].filter((g) => g.active);
+  const want = String(ai.action.goalTitle ?? '').trim().toLowerCase();
+  const goal = goals.find((g) => g.title.toLowerCase() === want)
+    ?? goals.find((g) => want && (g.title.toLowerCase().includes(want) || want.includes(g.title.toLowerCase())));
+  if (!goal) return { text: `${text} (I could not find that goal, so nothing will change.)` };
+  const cents = Math.round(Number(ai.action.dollars) * 100);
+  if (!Number.isInteger(cents) || cents < LIMITS.penaltyMin || cents > goal.maxPenaltyCents) {
+    return { text: `The penalty on ${goal.title} has to be between $1 and ${formatCents(goal.maxPenaltyCents)}.` };
+  }
+  return { text, action: { label: `${goal.title}: ${formatCents(goal.basePenaltyCents)} \u2192 ${formatCents(cents)}`, args: { goalId: goal.id, baseCents: cents } } };
+}
+
+export function askBot(env: Env, text: string, ai?: AiBotInput) {
   const c = env.ctx;
   const me = meOf(env);
   if (!me) return err('no_user');
   const t = text.trim();
   if (t.length < 1 || t.length > LIMITS.messageMax) return err('invalid_message');
   addThread(env, me.id, false, t);
-  const a = botAnswer(env, me.id, t);
+  const a = ai ? fromAi(env, me.id, ai) : botAnswer(env, me.id, t);
   let pendingAction: PendingAction | undefined;
   if (a.action) {
     pendingAction = { id: uid(env, 'act'), label: a.action.label, kind: 'update_goal_penalty', args: a.action.args, expiresAt: env.now + ACTION_TTL_MS };

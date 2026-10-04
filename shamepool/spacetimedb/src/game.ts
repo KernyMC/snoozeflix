@@ -3,7 +3,7 @@
 import {
   applyPenalty, availableToWithdraw, dateAddDays, deadlinePassed, formatCents, formatDistance, generateInviteCode, haversineM, isDueToday, isInside,
   LIMITS, localDate, localMinutes, MIN_WITHDRAW_CENTS, missedDates, nextPenaltyCents, normalizeInviteCode, penaltyKey, stakeBreakdown,
-  validateGoalInput, validatePoolGoal, validateWithdrawal, WITHDRAW_COOLDOWN_DEMO_MS, WITHDRAW_COOLDOWN_REAL_MS,
+  validateGoalInput, validatePoolGoal, validateWithdrawal, WITHDRAW_COOLDOWN_DEMO_MS, WITHDRAW_COOLDOWN_REAL_MS, banKey, kickError, ownerFromFeed, goalLimit, goalsOverLimit,
 } from './shared/logic';
 import type { Cents, Goal, GoalInput, PhotoVerdict, Pos, Result, Wallet } from './shared/types';
 import {
@@ -37,6 +37,7 @@ export function createSquad(env: Env, input: { name: string; poolGoalName: strin
     poolBalanceCents: 0, timezone: 'America/Detroit', relayLinked: false,
   };
   c.db.squad.insert(row);
+  c.db.squadOwner.insert({ squadId: row.id, userId: me.id });
   c.db.user.id.update({ ...me, squadId: row.id });
   enqueue(c, 'nessie_create_pool', `pool:${row.id}`, { squadId: row.id, squadName: row.name });
   pushFeed(env, row.id, me.id, 'commit', `${me.name} started the squad "${row.name}". Goal: ${row.poolGoalName}.`, env.now);
@@ -51,10 +52,61 @@ export function joinSquad(env: Env, rawCode: string): Result<ReturnType<typeof s
   const code = normalizeInviteCode(rawCode);
   const squad = [...c.db.squad.inviteCode.filter(code)][0];
   if (!squad) return err('invalid_code');
+  if (c.db.squadBan.key.find(banKey(squad.id, me.id))) return err('kicked_from_squad');
   if (squadMembers(c, squad.id).length >= LIMITS.maxSquadSize) return err('squad_full');
   c.db.user.id.update({ ...me, squadId: squad.id });
   pushFeed(env, squad.id, me.id, 'commit', `${me.name} joined the squad. Fresh money!`, env.now);
   return ok(squadOf(squad));
+}
+
+/** Pauses the goals a user has beyond their plan's limit (newest first). Returns how many were paused. */
+export function enforceGoalLimit(c: Ctx, userId: string): number {
+  const extra = goalsOverLimit([...c.db.goal.userId.filter(userId)], goalLimit(c.db.billingPlan.userId.find(userId)?.tier));
+  for (const g of extra) c.db.goal.id.update({ ...g, active: false });
+  return extra.length;
+}
+
+/** The squad's owner: the stored row, or (older squads) the author of its "started the squad" feed event. */
+export function ownerOf(c: Ctx, squadId: string): string | null {
+  return c.db.squadOwner.squadId.find(squadId)?.userId ?? ownerFromFeed([...c.db.feedEvent.squadId.filter(squadId)].map((f) => ({ ...f, actorUserId: f.actorUserId || null })));
+}
+
+/** Stores the owner of every squad that has none yet (derived from its feed). Idempotent; run once after this table was added. */
+export function backfillOwners(c: Ctx): number {
+  let n = 0;
+  for (const sq of [...c.db.squad.iter()]) {
+    if (c.db.squadOwner.squadId.find(sq.id)) continue;
+    const owner = sq.id === 'squad_mhacks' ? 'seed_kevin' : ownerOf(c, sq.id);
+    if (owner && c.db.user.id.find(owner)) { c.db.squadOwner.insert({ squadId: sq.id, userId: owner }); n++; }
+  }
+  return n;
+}
+
+/**
+ * The owner removes a member (port of mock kickMember). Their balance and pending withdrawals stay theirs, what they
+ * already paid into the pool stays with the squad, their goals stop (no more charges into a squad they left), an open
+ * check-in fails, a cash-out they proposed is cancelled and an open vote is re-counted. They cannot rejoin with the code.
+ */
+export function kickMember(env: Env, userId: string) {
+  const c = env.ctx;
+  const me = meOf(env);
+  const target = c.db.user.id.find(userId);
+  const meLite = me ? { id: me.id, squadId: me.squadId || null } : null;
+  const bad = kickError(meLite, me?.squadId ? ownerOf(c, me.squadId) : null, target ? { id: target.id, squadId: target.squadId || null } : null);
+  if (bad || !me || !target) return err(bad ?? 'member_not_found');
+  const squadId = me.squadId;
+  c.db.user.id.update({ ...target, squadId: '' });
+  for (const g of [...c.db.goal.userId.filter(target.id)]) if (g.squadId === squadId && g.active) c.db.goal.id.update({ ...g, active: false });
+  for (const ck of [...c.db.checkin.userId.filter(target.id)]) if (ck.status === 'in_progress') c.db.checkin.id.update({ ...ck, status: 'failed' });
+  for (const p of [...c.db.cashout.squadId.filter(squadId)]) {
+    if (p.status === 'open' && p.proposerUserId === target.id) c.db.cashout.id.update({ ...p, status: 'cancelled' });
+  }
+  const k = banKey(squadId, target.id);
+  if (!c.db.squadBan.key.find(k)) c.db.squadBan.insert({ key: k });
+  pushFeed(env, squadId, me.id, 'commit', `${me.name} removed ${target.name} from the squad. What they paid stays in the pool.`, env.now);
+  const open = openProposal(c, squadId);
+  if (open) resolveVotes(env, open.id); // fewer members: the vote may be decided now
+  return ok(true);
 }
 
 /* ---------- goals ---------- */
@@ -66,7 +118,8 @@ export function createGoal(env: Env, input: GoalInput): Result<Goal> {
   const bad = validateGoalInput(input);
   if (bad) return err(bad);
   const active = [...c.db.goal.userId.filter(me.id)].filter((g) => g.active).length;
-  if (active >= LIMITS.maxGoalsPerUser) return err('too_many_goals');
+  const tier = c.db.billingPlan.userId.find(me.id)?.tier ?? 'free';
+  if (active >= Math.min(LIMITS.maxGoalsPerUser, goalLimit(tier))) return err(tier === 'paid' ? 'too_many_goals' : 'upgrade_required');
   const tz = tzOfSquad(c, me.squadId);
   const row: GoalRow & { days: number[] } = {
     id: uid(env, 'g'), userId: me.id, squadId: me.squadId, title: input.title.trim(), emoji: input.emoji || 'goal-target', lat: input.lat, lng: input.lng,
@@ -166,7 +219,11 @@ export function pingCheckin(env: Env, checkinId: string, pos: Pos) {
  * Photo bytes never reach the module: the client sends only the size and a fingerprint. The AI verdict is a TODO hook,
  * so a finished check-in is recorded with aiVerified=false and the reason "AI check not connected".
  */
-export function finishCheckin(env: Env, checkinId: string, photoLen: number) {
+/**
+ * `ai`: undefined = no AI in this client (accepted as "AI check not connected"), null = the AI route failed (accepted
+ * once per check-in, flagged, then `ai_unavailable`), a verdict = what /api/ai/verify-photo answered. Same rules as mock.
+ */
+export function finishCheckin(env: Env, checkinId: string, photoLen: number, ai?: PhotoVerdict | null) {
   const c = env.ctx;
   const ck = c.db.checkin.id.find(checkinId);
   if (!ck || ck.userId !== env.userId) return err('checkin_not_found');
@@ -186,11 +243,25 @@ export function finishCheckin(env: Env, checkinId: string, photoLen: number) {
   // C20: started before the deadline → 10 min grace
   if (localDate(env.now, tz) !== ck.localDate || localMinutes(env.now, tz) > goal.deadlineMinutes + GRACE_MIN) return err('deadline_passed');
 
+  if (ai === null) { // AI check unavailable: accept once per check-in (flagged), then ask for a retry
+    const k = `aiunavail:${ck.id}`;
+    if (c.db.milestone.key.find(k)) return err('ai_unavailable');
+    c.db.milestone.insert({ key: k });
+  }
   const attempts = ck.attempts + 1;
   const flags = c.db.demoFlags.id.find(0);
-  if (flags?.nextPhotoFails) {
-    c.db.demoFlags.id.update({ ...flags, nextPhotoFails: false });
-    const verdict: PhotoVerdict = { verified: false, confidence: 0.92, reason: 'Not the right place', roast: photoRoast(hash(ck.id) + attempts) };
+  const forced = !!flags?.nextPhotoFails;
+  if (forced && flags) c.db.demoFlags.id.update({ ...flags, nextPhotoFails: false });
+  const aiOk = ai
+    ? { ...ai, confidence: Math.max(0, Math.min(1, Number(ai.confidence) || 0.7)), reason: String(ai.reason ?? '').slice(0, 120), roast: ai.roast ? String(ai.roast).slice(0, 140) : null }
+    : null;
+  const rejection: PhotoVerdict | null = forced
+    ? { verified: false, confidence: 0.92, reason: 'Not the right place', roast: photoRoast(hash(ck.id) + attempts) }
+    : aiOk && !aiOk.verified
+      ? { ...aiOk, verified: false, reason: aiOk.reason || 'Not the right place', roast: aiOk.roast ?? photoRoast(hash(ck.id) + attempts) }
+      : null;
+  if (rejection) {
+    const verdict = rejection;
     const base = { ...ck, attempts, aiState: 'no', aiReason: verdict.reason, aiRoast: verdict.roast ?? '' };
     if (attempts >= LIMITS.maxPhotoAttempts) {
       c.db.checkin.id.update({ ...base, status: 'failed' });
@@ -199,8 +270,12 @@ export function finishCheckin(env: Env, checkinId: string, photoLen: number) {
     c.db.checkin.id.update(base);
     return err('photo_rejected', { verdict, attemptsLeft: LIMITS.maxPhotoAttempts - attempts });
   }
-  const verdict: PhotoVerdict = { verified: true, confidence: 0, reason: AI_NOT_CONNECTED, roast: null };
-  const done = { ...ck, attempts, status: 'completed', aiState: 'no', aiReason: AI_NOT_CONNECTED, aiRoast: '' };
+  const verdict: PhotoVerdict = aiOk
+    ? { verified: true, confidence: aiOk.confidence, reason: aiOk.reason || 'Looks right', roast: null }
+    : ai === null
+      ? { verified: true, confidence: 0.5, reason: 'AI check unavailable', roast: null }
+      : { verified: true, confidence: 0, reason: AI_NOT_CONNECTED, roast: null };
+  const done = { ...ck, attempts, status: 'completed', aiState: aiOk ? 'yes' : 'no', aiReason: verdict.reason, aiRoast: '' };
   c.db.checkin.id.update(done);
   const streak = goal.streak + 1;
   c.db.goal.id.update({ ...goal, streak, consecutiveFlakes: 0 });

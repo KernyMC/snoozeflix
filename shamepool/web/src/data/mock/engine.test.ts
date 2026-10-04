@@ -12,6 +12,8 @@ const GYM = 'seed_goal_0';
 let s: MockState;
 const ctx = (userId: string | null = T, now = NOON): Ctx => ({ s, now, userId });
 const pool = () => s.squads.squad_mhacks.poolBalanceCents;
+/** Puts a user on the paid tier (5 goals) for tests that need more than the free tier's one goal. */
+const makePaid = (userId = T) => { s.billing = { ...s.billing, [userId]: { payments: [], addresses: [], ...s.billing?.[userId], tier: 'paid' } }; };
 
 beforeEach(() => { s = makeSeed(NOON, 'weekly'); });
 
@@ -79,6 +81,7 @@ describe('forceFlake ownership (audit M7)', () => {
 
 describe('goal deadlines (audit M2 / spec G6)', () => {
   it('turns a 00:00 deadline into end of day, so it can always be completed', () => {
+    makePaid();
     const r = E.createGoal(ctx(), {
       title: 'Night walk', emoji: 'goal-run', lat: 42.27, lng: -83.74, radiusM: 100, daysOfWeek: [0, 1, 2, 3, 4, 5, 6],
       deadlineMinutes: 0, minStayMinutes: 1, basePenaltyCents: 500, maxPenaltyCents: 4000,
@@ -97,6 +100,7 @@ describe('goal deadlines (audit M2 / spec G6)', () => {
 
 describe('scheduler', () => {
   it('catches up missed dates with escalating penalties (P8/P9)', () => {
+    makePaid();
     const r = E.createGoal(ctx(), {
       title: 'Read', emoji: '📖', lat: 42.27, lng: -83.74, radiusM: 100, daysOfWeek: [0, 1, 2, 3, 4, 5, 6],
       deadlineMinutes: 600, minStayMinutes: 5, basePenaltyCents: 500, maxPenaltyCents: 4000,
@@ -234,9 +238,18 @@ describe('identity / squad', () => {
 describe('goals', () => {
   const base = { title: 'Walk', emoji: '🚶', lat: 42.27, lng: -83.74, radiusM: 100, daysOfWeek: [1], deadlineMinutes: 600, minStayMinutes: 5, basePenaltyCents: 500, maxPenaltyCents: 4000 };
   it('limits goals per user (G8) and validates', () => {
+    expect(E.createGoal(ctx('seed_ana'), base)).toMatchObject({ ok: false, error: 'upgrade_required' }); // free tier: 1 goal
+    makePaid();
     for (let i = 0; i < 3; i++) expect(E.createGoal(ctx(), base).ok).toBe(true); // Kevin has 2 seeds
     expect(E.createGoal(ctx(), base)).toMatchObject({ ok: false, error: 'too_many_goals' });
     expect(E.createGoal(ctx('seed_ana'), { ...base, daysOfWeek: [] })).toMatchObject({ ok: false, error: 'no_days' });
+  });
+  it('downgrading to free keeps the oldest goal and pauses the rest; enforceGoalLimit fixes old data', () => {
+    expect(Object.values(s.goals).filter((g) => g.userId === T && g.active)).toHaveLength(2); // weekly seed: free Kevin with 2
+    expect(E.enforceGoalLimit(ctx(), T)).toBe(1);
+    expect(E.enforceGoalLimit(ctx(), T)).toBe(0); // idempotent
+    const left = Object.values(s.goals).filter((g) => g.userId === T && g.active);
+    expect(left.map((g) => g.id)).toEqual([GYM]); // oldest kept
   });
   it('changing penalty keeps consecutiveFlakes (G12)', () => {
     const r = E.updateGoalPenalty(ctx(), GYM, 1000);

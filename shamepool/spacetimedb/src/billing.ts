@@ -6,6 +6,7 @@ import {
 import type { Address, AddressInput, PaymentMethod, PlanStart, PlanTier, Result } from './shared/types';
 import { addressOf, paymentOf } from './shared/mappers';
 import { type Env, err, ok, uid } from './core';
+import { enforceGoalLimit } from './game';
 
 export interface CardArgs { nickname: string; nameOnCard: string; brand: string; last4: string; expMonth: number; expYear: number; addressId: string }
 
@@ -82,5 +83,6 @@ export function setPlanTier(env: Env, tier: PlanTier, start: PlanStart): Result<
   if (p.tier === tier) return err('same_tier');
   if (tier === 'paid' && usable(myCards(env), env.now).length === 0) return err('payment_required');
   savePlan(env, { userId: env.userId, tier, trialEndsAt: tier === 'paid' && start === 'trial' ? trialEnd(env.now) : -1 });
+  if (tier === 'free') enforceGoalLimit(env.ctx, env.userId); // downgrade: keep the oldest goal, pause the rest
   return ok(tier);
 }

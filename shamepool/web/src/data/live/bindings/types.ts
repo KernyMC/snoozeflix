@@ -54,6 +54,14 @@ export const Address = __t.object("Address", {
 });
 export type Address = __Infer<typeof Address>;
 
+export const AiVerdict = __t.object("AiVerdict", {
+  verified: __t.bool(),
+  confidence: __t.f64(),
+  reason: __t.string(),
+  roast: __t.string(),
+});
+export type AiVerdict = __Infer<typeof AiVerdict>;
+
 export const AuthAttempt = __t.object("AuthAttempt", {
   key: __t.string(),
   n: __t.u32(),
@@ -317,6 +325,17 @@ export const Squad = __t.object("Squad", {
   relayLinked: __t.bool(),
 });
 export type Squad = __Infer<typeof Squad>;
+
+export const SquadBan = __t.object("SquadBan", {
+  key: __t.string(),
+});
+export type SquadBan = __Infer<typeof SquadBan>;
+
+export const SquadOwner = __t.object("SquadOwner", {
+  squadId: __t.string(),
+  userId: __t.string(),
+});
+export type SquadOwner = __Infer<typeof SquadOwner>;
 
 export const User = __t.object("User", {
   id: __t.string(),

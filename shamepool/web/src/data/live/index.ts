@@ -3,8 +3,9 @@
 export {
   startBackend, registerUser, registerAccount, login, logout, getSecurityQuestions, verifySecurityAnswers, resetPassword, claimSeedUser, listSeedUsers,
   updateAvatar, updateAccountName, changeEmail, changePassword, updateSecurity, setPlanTier, addPaymentMethod, removePaymentMethod, addAddress, removeAddress,
-  createSquad, joinSquad, createGoal, updateGoalPenalty, startCheckin, pingCheckin, finishCheckin, forceFlake, postMessage, askBot, confirmBotAction,
+  createSquad, joinSquad, kickMember, createGoal, updateGoalPenalty, startCheckin, pingCheckin, finishCheckin, forceFlake, postMessage, askBot, confirmBotAction,
   proposeCashout, voteCashout, cancelCashout, setPoolGoal, requestWithdrawal, cancelWithdrawal, resetDemoData, setDemoFlags, getDemoFlags,
+  getBotContext,
 } from './actions';
 export {
   useNow, useConnection, useMe, useAccount, useBilling, useSquad, useSquadMembers, useMyGoals, useGoal, useGoalHistory, useActiveCheckin, useLeaderboard,
@@ -19,4 +20,3 @@ export const proposeDonation = (): Promise<Result<CashoutProposal>> => notLive()
 export const demoExpirePoolDeadline = (): Promise<Result<Squad>> => notLive();
 export const useCharityStatus = (): CharityStatus | null => null;
 export const useDonations = (): Donation[] => [];
-export const getBotContext = (): Record<string, unknown> | null => null; // AI bot context is mock-only for now
