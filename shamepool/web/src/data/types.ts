@@ -10,6 +10,7 @@ export interface Squad {
 
 export interface Goal {
   id: string; userId: string; squadId: string;
+  /** `emoji` holds an icon key such as 'goal-gym' (see components/ui/Icon.tsx); older data may hold a literal emoji. */
   title: string; emoji: string; lat: number; lng: number; radiusM: number;
   daysOfWeek: number[]; // 0 = Sun
   deadlineMinutes: number; // minutes after local midnight

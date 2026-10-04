@@ -80,7 +80,7 @@ export function createGoal(c: Ctx, input: GoalInput): Result<Goal> {
   if (active >= LIMITS.maxGoalsPerUser) return err('too_many_goals');
   const tz = tzOf(c.s, me.squadId);
   const goal: Goal = {
-    ...input, title: input.title.trim(), emoji: input.emoji || '🎯', daysOfWeek: [...new Set(input.daysOfWeek)].sort(),
+    ...input, title: input.title.trim(), emoji: input.emoji || 'goal-target', daysOfWeek: [...new Set(input.daysOfWeek)].sort(),
     id: uid(c.s, 'g'), userId: me.id, squadId: me.squadId, consecutiveFlakes: 0, streak: 0, active: true,
     createdAt: c.now, lastEvaluatedDate: dateAddDays(localDate(c.now, tz), -1),
   };

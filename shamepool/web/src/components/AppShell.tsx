@@ -8,6 +8,7 @@ import { MoneyText } from './ui/Money';
 import { Skeleton } from './ui/States';
 import { Avatar } from '@/components/ui/Avatar';
 import { Flakey } from './ui/Flakey';
+import { Icon } from './ui/Icon';
 
 /** Redirects per edge cases E7/E8. Returns the user when the screen may render. */
 export function useGate(requireSquad = true) {
@@ -41,8 +42,8 @@ function TopBar() {
           <Flame size={22} strokeWidth={2.5} fill="currentColor" aria-hidden />{streak}
         </div>
         <div className="flex-1 flex justify-center gap-1.5 min-w-0">
-          <span className="rounded-full bg-surface-muted px-2.5 py-1 text-sm" aria-label="Your balance">💵 <MoneyText cents={me?.balanceCents ?? 0} /></span>
-          <span className="rounded-full bg-sun-light px-2.5 py-1 text-sm" aria-label="Pool balance">🍕 <MoneyText cents={squad?.poolBalanceCents ?? 0} kind="pool" /></span>
+          <span className="rounded-full bg-surface-muted px-2.5 py-1 text-sm" aria-label="Your balance"><Icon name="cash" /> <MoneyText cents={me?.balanceCents ?? 0} /></span>
+          <span className="rounded-full bg-sun-light px-2.5 py-1 text-sm" aria-label="Pool balance"><Icon name="pizza" /> <MoneyText cents={squad?.poolBalanceCents ?? 0} kind="pool" /></span>
         </div>
         <Link href="/bot" aria-label="Squad Bot" className="size-10 rounded-full bg-grape-light grid place-items-center text-grape-dark shrink-0"><Bot size={22} strokeWidth={2.5} /></Link>
       </div>

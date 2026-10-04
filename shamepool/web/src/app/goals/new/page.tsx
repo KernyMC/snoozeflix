@@ -8,11 +8,11 @@ import { DayChips, EscalationPreview, PenaltyStepper } from '@/components/GoalFo
 import { LocationPicker } from '@/components/LocationPicker';
 import { Button } from '@/components/ui/Button';
 import { Field } from '@/components/ui/Field';
+import { GOAL_ICONS, Icon } from '@/components/ui/Icon';
 import { errorText } from '@/components/ui/States';
 import { useToast } from '@/components/ui/Toast';
 
 const DEMO = process.env.NEXT_PUBLIC_DEMO === 'true';
-const EMOJIS = ['🏋️', '📚', '🏃', '🧘', '🎸', '🎯'];
 const STAYS = DEMO ? [1, 5, 15, 30, 60] : [15, 30, 45, 60, 90];
 const CAP = 4000;
 
@@ -21,7 +21,7 @@ function NewGoal() {
   const { toast } = useToast();
   const goals = useMyGoals();
   const [title, setTitle] = useState('');
-  const [emoji, setEmoji] = useState(EMOJIS[0]);
+  const [emoji, setEmoji] = useState<string>(GOAL_ICONS[0]);
   const [pos, setPos] = useState({ lat: 42.2766, lng: -83.7382 });
   const [radius, setRadius] = useState(DEMO ? 150 : 100);
   const [days, setDays] = useState<number[]>([1, 3, 5]);
@@ -47,7 +47,7 @@ function NewGoal() {
     });
     setBusy(false);
     if (!r.ok) return toast(errorText(r.error), 'error');
-    toast('Committed. No take-backs 🔒', 'success');
+    toast('Committed. No take-backs', 'success');
     router.replace(`/goals/${r.data.id}`);
   };
 
@@ -63,9 +63,9 @@ function NewGoal() {
       <div>
         <p className={label}>What</p>
         <div className="flex gap-2 mb-3" role="radiogroup" aria-label="Icon">
-          {EMOJIS.map((x) => (
-            <button key={x} type="button" role="radio" aria-checked={emoji === x} onClick={() => setEmoji(x)}
-              className={`flex-1 aspect-square rounded-xl border-2 text-2xl shadow-chunky-sm ${emoji === x ? 'border-sky bg-sky-light [--edge:var(--color-sky-dark)]' : 'border-surface-line'}`}>{x}</button>
+          {GOAL_ICONS.map((x) => (
+            <button key={x} type="button" role="radio" aria-checked={emoji === x} aria-label={x.replace('goal-', '')} onClick={() => setEmoji(x)}
+              className={`flex-1 aspect-square rounded-xl border-2 text-2xl shadow-chunky-sm ${emoji === x ? 'border-sky bg-sky-light [--edge:var(--color-sky-dark)]' : 'border-surface-line'}`}><Icon name={x} size={30} /></button>
           ))}
         </div>
         <Field label="Title" value={title} maxLength={40} onChange={(e) => setTitle(e.target.value)} placeholder="Gym" error={errs.title} />

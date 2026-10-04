@@ -35,7 +35,7 @@ function Chat() {
     setTyping(true);
     const r = await confirmBotAction(id);
     setTyping(false);
-    if (!r.ok) toast(errorText(r.error), 'error'); else toast('Done ✅', 'success');
+    if (!r.ok) toast(errorText(r.error), 'error'); else toast('Done', 'success');
   };
 
   return (

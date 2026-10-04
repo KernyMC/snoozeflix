@@ -5,7 +5,7 @@ import { Button } from './ui/Button';
 
 /** Bottom sheet like a lesson-answer banner: green when you nailed it, red with a roast when not. */
 export function ResultSheet({ tone, title, line, mood, primary, secondary, extra }: {
-  tone: 'success' | 'fail'; title: string; line?: string; mood: Mood;
+  tone: 'success' | 'fail'; title: string; line?: React.ReactNode; mood: Mood;
   primary: { label: string; onClick?: () => void; href?: string };
   secondary?: { label: string; onClick?: () => void; href?: string };
   extra?: React.ReactNode;

@@ -2,12 +2,13 @@
 import L from 'leaflet';
 import { useEffect } from 'react';
 import { Circle, MapContainer, Marker, TileLayer, useMap, useMapEvents } from 'react-leaflet';
+import { ICONS } from './ui/Icon';
 
 export interface LatLng { lat: number; lng: number }
 
 const pin = L.divIcon({
   className: '',
-  html: '<div style="font-size:34px;line-height:34px;transform:translate(-50%,-100%)">📍</div>',
+  html: `<img src="${ICONS.pin}" alt="" width="40" height="40" draggable="false" style="display:block;max-width:none;width:40px;height:40px;transform:translate(-50%,-100%)" />`,
   iconSize: [0, 0],
 });
 

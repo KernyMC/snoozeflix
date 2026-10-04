@@ -9,6 +9,7 @@ import { DAY_NAMES, useGoalStatus } from '@/components/goalStatus';
 import { Button } from '@/components/ui/Button';
 import { Card, Pill } from '@/components/ui/Card';
 import { Flakey } from '@/components/ui/Flakey';
+import { GoalIcon, Icon } from '@/components/ui/Icon';
 import { EmptyState, errorText, Skeleton } from '@/components/ui/States';
 import { useToast } from '@/components/ui/Toast';
 import type { Goal } from '@/data';
@@ -31,7 +32,7 @@ function Detail({ goal }: { goal: Goal }) {
   ].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 14);
 
   const cta = {
-    done: { label: 'Done today ✅', off: true }, flaked: { label: 'Flaked today 💸', off: true },
+    done: { label: <>Done today <Icon name="check" /></>, off: true }, flaked: { label: <>Flaked today <Icon name="money-wings" /></>, off: true },
     rest: { label: 'Not due today', off: true }, late: { label: "Deadline passed", off: true }, due: { label: 'Check in', off: false },
   }[state];
 
@@ -46,7 +47,7 @@ function Detail({ goal }: { goal: Goal }) {
     <div className="space-y-5">
       <div className="flex items-center gap-2">
         <button onClick={() => router.push('/home')} aria-label="Back" className="size-11 -ml-2 grid place-items-center"><ArrowLeft strokeWidth={3} /></button>
-        <div className="size-12 rounded-2xl bg-sky-light grid place-items-center text-2xl">{goal.emoji}</div>
+        <div className="size-12 rounded-2xl bg-sky-light grid place-items-center text-2xl"><GoalIcon value={goal.emoji} size={30} /></div>
         <h1 className="font-display font-black text-2xl leading-tight flex-1 min-w-0 truncate">{goal.title}</h1>
         <span className={`flex items-center gap-1 font-display font-black ${goal.streak > 0 ? 'text-flame' : 'text-ink-faint'}`}><Flame fill="currentColor" size={22} aria-hidden />{goal.streak}</span>
       </div>
@@ -64,14 +65,14 @@ function Detail({ goal }: { goal: Goal }) {
 
       <div className="flex flex-wrap gap-1.5 items-center">
         {DAY_NAMES.map((d, i) => goal.daysOfWeek.includes(i) && <Pill key={d} tone="gray">{d}</Pill>)}
-        <Pill tone="gray">📍 {goal.radiusM} m</Pill><Pill tone="gray">⏱ {goal.minStayMinutes} min</Pill>
-        {goal.consecutiveFlakes > 0 && <Pill tone="ember">🥶 {goal.consecutiveFlakes} flake{goal.consecutiveFlakes > 1 ? 's' : ''} in a row</Pill>}
+        <Pill tone="gray"><Icon name="pin" /> {goal.radiusM} m</Pill><Pill tone="gray"><Icon name="clock" /> {goal.minStayMinutes} min</Pill>
+        {goal.consecutiveFlakes > 0 && <Pill tone="ember"><Icon name="frozen-face" /> {goal.consecutiveFlakes} flake{goal.consecutiveFlakes > 1 ? 's' : ''} in a row</Pill>}
       </div>
 
       {mine ? (
         <div className="space-y-3">
           <Button href={cta.off ? undefined : `/goals/${goal.id}/checkin`} disabled={cta.off} variant={cta.off ? 'secondary' : 'primary'}>{cta.label}</Button>
-          {DEMO && <Button variant="danger" onClick={flake} loading={busy}>💸 Flake now (demo)</Button>}
+          {DEMO && <Button variant="danger" onClick={flake} loading={busy}><Icon name="money-wings" /> Flake now (demo)</Button>}
         </div>
       ) : <p className="text-center font-bold text-ink-soft">You are viewing a friend&apos;s goal.</p>}
 
@@ -83,7 +84,7 @@ function Detail({ goal }: { goal: Goal }) {
           <ul className="space-y-2">
             {history.map((h, i) => (
               <li key={`${h.date}-${i}`} className={`flex items-center justify-between rounded-xl border-2 px-3 py-2.5 ${h.kind === 'ok' ? 'border-leaf/30 bg-leaf-light/50' : 'border-ember/30 bg-ember-light/50'}`}>
-                <span className="font-extrabold">{h.kind === 'ok' ? '✅' : '💸'} {h.text}</span>
+                <span className="font-extrabold"><Icon name={h.kind === 'ok' ? 'check' : 'money-wings'} /> {h.text}</span>
                 <span className="text-sm font-bold text-ink-soft">{h.date}{h.cents > 0 && <b className="text-ember ml-2 tabular">-{formatCents(h.cents)}</b>}</span>
               </li>
             ))}

@@ -6,6 +6,7 @@ import { NewPoolGoal } from '@/components/Cashout';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { Icon } from '@/components/ui/Icon';
 import { MoneyText } from '@/components/ui/Money';
 
 const DEMO = process.env.NEXT_PUBLIC_DEMO === 'true';
@@ -29,9 +30,9 @@ function Settings() {
       <NewPoolGoal />
       <Card>
         <p className="font-extrabold">Backend: <b className="text-sky-dark">{conn.mode}</b> ({conn.status})</p>
-        {DEMO && <p className="text-sm font-bold text-ink-soft mt-1">Demo controls live in the 🛠 button. Add <code>?mockSlow=1</code> or <code>?mockError=1</code> to any URL to test loading and error states.</p>}
+        {DEMO && <p className="text-sm font-bold text-ink-soft mt-1">Demo controls live in the <Icon name="wrench" /> button. Add <code>?mockSlow=1</code> or <code>?mockError=1</code> to any URL to test loading and error states.</p>}
       </Card>
-      <Button variant="secondary" href="/squad?tv=1">📺 Open projector view</Button>
+      <Button variant="secondary" href="/squad?tv=1"><Icon name="tv" /> Open projector view</Button>
       <Button variant="secondary" onClick={async () => { await logout(); router.replace('/'); }}>Sign out</Button>
       {DEMO && <Button variant="danger" onClick={async () => { await resetDemoData(); router.push('/'); }}>Reset demo data</Button>}
     </div>

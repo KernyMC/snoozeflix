@@ -9,6 +9,7 @@ import { Avatar } from './ui/Avatar';
 import { Button } from './ui/Button';
 import { Card, Pill } from './ui/Card';
 import { Flakey } from './ui/Flakey';
+import { Icon, type IconName } from './ui/Icon';
 import { CountUpMoney, MoneyText } from './ui/Money';
 import { ProgressBar } from './ui/ProgressBar';
 import { EmptyState, errorText } from './ui/States';
@@ -29,7 +30,7 @@ export function PoolCard({ squad, big = false }: { squad: Squad; big?: boolean }
   return (
     <Card tone="sun" className="space-y-3">
       <div className="flex items-center justify-between">
-        <p className={`font-extrabold uppercase tracking-wide text-sun-dark ${big ? 'text-xl' : 'text-xs'}`}>🍕 {squad.poolGoalName}</p>
+        <p className={`font-extrabold uppercase tracking-wide text-sun-dark ${big ? 'text-xl' : 'text-xs'}`}><Icon name="pizza" /> {squad.poolGoalName}</p>
         {pct >= 1 && <Pill tone="leaf">FULL!</Pill>}
       </div>
       <div className="flex items-baseline gap-2 flex-wrap">
@@ -60,7 +61,7 @@ function Row({ r, big, meId }: { r: LeaderboardRow; big?: boolean; meId?: string
       <span className={big ? 'text-4xl' : 'text-2xl'}><Avatar value={r.user.avatar} size={big ? 48 : 32} /></span>
       <div className="flex-1 min-w-0">
         <p className={`font-display font-black truncate ${big ? 'text-2xl' : ''}`}>{r.user.name}</p>
-        {r.isFlakeOfWeek && <Pill tone="ember" className="mt-0.5">🥶 Flake of the Week</Pill>}
+        {r.isFlakeOfWeek && <Pill tone="ember" className="mt-0.5"><Icon name="frozen-face" /> Flake of the Week</Pill>}
       </div>
       <div className={`text-right ${big ? 'text-xl' : 'text-sm'}`}>
         <p className="font-black tabular">{r.completionRate === null ? '—' : `${Math.round(r.completionRate * 100)}%`}</p>
@@ -87,14 +88,14 @@ export function Leaderboard({ big = false }: { big?: boolean }) {
   );
 }
 
-const KIND: Record<FeedKind, { icon: string; bubble: string }> = {
-  commit: { icon: '🔒', bubble: 'bg-sky-light' },
-  checkin: { icon: '✅', bubble: 'bg-leaf-light' },
-  flake: { icon: '💸', bubble: 'bg-ember-light' },
-  milestone: { icon: '🎯', bubble: 'bg-sun-light' },
-  bot: { icon: '', bubble: 'bg-grape-light' },
-  message: { icon: '💬', bubble: 'bg-surface-muted' },
-  cashout: { icon: '🍕', bubble: 'bg-sun-light' },
+const KIND: Record<FeedKind, { icon: IconName | null; bubble: string }> = {
+  commit: { icon: 'lock', bubble: 'bg-sky-light' },
+  checkin: { icon: 'check', bubble: 'bg-leaf-light' },
+  flake: { icon: 'money-wings', bubble: 'bg-ember-light' },
+  milestone: { icon: 'target', bubble: 'bg-sun-light' },
+  bot: { icon: null, bubble: 'bg-grape-light' },
+  message: { icon: 'chat', bubble: 'bg-surface-muted' },
+  cashout: { icon: 'pizza', bubble: 'bg-sun-light' },
 };
 
 export function Feed({ limit = 50, big = false, autoScroll = false }: { limit?: number; big?: boolean; autoScroll?: boolean }) {
@@ -128,7 +129,7 @@ export function Feed({ limit = 50, big = false, autoScroll = false }: { limit?: 
                 transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                 className={`flex gap-2.5 rounded-2xl p-3 ${bot ? 'bg-grape-light' : k.bubble} ${f.actorUserId === me?.id ? 'ring-2 ring-sky/40' : ''}`}>
                 <span className={`shrink-0 grid place-items-center rounded-full bg-white/70 ${big ? 'size-12 text-2xl' : 'size-9 text-lg'}`}>
-                  {bot ? <Flakey mood="smug" size={big ? 36 : 28} /> : k.icon}
+                  {bot ? <Flakey mood="smug" size={big ? 36 : 28} /> : k.icon && <Icon name={k.icon} size={big ? 30 : 22} />}
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className={`font-extrabold break-words ${big ? 'text-2xl' : 'text-[15px]'} ${bot ? 'text-grape-dark' : ''}`}>

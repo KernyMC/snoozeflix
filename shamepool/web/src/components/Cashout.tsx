@@ -8,6 +8,7 @@ import { Button } from './ui/Button';
 import { Card } from './ui/Card';
 import { dollarsToCents, Field } from './ui/Field';
 import { Flakey } from './ui/Flakey';
+import { Icon } from './ui/Icon';
 import { errorText } from './ui/States';
 import { useToast } from './ui/Toast';
 
@@ -46,8 +47,8 @@ export function CashoutBanner() {
           </div>
         </div>
         <div className="grid grid-cols-2 gap-3">
-          <Button variant={mine === true ? 'primary' : 'secondary'} loading={busy} onClick={() => act(() => voteCashout(open.id, true), 'Voted yes 🍕')}>👍 Yes</Button>
-          <Button variant={mine === false ? 'danger' : 'secondary'} loading={busy} onClick={() => act(() => voteCashout(open.id, false))}>👎 No</Button>
+          <Button variant={mine === true ? 'primary' : 'secondary'} loading={busy} onClick={() => act(() => voteCashout(open.id, true), 'Voted yes')}><Icon name="thumbs-up" /> Yes</Button>
+          <Button variant={mine === false ? 'danger' : 'secondary'} loading={busy} onClick={() => act(() => voteCashout(open.id, false))}><Icon name="thumbs-down" /> No</Button>
         </div>
         {open.proposerUserId === me.id && <Button variant="ghost" onClick={() => act(() => cancelCashout(open.id))}>Cancel proposal</Button>}
       </Card>
@@ -60,7 +61,7 @@ export function CashoutBanner() {
         <div className="flex items-center gap-3">
           <Flakey mood="cheer" size={64} />
           <div>
-            <h2 className="font-display font-black text-xl text-leaf-dark">Pool is full! 🎉</h2>
+            <h2 className="font-display font-black text-xl text-leaf-dark">Pool is full! <Icon name="party" /></h2>
             <p className="text-sm font-bold text-ink-soft">Time to spend {formatCents(squad.poolGoalCents)} on {squad.poolGoalName}.</p>
           </div>
         </div>
@@ -87,7 +88,7 @@ export function NewPoolGoal() {
     setBusy(true);
     const r = await setPoolGoal(name || squad.poolGoalName, cents);
     setBusy(false);
-    toast(r.ok ? 'New pool goal set 🎯' : errorText(r.error), r.ok ? 'success' : 'error');
+    toast(r.ok ? 'New pool goal set' : errorText(r.error), r.ok ? 'success' : 'error');
   };
   return (
     <Card className="space-y-3">

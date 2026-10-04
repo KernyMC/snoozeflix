@@ -9,6 +9,7 @@ import { Feed, Leaderboard, MessageBox, PoolCard } from '@/components/SquadParts
 import { ListSkeleton } from '@/components/ui/States';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { Icon } from '@/components/ui/Icon';
 
 function Dashboard() {
   const squad = useSquad();
@@ -18,7 +19,7 @@ function Dashboard() {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <h1 className="font-display font-black text-3xl truncate">{squad.name}</h1>
-        <Button href="/squad?tv=1" variant="ghost" full={false} className="px-2 min-h-11">📺 TV</Button>
+        <Button href="/squad?tv=1" variant="ghost" full={false} className="px-2 min-h-11"><Icon name="tv" /> TV</Button>
       </div>
       <PoolCard squad={squad} />
       <CashoutBanner />

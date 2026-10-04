@@ -31,13 +31,13 @@ export function makeSeed(now: number): MockState {
       security: ['pet', 'city', 'car'].map((qId) => ({ qId, answerHash: hash('demo') })),
     };
   }
-  // [owner, title, emoji, lat, lng, days, deadlineMin, penalty, skipIdx[]]
+  // [owner, title, icon key (stored in `emoji`), lat, lng, days, deadlineMin, penalty, skipIdx[]]
   const defs: Array<[string, string, string, number, number, number[], number, number, number[]]> = [
-    ['kevin', 'Gym', '🏋️', 42.2762, -83.7357, [1, 2, 3, 4, 5], 18 * 60, 500, [1, 3]],
-    ['kevin', 'Study at the library', '📚', 42.2768, -83.7382, [0, 1, 2, 3, 4], 21 * 60, 500, [2]],
-    ['ana', 'Morning run', '🏃', 42.2780, -83.7382, [1, 2, 3, 4, 5, 6], 9 * 60, 500, []],
-    ['leo', 'Practice guitar', '🎸', 42.2750, -83.7415, [1, 3, 5], 20 * 60, 500, [0]],
-    ['maya', 'Yoga', '🧘', 42.2762, -83.7357, [2, 4, 6], 19 * 60, 500, []],
+    ['kevin', 'Gym', 'goal-gym', 42.2762, -83.7357, [1, 2, 3, 4, 5], 18 * 60, 500, [1, 3]],
+    ['kevin', 'Study at the library', 'goal-book', 42.2768, -83.7382, [0, 1, 2, 3, 4], 21 * 60, 500, [2]],
+    ['ana', 'Morning run', 'goal-run', 42.2780, -83.7382, [1, 2, 3, 4, 5, 6], 9 * 60, 500, []],
+    ['leo', 'Practice guitar', 'goal-guitar', 42.2750, -83.7415, [1, 3, 5], 20 * 60, 500, [0]],
+    ['maya', 'Yoga', 'goal-yoga', 42.2762, -83.7357, [2, 4, 6], 19 * 60, 500, []],
   ];
   let n = 0;
   for (const [owner, title, emoji, lat, lng, days, deadline, base, skip] of defs) {

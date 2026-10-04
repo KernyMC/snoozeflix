@@ -13,6 +13,7 @@ import { ResultSheet } from './ResultSheet';
 import { StayTimerRing } from './StayTimerRing';
 import { Button } from './ui/Button';
 import { Flakey, type Mood } from './ui/Flakey';
+import { Icon } from './ui/Icon';
 import { errorText } from './ui/States';
 
 type Step = 'locating' | 'too_far' | 'geo_error' | 'blocked' | 'stay' | 'photo' | 'verifying' | 'success' | 'rejected' | 'failed';
@@ -134,7 +135,7 @@ export function CheckinFlow({ goal }: { goal: Goal }) {
               <Flakey mood="worried" size={120} />
               <h1 className="font-display font-black text-3xl">We can&apos;t see you</h1>
               <p className="text-ink-soft font-bold max-w-xs">{msg}</p>
-              {DEMO && <p className="text-xs font-bold text-grape-dark max-w-xs">Demo tip: open 🛠 and turn on &quot;Pretend I&apos;m there&quot;.</p>}
+              {DEMO && <p className="text-xs font-bold text-grape-dark max-w-xs">Demo tip: open <Icon name="wrench" /> and turn on &quot;Pretend I&apos;m there&quot;.</p>}
             </>)}
 
             {step === 'blocked' && (<>
@@ -153,7 +154,7 @@ export function CheckinFlow({ goal }: { goal: Goal }) {
             </>)}
 
             {step === 'photo' && (<>
-              <h1 className="font-display font-black text-3xl">Prove it 📸</h1>
+              <h1 className="font-display font-black text-3xl">Prove it <Icon name="camera" /></h1>
               <p className="text-ink-soft font-bold max-w-xs">Take a photo of where you are. The AI will judge it.</p>
               {photo ? <img src={photo.url} alt="Your photo" className="w-60 h-60 object-cover rounded-3xl border-2 border-surface-line" /> : <Flakey mood="happy" size={110} />}
             </>)}
@@ -166,7 +167,7 @@ export function CheckinFlow({ goal }: { goal: Goal }) {
 
             {step === 'success' && (<>
               <motion.div initial={{ scale: 0.6 }} animate={{ scale: [0.6, 1.1, 1] }} transition={{ type: 'spring' }}><Flakey mood="cheer" size={150} /></motion.div>
-              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: -10 }} className="font-display font-black text-4xl text-flame">+1 🔥</motion.div>
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: -10 }} className="font-display font-black text-4xl text-flame">+1 <Icon name="fire" /></motion.div>
             </>)}
 
             {step === 'rejected' && <Flakey mood="smug" size={120} />}
@@ -190,7 +191,7 @@ export function CheckinFlow({ goal }: { goal: Goal }) {
         : <PhotoCapture onPhoto={(b64, url) => setPhoto({ b64, url })} />)}
 
       {step === 'success' && (
-        <ResultSheet tone="success" mood="cheer" title="Nailed it!" line={`Promise kept. Streak: ${live.streak} 🔥`}
+        <ResultSheet tone="success" mood="cheer" title="Nailed it!" line={<>Promise kept. Streak: {live.streak} <Icon name="fire" /></>}
           primary={{ label: 'Continue', onClick: exit }} secondary={{ label: 'See the squad', href: '/squad' }} />
       )}
       {step === 'rejected' && (

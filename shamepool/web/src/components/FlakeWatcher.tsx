@@ -5,6 +5,7 @@ import { formatCents, useFeed, useMe } from '@/data';
 import { vibrate } from './effects';
 import { Button } from './ui/Button';
 import { Flakey } from './ui/Flakey';
+import { Icon } from './ui/Icon';
 import { CountUpMoney } from './ui/Money';
 import { useToast } from './ui/Toast';
 
@@ -34,7 +35,7 @@ export function FlakeWatcher() {
         vibrate([80, 40, 80]);
         setFlake({ id: ev.id, text: ev.text, cents });
       } else {
-        toast(`${ev.text.split(' flaked')[0]} flaked 💸 ${formatCents(cents)}`, 'error');
+        toast(`${ev.text.split(' flaked')[0]} flaked ${formatCents(cents)}`, 'error');
       }
     }
   }, [feed, me, toast]);
@@ -50,7 +51,7 @@ export function FlakeWatcher() {
           >
             <div className="flex justify-center"><Flakey mood="melting" size={130} /></div>
             <div className="text-6xl text-ember"><CountUpMoney cents={-flake.cents} kind="loss" className="text-6xl" /></div>
-            <p className="font-extrabold text-ember-dark text-lg mt-1">💸 {flake.text}</p>
+            <p className="font-extrabold text-ember-dark text-lg mt-1"><Icon name="money-wings" /> {flake.text}</p>
             <p className="font-bold text-ink-soft mb-5">The pool thanks you for your service.</p>
             <div className="space-y-3">
               <Button variant="danger" onClick={() => setFlake(null)}>Ouch</Button>
