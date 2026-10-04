@@ -13,6 +13,12 @@ export interface Wallet {
   stake: StakeItem[]; minWithdrawCents: Cents; cooldownMs: number;
 }
 
+/** What an invite link carries so a device that has never seen the squad can still join it. */
+export interface InviteSnapshot {
+  code: string; id: string; name: string; poolGoalName: string; poolGoalCents: Cents;
+  ownerName?: string; ownerAvatar?: string;
+}
+
 export interface Squad {
   id: string; name: string; inviteCode: string;
   poolGoalName: string; poolGoalCents: Cents; poolBalanceCents: Cents;

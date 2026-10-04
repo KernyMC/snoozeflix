@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { claimSeedUser, listSeedUsers, useMe, useSquad } from '@/data';
 import { Wordmark } from './AppShell';
 import { CashoutBanner } from './Cashout';
-import { inviteUrl } from './InviteQr';
+import { inviteUrl, useInviteSnapshot } from './InviteQr';
 import { Feed, Leaderboard, PoolCard } from './SquadParts';
 import { Flakey } from './ui/Flakey';
 import { setPrefs, speak, usePrefs } from '@/lib/voice';
@@ -16,6 +16,7 @@ import { setPrefs, speak, usePrefs } from '@/lib/voice';
 export function Projector() {
   const me = useMe();
   const squad = useSquad();
+  const snapshot = useInviteSnapshot();
   const [origin, setOrigin] = useState('');
   const [failed, setFailed] = useState(false);
 
@@ -38,7 +39,7 @@ export function Projector() {
       </main>
     );
   }
-  const joinUrl = inviteUrl(origin, squad.inviteCode);
+  const joinUrl = inviteUrl(origin, squad.inviteCode, snapshot);
   return (
     <>
     <main className="min-h-dvh bg-surface-muted p-6 grid grid-cols-[1.1fr_1fr_1fr] gap-6 text-[1.15em]" aria-label="Projector view">

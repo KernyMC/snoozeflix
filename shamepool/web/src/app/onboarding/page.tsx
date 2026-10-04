@@ -2,9 +2,9 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 import { Check, Copy, Share2 } from 'lucide-react';
-import { createSquad, joinSquad, registerUser, useMe, useSquad } from '@/data';
+import { createSquad, decodeSnapshot, joinSquad, registerUser, useMe, useSquad } from '@/data';
 import { Wordmark } from '@/components/AppShell';
-import { InviteQr, inviteUrl } from '@/components/InviteQr';
+import { InviteQr, inviteUrl, useInviteSnapshot } from '@/components/InviteQr';
 import { Avatar, AVATARS } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -17,6 +17,7 @@ import { fireConfetti } from '@/components/effects';
 function Onboarding() {
   const me = useMe();
   const squad = useSquad();
+  const snapshot = useInviteSnapshot();
   const router = useRouter();
   const params = useSearchParams();
   const { toast } = useToast();
@@ -64,14 +65,14 @@ function Onboarding() {
   const doJoin = async () => {
     setErr({});
     setBusy(true);
-    const r = await joinSquad(code);
+    const r = await joinSquad(code, decodeSnapshot(params.get('s')));
     setBusy(false);
     if (!r.ok) return setErr({ code: errorText(r.error) });
     fireConfetti();
     router.replace('/home');
   };
 
-  const link = typeof window !== 'undefined' && squad ? inviteUrl(window.location.origin, squad.inviteCode) : '';
+  const link = typeof window !== 'undefined' && squad ? inviteUrl(window.location.origin, squad.inviteCode, snapshot) : '';
   const copy = async () => {
     try { await navigator.clipboard.writeText(squad?.inviteCode ?? ''); setCopied(true); setTimeout(() => setCopied(false), 1500); }
     catch { toast('Could not copy. Long-press the code instead.', 'error'); }
@@ -148,7 +149,7 @@ function Onboarding() {
             <p className="font-display font-black text-5xl tracking-[0.25em] tabular mt-1" aria-label={`Invite code ${squad.inviteCode.split('').join(' ')}`}>{squad.inviteCode}</p>
             <div className="mt-4 flex flex-col items-center gap-2">
               <InviteQr code={squad.inviteCode} size={132} />
-              <p className="text-sm font-bold text-ink-soft">Or have them scan this to sign up and join.</p>
+              <p className="text-sm font-bold text-ink-soft">Or have them scan this to join.</p>
             </div>
           </Card>
           <div className="grid grid-cols-2 gap-3">

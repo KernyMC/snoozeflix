@@ -1,5 +1,5 @@
 import type {
-  AccountInfo, Address, AddressInput, PaymentMethod, PaymentMethodInput, PlanStart, PlanTier, RegisterInput, AiBotInput, BotReply, CashoutProposal, Checkin, DemoFlags, FeedEvent, Goal, GoalInput, PhotoVerdict, Penalty, Pos, Result, Squad, User, Withdrawal,
+  AccountInfo, Address, AddressInput, PaymentMethod, PaymentMethodInput, PlanStart, PlanTier, RegisterInput, AiBotInput, BotReply, CashoutProposal, Checkin, InviteSnapshot, DemoFlags, FeedEvent, Goal, GoalInput, PhotoVerdict, Penalty, Pos, Result, Squad, User, Withdrawal,
 } from '../types';
 import * as E from './engine';
 import * as A from './authEngine';
@@ -75,7 +75,7 @@ export async function listSeedUsers(): Promise<Result<User[]>> {
   return { ok: true, data: s.seedUserIds.map((id) => s.users[id]).filter(Boolean) };
 }
 export const createSquad = (i: { name: string; poolGoalName: string; poolGoalCents: number }): Promise<Result<Squad>> => run((c) => E.createSquad(c, i));
-export const joinSquad = (code: string): Promise<Result<Squad>> => run((c) => E.joinSquad(c, code));
+export const joinSquad = (code: string, invite?: InviteSnapshot | null): Promise<Result<Squad>> => run((c) => E.joinSquad(c, code, invite));
 
 /* goals */
 export const createGoal = (i: GoalInput): Promise<Result<Goal>> => run((c) => E.createGoal(c, i));

@@ -208,7 +208,7 @@ export async function createSquad(i: { name: string; poolGoalName: string; poolG
   if (r.ok) await settle((s) => s.me?.squadId === r.data.id && s.squads.some((q) => q.id === r.data.id));
   return r;
 }
-export async function joinSquad(code: string): Promise<Result<Squad>> {
+export async function joinSquad(code: string, _invite?: unknown): Promise<Result<Squad>> {
   const r = await run<Squad>((c) => c.procedures.joinSquad({ code }));
   if (r.ok) await settle((s) => s.me?.squadId === r.data.id && s.squads.some((q) => q.id === r.data.id));
   return r;
