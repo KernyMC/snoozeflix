@@ -1,13 +1,12 @@
 'use client';
 import { ArrowLeft } from 'lucide-react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { createGoal, formatCents, useBilling, useMyGoals } from '@/data';
 import { AppShell } from '@/components/AppShell';
 import { DayChips, EscalationPreview, PenaltyStepper } from '@/components/GoalFormParts';
 import { LocationPicker } from '@/components/LocationPicker';
-import { GOAL_LIMITS, PAID_TIER_PRICE_CENTS } from '@/components/UpgradeBanner';
+import { GOAL_LIMITS, openUpgrade, PAID_TIER_PRICE_CENTS } from '@/components/UpgradeBanner';
 import { Button } from '@/components/ui/Button';
 import { Field } from '@/components/ui/Field';
 import { GOAL_ICONS, Icon } from '@/components/ui/Icon';
@@ -63,7 +62,7 @@ function NewGoal() {
       </div>
       {full && (tier === 'free' ? (
         <p role="alert" className="rounded-xl border-2 border-sun bg-sun-light p-3 font-extrabold">
-          The free tier has {GOAL_LIMITS.free} goal. <Link href="/settings#plan" className="font-black underline decoration-2 underline-offset-2">Upgrade for {formatCents(PAID_TIER_PRICE_CENTS)}</Link> to get all {GOAL_LIMITS.paid}.
+          The free tier has {GOAL_LIMITS.free} goal. <button type="button" onClick={openUpgrade} aria-haspopup="dialog" className="font-black underline decoration-2 underline-offset-2">Upgrade for {formatCents(PAID_TIER_PRICE_CENTS)}</button> to get all {GOAL_LIMITS.paid}.
         </p>
       ) : <p role="alert" className="rounded-xl bg-flame-light p-3 font-extrabold text-flame-dark">You already have {GOAL_LIMITS.paid} active goals. That is the max.</p>)}
 
