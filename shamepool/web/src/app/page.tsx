@@ -1,8 +1,9 @@
 'use client';
-import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { claimSeedUser, listSeedUsers, login, useMe, type User } from '@/data';
 import { AuthShell, focusFirstInvalid } from '@/components/auth/AuthShell';
+import { joinParam, withJoin } from '@/components/InviteQr';
 import { PasswordField } from '@/components/auth/PasswordField';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
@@ -14,9 +15,11 @@ import { useToast } from '@/components/ui/Toast';
 const DEMO = process.env.NEXT_PUBLIC_DEMO === 'true';
 const DEV_SKIP = process.env.NODE_ENV !== 'production'; // dev-only bypass, stripped from production builds
 
-export default function LoginPage() {
+function LoginPage() {
   const me = useMe();
   const router = useRouter();
+  const join = joinParam(useSearchParams()); // invite code from a scanned QR, if any
+  const onboarding = withJoin('/onboarding', join);
   const { toast } = useToast();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -27,7 +30,7 @@ export default function LoginPage() {
   const [claiming, setClaiming] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
-  useEffect(() => { if (me) router.replace(me.squadId ? '/home' : '/onboarding'); }, [me, router]);
+  useEffect(() => { if (me) router.replace(me.squadId ? '/home' : onboarding); }, [me, router, onboarding]);
   useEffect(() => {
     if (!DEMO) return;
     let alive = true;
@@ -48,7 +51,7 @@ export default function LoginPage() {
     const r = await login(username, password);
     setBusy(false);
     if (!r.ok) return setFormErr(errorText(r.error));
-    router.replace(r.data.squadId ? '/home' : '/onboarding');
+    router.replace(r.data.squadId ? '/home' : onboarding);
   };
 
   const claim = async (id: string) => {
@@ -71,7 +74,7 @@ export default function LoginPage() {
       </form>
       <div className="border-t-2 border-surface-line my-5" />
       <div className="space-y-3">
-        <Button variant="secondary" href="/register">Create an account</Button>
+        <Button variant="secondary" href={withJoin('/register', join)}>Create an account</Button>
         <Button variant="ghost" href="/forgot-password">Forgot password?</Button>
         {DEV_SKIP && <Button variant="secondary" type="button" loading={claiming === 'seed_kevin'} onClick={() => claim('seed_kevin')}>Skip sign-in (dev only)</Button>}
       </div>
@@ -97,4 +100,8 @@ export default function LoginPage() {
       )}
     </AuthShell>
   );
+}
+
+export default function Page() {
+  return <Suspense fallback={null}><LoginPage /></Suspense>;
 }

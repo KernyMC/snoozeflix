@@ -4,6 +4,7 @@ import { useSearchParams } from 'next/navigation';
 import { useConnection, useSquad } from '@/data';
 import { AppShell } from '@/components/AppShell';
 import { CashoutBanner } from '@/components/Cashout';
+import { InviteQr } from '@/components/InviteQr';
 import { Projector } from '@/components/Projector';
 import { Feed, Leaderboard, MessageBox, PoolCard } from '@/components/SquadParts';
 import { ListSkeleton } from '@/components/ui/States';
@@ -24,7 +25,14 @@ function Dashboard() {
       <PoolCard squad={squad} />
       <CashoutBanner />
       <section aria-labelledby="lb"><h2 id="lb" className="font-display font-black text-xl mb-2">Leaderboard</h2><Leaderboard /></section>
-      <Card tone="grape" className="!p-3 text-sm font-bold text-grape-dark">Invite code: <b className="tracking-widest">{squad.inviteCode}</b></Card>
+      <Card tone="grape" className="!p-3 flex items-center gap-3 text-grape-dark">
+        <InviteQr code={squad.inviteCode} size={84} />
+        <div className="min-w-0">
+          <p className="text-xs font-extrabold uppercase tracking-wide">Invite code</p>
+          <p className="font-display font-black text-2xl tracking-widest">{squad.inviteCode}</p>
+          <p className="text-sm font-bold text-ink-soft">Scan to sign up and join.</p>
+        </div>
+      </Card>
       <section aria-labelledby="fd" className="space-y-3">
         <h2 id="fd" className="font-display font-black text-xl">Feed</h2>
         <MessageBox />

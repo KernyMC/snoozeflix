@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { claimSeedUser, listSeedUsers, useMe, useSquad } from '@/data';
 import { Wordmark } from './AppShell';
 import { CashoutBanner } from './Cashout';
+import { inviteUrl } from './InviteQr';
 import { Feed, Leaderboard, PoolCard } from './SquadParts';
 import { Flakey } from './ui/Flakey';
 
@@ -36,7 +37,7 @@ export function Projector() {
       </main>
     );
   }
-  const joinUrl = `${origin}/onboarding?join=${squad.inviteCode}`;
+  const joinUrl = inviteUrl(origin, squad.inviteCode);
   return (
     <main className="min-h-dvh bg-surface-muted p-6 grid grid-cols-[1.1fr_1fr_1fr] gap-6 text-[1.15em]" aria-label="Projector view">
       <section className="space-y-5">

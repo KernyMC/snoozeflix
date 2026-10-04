@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from 'react';
 import { Check, Copy, Share2 } from 'lucide-react';
 import { createSquad, joinSquad, registerUser, useMe, useSquad } from '@/data';
 import { Wordmark } from '@/components/AppShell';
+import { InviteQr, inviteUrl } from '@/components/InviteQr';
 import { Avatar, AVATARS } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -70,7 +71,7 @@ function Onboarding() {
     router.replace('/home');
   };
 
-  const link = typeof window !== 'undefined' && squad ? `${window.location.origin}/onboarding?join=${squad.inviteCode}` : '';
+  const link = typeof window !== 'undefined' && squad ? inviteUrl(window.location.origin, squad.inviteCode) : '';
   const copy = async () => {
     try { await navigator.clipboard.writeText(squad?.inviteCode ?? ''); setCopied(true); setTimeout(() => setCopied(false), 1500); }
     catch { toast('Could not copy. Long-press the code instead.', 'error'); }
@@ -145,6 +146,10 @@ function Onboarding() {
           <Card tone="sun" className="py-6">
             <p className="text-xs font-extrabold uppercase tracking-wide text-ink-soft">Invite code</p>
             <p className="font-display font-black text-5xl tracking-[0.25em] tabular mt-1" aria-label={`Invite code ${squad.inviteCode.split('').join(' ')}`}>{squad.inviteCode}</p>
+            <div className="mt-4 flex flex-col items-center gap-2">
+              <InviteQr code={squad.inviteCode} size={132} />
+              <p className="text-sm font-bold text-ink-soft">Or have them scan this to sign up and join.</p>
+            </div>
           </Card>
           <div className="grid grid-cols-2 gap-3">
             <Button variant="secondary" onClick={copy}>{copied ? <Check size={20} strokeWidth={3} /> : <Copy size={20} strokeWidth={3} />}{copied ? 'Copied' : 'Copy'}</Button>

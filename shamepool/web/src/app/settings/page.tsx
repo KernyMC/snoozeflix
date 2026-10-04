@@ -4,6 +4,7 @@ import { logout, resetDemoData, useConnection, useMe, useSquad } from '@/data';
 import { AccountSettings, ProfileCard } from '@/components/AccountForms';
 import { AppShell } from '@/components/AppShell';
 import { NewPoolGoal } from '@/components/Cashout';
+import { InviteQr } from '@/components/InviteQr';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Icon } from '@/components/ui/Icon';
@@ -29,7 +30,14 @@ function Settings() {
       {squad && (
         <section aria-labelledby="sq" className="space-y-3">
           <h2 id="sq" className={h2}>Squad</h2>
-          <Card tone="sun"><p className="font-display font-black text-xl">{squad.name}</p><p className="font-bold">Invite code <b className="tracking-widest">{squad.inviteCode}</b></p></Card>
+          <Card tone="sun" className="flex items-center gap-3">
+            <InviteQr code={squad.inviteCode} size={84} />
+            <div className="min-w-0">
+              <p className="font-display font-black text-xl truncate">{squad.name}</p>
+              <p className="font-bold">Invite code <b className="tracking-widest">{squad.inviteCode}</b></p>
+              <p className="text-sm font-bold text-ink-soft">Scan to sign up and join.</p>
+            </div>
+          </Card>
           <NewPoolGoal />
         </section>
       )}
