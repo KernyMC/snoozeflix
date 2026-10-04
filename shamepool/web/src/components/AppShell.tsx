@@ -1,5 +1,5 @@
 'use client';
-import { Bot, Flame, Home, Plus, Users } from 'lucide-react';
+import { Bot, Flame, Home, Plus, User, Users } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -70,6 +70,7 @@ function TabBar() {
         <Link href="/goals/new" aria-label="New goal" className="flex-1 flex justify-center -mt-5 min-h-[56px]">
           <span className="size-14 rounded-full bg-primary text-white grid place-items-center shadow-chunky [--edge:var(--color-primary-dark)] active:translate-y-1 active:shadow-none"><Plus size={30} strokeWidth={3.5} /></span>
         </Link>
+        {tab('/settings', 'Profile', User, 'text-sky')}
         {tab('/bot', 'Bot', Bot, 'text-grape')}
       </div>
     </nav>
