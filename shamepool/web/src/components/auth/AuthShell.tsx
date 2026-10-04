@@ -29,7 +29,7 @@ export function AuthShell({ title, subtitle, mood = 'happy', big, step, children
         <Flakey mood={mood} size={big ? 140 : 96} />
         {big ? <p className="text-5xl"><Wordmark /></p> : <Wordmark className="text-2xl" />}
         {big && <p className="font-display font-extrabold text-lg text-ink-soft max-w-[18rem]">Skip the task. Loose the cash.</p>}
-        <h1 className="font-display font-black text-3xl mt-1">{title}</h1>
+        <h1 className={`font-display font-black text-3xl ${big ? 'mt-6' : 'mt-1'}`}>{title}</h1>
         {subtitle && <p className="font-bold text-ink-soft">{subtitle}</p>}
       </header>
       {children}
