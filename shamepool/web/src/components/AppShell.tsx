@@ -69,10 +69,10 @@ function TabBar() {
         {tab('/squad', 'Squad', Users, 'text-sun-dark')}
         <Link href="/goals/new" aria-label="New goal" className="group relative flex-1 min-h-[56px]">
           {/* The bar rising to wrap the button: a 3px white rim carrying the bar's own 2px line. */}
-          <span aria-hidden className="absolute left-1/2 -top-[25px] size-[58px] -translate-x-1/2 rounded-full bg-white border-2 border-surface-line" />
-          {/* Hides the lower half of that rim, so the line only runs over the top of the button. */}
-          <span aria-hidden className="absolute left-1/2 top-0 h-9 w-[58px] -translate-x-1/2 bg-white" />
-          <span className="absolute left-1/2 -top-5 size-12 -translate-x-1/2 rounded-full bg-primary text-white grid place-items-center shadow-chunky [--edge:var(--color-primary-dark)] group-active:translate-y-1 group-active:shadow-none"><Plus size={26} strokeWidth={3.5} /></span>
+          <span aria-hidden className="absolute left-1/2 -top-[11px] size-[58px] -translate-x-1/2 rounded-full bg-white border-2 border-surface-line" />
+          {/* Hides the rest of that rim inside the bar, so the line only runs over the top of the button. */}
+          <span aria-hidden className="absolute left-1/2 top-0 h-12 w-[58px] -translate-x-1/2 bg-white" />
+          <span className="absolute left-1/2 -top-1.5 size-12 -translate-x-1/2 rounded-full bg-primary text-white grid place-items-center shadow-chunky [--edge:var(--color-primary-dark)] group-active:translate-y-1 group-active:shadow-none"><Plus size={28} strokeWidth={3.5} /></span>
         </Link>
         {tab('/settings', 'Profile', User, 'text-sky')}
         {tab('/bot', 'Bot', Bot, 'text-grape')}
