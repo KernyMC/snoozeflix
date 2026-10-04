@@ -3,6 +3,7 @@ import * as live from './live';
 import * as mock from './mock';
 
 export * from './types';
+export { CHARITIES, charityById, DEFAULT_CHARITY_ID, type Charity, type CharityKind } from './charities';
 export {
   SECURITY_QUESTIONS, validateFirstName, validateLastName, validateEmail, validateUsername, validatePassword, validateConfirm,
   validateSecurity, passwordStrength, normalizeAnswer,
@@ -43,6 +44,11 @@ export const registerAccount = impl.registerAccount;
 export const login = impl.login;
 export const logout = impl.logout;
 export const requestWithdrawal = impl.requestWithdrawal;
+export const setCharity = impl.setCharity;
+export const proposeDonation = impl.proposeDonation;
+export const demoExpirePoolDeadline = impl.demoExpirePoolDeadline;
+export const useCharityStatus = impl.useCharityStatus;
+export const useDonations = impl.useDonations;
 export const cancelWithdrawal = impl.cancelWithdrawal;
 export const useWallet = impl.useWallet;
 export const useWithdrawals = impl.useWithdrawals;
@@ -71,6 +77,7 @@ export const finishCheckin = impl.finishCheckin;
 export const forceFlake = impl.forceFlake;
 export const postMessage = impl.postMessage;
 export const askBot = impl.askBot;
+export const getBotContext = impl.getBotContext;
 export const confirmBotAction = impl.confirmBotAction;
 export const proposeCashout = impl.proposeCashout;
 export const voteCashout = impl.voteCashout;

@@ -1,23 +1,27 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Wrench, X } from 'lucide-react';
-import { forceFlake, localMinutes, resetDemoData, setDemoFlags, useDemoFlags, useMyGoals, useSquad } from '@/data';
+import { demoExpirePoolDeadline, forceFlake, localMinutes, resetDemoData, setDemoFlags, useDemoFlags, useMe, useMyGoals, useSquad } from '@/data';
+import { DEMO_ENABLED } from '@/lib/demo';
 import { useToast } from './ui/Toast';
 import { Select } from './ui/Select';
 import { Icon, isIconName } from './ui/Icon';
 
-const DEMO = process.env.NEXT_PUBLIC_DEMO === 'true';
+const DEMO = DEMO_ENABLED;
 const DEMO_TZ = 'America/Detroit';
 
 export function DemoPanel() {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+  const me = useMe();
+  const [projector, setProjector] = useState(false);
+  useEffect(() => { setProjector(window.location.search.includes('tv=1')); }, []);
   const goals = useMyGoals();
   const squad = useSquad();
   const flags = useDemoFlags();
   const { toast } = useToast();
   const [goalId, setGoalId] = useState('');
-  if (!DEMO) return null;
+  if (!DEMO || !me || projector) return null; // visible for every signed-in account
   const goal = goals.find((g) => g.id === (goalId || goals[0]?.id));
   const tz = squad?.timezone ?? DEMO_TZ;
 
@@ -53,6 +57,10 @@ export function DemoPanel() {
           <button className={btn} disabled={!goal} onClick={() => goal && run('Jumped to 1 min before deadline', () =>
             setDemoFlags({ timeOffsetMs: flags.timeOffsetMs + (goal.deadlineMinutes - 1 - localMinutes(Date.now() + flags.timeOffsetMs, tz)) * 60_000 }))}>
             <Icon name="clock" /> Skip to 1 min before deadline
+          </button>
+          <button className={btn} disabled={busy || !squad || squad.poolBalanceCents < squad.poolGoalCents}
+            onClick={() => run('Pool deadline skipped', async () => { const r = await demoExpirePoolDeadline(); if (!r.ok) toast('The pool is not full yet', 'error'); })}>
+            <Icon name="hourglass" /> Skip pool deadline (charity)
           </button>
           <button className={btn} disabled={flags.timeOffsetMs === 0} onClick={() => setDemoFlags({ timeOffsetMs: 0 })}><Icon name="undo" /> Reset clock</button>
           <button className={`${btn} text-ember-dark`} disabled={busy} onClick={() => run('Demo data reset', async () => { await resetDemoData(); window.location.href = '/'; })}><Icon name="trash" /> Reset demo data</button>

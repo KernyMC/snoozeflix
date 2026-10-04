@@ -1,0 +1,1359 @@
+{
+  "base": "https://api.nessieisreal.com",
+  "ranAt": "2026-10-04T07:00:34.990Z",
+  "calls": [
+    {
+      "label": "list customers",
+      "method": "GET",
+      "path": "/customers",
+      "request": null,
+      "status": 200,
+      "ms": 323,
+      "response": [
+        {
+          "last_name": "ShamePool",
+          "first_name": "Maya",
+          "_id": "015b0d60-6341-4eaf-baec-233cf117b6ae",
+          "address": {
+            "city": "Ann Arbor",
+            "state": "MI",
+            "street_name": "ShamePool ik:seed:user:maya",
+            "street_number": "500",
+            "zip": "48109"
+          }
+        },
+        {
+          "last_name": "Customer",
+          "first_name": "Probe",
+          "_id": "10cc8941-ea4f-451a-982f-f133b51e70c6",
+          "address": {
+            "street_name": "S State St",
+            "city": "Ann Arbor",
+            "street_number": "500",
+            "state": "MI",
+            "zip": "48109"
+          }
+        },
+        {
+          "last_name": "Beta",
+          "first_name": "Eve",
+          "_id": "333e82f3-b026-44a4-a04b-7241513c012f",
+          "address": {
+            "city": "Ann Arbor",
+            "street_number": "500",
+            "state": "MI",
+            "zip": "48109",
+            "street_name": "ShamePool ik:e2e:muth0pl3:u2"
+          }
+        },
+        {
+          "last_name": "C",
+          "first_name": "S",
+          "_id": "5056d231-6c5a-41b6-ab92-4e7da3f3974b",
+          "address": {
+            "city": "Ann Arbor",
+            "state": "MI",
+            "zip": "48109",
+            "street_name": "Main",
+            "street_number": "1"
+          }
+        },
+        {
+          "last_name": "ShamePool",
+          "first_name": "Leo",
+          "_id": "52f659fc-11cf-4fe7-8bc8-3bd9c90ded4b",
+          "address": {
+            "zip": "48109",
+            "city": "Ann Arbor",
+            "street_number": "500",
+            "street_name": "ShamePool ik:seed:user:leo",
+            "state": "MI"
+          }
+        },
+        {
+          "last_name": "ShamePool",
+          "first_name": "Ana",
+          "_id": "8c93759c-8c05-493d-8957-f8b7f3a3fd14",
+          "address": {
+            "zip": "48109",
+            "city": "Ann Arbor",
+            "state": "MI",
+            "street_number": "500",
+            "street_name": "ShamePool ik:seed:user:ana"
+          }
+        },
+        {
+          "last_name": "Demo Squad",
+          "first_name": "ShamePool",
+          "_id": "9fcd52b7-8749-4de4-bab1-dd42a61ac419",
+          "address": {
+            "street_number": "500",
+            "street_name": "ShamePool ik:seed:pool",
+            "state": "MI",
+            "zip": "48109",
+            "city": "Ann Arbor"
+          }
+        },
+        {
+          "last_name": "C",
+          "first_name": "S",
+          "_id": "a3f1a99e-81f6-4253-aacc-d0fd52f936a8",
+          "address": {
+            "street_name": "Main",
+            "city": "Ann Arbor",
+            "state": "MI",
+            "zip": "48109",
+            "street_number": "1"
+          }
+        },
+        {
+          "last_name": "Alpha",
+          "first_name": "Eve",
+          "_id": "b86a74e9-3c38-4c60-ad0b-8f483630bc8b",
+          "address": {
+            "state": "MI",
+            "street_number": "500",
+            "city": "Ann Arbor",
+            "street_name": "ShamePool ik:e2e:muth0pl3:u1",
+            "zip": "48109"
+          }
+        },
+        {
+          "last_name": "E2E Squad",
+          "first_name": "ShamePool",
+          "_id": "bd65e53b-47fc-4155-9f77-7c8f03f0d827",
+          "address": {
+            "street_number": "500",
+            "city": "Ann Arbor",
+            "state": "MI",
+            "zip": "48109",
+            "street_name": "ShamePool ik:e2e:muth0pl3:pool"
+          }
+        },
+        {
+          "last_name": "C",
+          "first_name": "S",
+          "_id": "d6dcf71b-746b-46f6-98c5-76fe65c961b1",
+          "address": {
+            "zip": "48109",
+            "city": "Ann Arbor",
+            "state": "MI",
+            "street_name": "Main",
+            "street_number": "1"
+          }
+        },
+        {
+          "last_name": "ShamePool",
+          "first_name": "Kevin",
+          "_id": "f00a81e1-7b6f-48ed-8564-5ecf5480def5",
+          "address": {
+            "street_name": "ShamePool ik:seed:user:kevin",
+            "city": "Ann Arbor",
+            "state": "MI",
+            "street_number": "500",
+            "zip": "48109"
+          }
+        },
+        {
+          "last_name": "C",
+          "first_name": "S",
+          "_id": "f27eb9ef-7c56-4e78-9905-fa6b8abcaa9a",
+          "address": {
+            "street_number": "1",
+            "city": "Ann Arbor",
+            "state": "MI",
+            "zip": "48109",
+            "street_name": "ShamePool ik:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+          }
+        }
+      ]
+    },
+    {
+      "label": "create customer",
+      "method": "POST",
+      "path": "/customers",
+      "request": {
+        "first_name": "Probe",
+        "last_name": "Customer",
+        "address": {
+          "street_number": "500",
+          "street_name": "S State St",
+          "city": "Ann Arbor",
+          "state": "MI",
+          "zip": "48109"
+        }
+      },
+      "status": 201,
+      "ms": 297,
+      "response": {
+        "code": 201,
+        "message": "Customer created",
+        "objectCreated": {
+          "first_name": "Probe",
+          "last_name": "Customer",
+          "address": {
+            "street_number": "500",
+            "street_name": "S State St",
+            "city": "Ann Arbor",
+            "state": "MI",
+            "zip": "48109"
+          },
+          "_id": "5970304a-02b8-481b-b994-c3e69aa7092e"
+        }
+      }
+    },
+    {
+      "label": "create account FT-probe-A",
+      "method": "POST",
+      "path": "/customers/5970304a-02b8-481b-b994-c3e69aa7092e/accounts",
+      "request": {
+        "type": "Checking",
+        "nickname": "FT-probe-A",
+        "rewards": 0,
+        "balance": 100
+      },
+      "status": 201,
+      "ms": 147,
+      "response": {
+        "code": 201,
+        "message": "Account created",
+        "objectCreated": {
+          "type": "Checking",
+          "nickname": "FT-probe-A",
+          "rewards": 0,
+          "balance": 100,
+          "_id": "c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+          "account_number": "2018758422123634",
+          "customer_id": "5970304a-02b8-481b-b994-c3e69aa7092e"
+        }
+      }
+    },
+    {
+      "label": "create account FT-probe-B",
+      "method": "POST",
+      "path": "/customers/5970304a-02b8-481b-b994-c3e69aa7092e/accounts",
+      "request": {
+        "type": "Checking",
+        "nickname": "FT-probe-B",
+        "rewards": 0,
+        "balance": 0
+      },
+      "status": 201,
+      "ms": 127,
+      "response": {
+        "code": 201,
+        "message": "Account created",
+        "objectCreated": {
+          "type": "Checking",
+          "nickname": "FT-probe-B",
+          "rewards": 0,
+          "balance": 0,
+          "_id": "97a39f2b-d13a-45ed-b11f-ab2a54e47898",
+          "account_number": "0931148018935779",
+          "customer_id": "5970304a-02b8-481b-b994-c3e69aa7092e"
+        }
+      }
+    },
+    {
+      "label": "create account FT-probe-dec",
+      "method": "POST",
+      "path": "/customers/5970304a-02b8-481b-b994-c3e69aa7092e/accounts",
+      "request": {
+        "type": "Checking",
+        "nickname": "FT-probe-dec",
+        "rewards": 0,
+        "balance": 12.34
+      },
+      "status": 201,
+      "ms": 133,
+      "response": {
+        "code": 201,
+        "message": "Account created",
+        "objectCreated": {
+          "type": "Checking",
+          "nickname": "FT-probe-dec",
+          "rewards": 0,
+          "balance": 12,
+          "_id": "f2072c8f-a1fc-4f49-ba1b-edc5d7949100",
+          "account_number": "6636732894608231",
+          "customer_id": "5970304a-02b8-481b-b994-c3e69aa7092e"
+        }
+      }
+    },
+    {
+      "label": "A start",
+      "method": "GET",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+      "request": null,
+      "status": 200,
+      "ms": 120,
+      "response": {
+        "_id": "c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+        "type": "Checking",
+        "nickname": "FT-probe-A",
+        "rewards": 0,
+        "balance": 100,
+        "account_number": "2018758422123634",
+        "customer_id": "5970304a-02b8-481b-b994-c3e69aa7092e"
+      }
+    },
+    {
+      "label": "B start",
+      "method": "GET",
+      "path": "/accounts/97a39f2b-d13a-45ed-b11f-ab2a54e47898",
+      "request": null,
+      "status": 200,
+      "ms": 108,
+      "response": {
+        "_id": "97a39f2b-d13a-45ed-b11f-ab2a54e47898",
+        "type": "Checking",
+        "nickname": "FT-probe-B",
+        "rewards": 0,
+        "balance": 0,
+        "account_number": "0931148018935779",
+        "customer_id": "5970304a-02b8-481b-b994-c3e69aa7092e"
+      }
+    },
+    {
+      "label": "dec account",
+      "method": "GET",
+      "path": "/accounts/f2072c8f-a1fc-4f49-ba1b-edc5d7949100",
+      "request": null,
+      "status": 200,
+      "ms": 113,
+      "response": {
+        "_id": "f2072c8f-a1fc-4f49-ba1b-edc5d7949100",
+        "type": "Checking",
+        "nickname": "FT-probe-dec",
+        "rewards": 0,
+        "balance": 12,
+        "account_number": "6636732894608231",
+        "customer_id": "5970304a-02b8-481b-b994-c3e69aa7092e"
+      }
+    },
+    {
+      "label": "transfer 5",
+      "method": "POST",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27/transfers",
+      "request": {
+        "amount": 5,
+        "transaction_date": "2026-10-04",
+        "status": "pending",
+        "description": "probe [ik:probe-1]"
+      },
+      "status": 201,
+      "ms": 118,
+      "response": {
+        "code": 201,
+        "message": "Transfer created",
+        "objectCreated": {
+          "transaction_date": "2026-10-04",
+          "status": "pending",
+          "amount": 5,
+          "description": "probe [ik:probe-1]",
+          "_id": "ee4ea771-a134-4205-8e9a-50674453bb8e"
+        }
+      }
+    },
+    {
+      "label": "A after t1 (0s)",
+      "method": "GET",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+      "request": null,
+      "status": 200,
+      "ms": 122,
+      "response": {
+        "_id": "c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+        "type": "Checking",
+        "nickname": "FT-probe-A",
+        "rewards": 0,
+        "balance": 100,
+        "account_number": "2018758422123634",
+        "customer_id": "5970304a-02b8-481b-b994-c3e69aa7092e"
+      }
+    },
+    {
+      "label": "B after t1 (0s)",
+      "method": "GET",
+      "path": "/accounts/97a39f2b-d13a-45ed-b11f-ab2a54e47898",
+      "request": null,
+      "status": 200,
+      "ms": 106,
+      "response": {
+        "_id": "97a39f2b-d13a-45ed-b11f-ab2a54e47898",
+        "type": "Checking",
+        "nickname": "FT-probe-B",
+        "rewards": 0,
+        "balance": 0,
+        "account_number": "0931148018935779",
+        "customer_id": "5970304a-02b8-481b-b994-c3e69aa7092e"
+      }
+    },
+    {
+      "label": "A after t1 (3s)",
+      "method": "GET",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+      "request": null,
+      "status": 200,
+      "ms": 103,
+      "response": {
+        "_id": "c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+        "type": "Checking",
+        "nickname": "FT-probe-A",
+        "rewards": 0,
+        "balance": 100,
+        "account_number": "2018758422123634",
+        "customer_id": "5970304a-02b8-481b-b994-c3e69aa7092e"
+      }
+    },
+    {
+      "label": "B after t1 (3s)",
+      "method": "GET",
+      "path": "/accounts/97a39f2b-d13a-45ed-b11f-ab2a54e47898",
+      "request": null,
+      "status": 200,
+      "ms": 103,
+      "response": {
+        "_id": "97a39f2b-d13a-45ed-b11f-ab2a54e47898",
+        "type": "Checking",
+        "nickname": "FT-probe-B",
+        "rewards": 0,
+        "balance": 0,
+        "account_number": "0931148018935779",
+        "customer_id": "5970304a-02b8-481b-b994-c3e69aa7092e"
+      }
+    },
+    {
+      "label": "transfer 5",
+      "method": "POST",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27/transfers",
+      "request": {
+        "amount": 5,
+        "transaction_date": "2026-10-04",
+        "status": "completed",
+        "description": "probe [ik:probe-1]"
+      },
+      "status": 201,
+      "ms": 105,
+      "response": {
+        "code": 201,
+        "message": "Transfer created",
+        "objectCreated": {
+          "transaction_date": "2026-10-04",
+          "status": "completed",
+          "amount": 5,
+          "description": "probe [ik:probe-1]",
+          "_id": "f211a1e0-a7ec-4794-b73b-46bcdddfa58a"
+        }
+      }
+    },
+    {
+      "label": "A after t2 completed",
+      "method": "GET",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+      "request": null,
+      "status": 200,
+      "ms": 110,
+      "response": {
+        "_id": "c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+        "type": "Checking",
+        "nickname": "FT-probe-A",
+        "rewards": 0,
+        "balance": 100,
+        "account_number": "2018758422123634",
+        "customer_id": "5970304a-02b8-481b-b994-c3e69aa7092e"
+      }
+    },
+    {
+      "label": "B after t2 completed",
+      "method": "GET",
+      "path": "/accounts/97a39f2b-d13a-45ed-b11f-ab2a54e47898",
+      "request": null,
+      "status": 200,
+      "ms": 184,
+      "response": {
+        "_id": "97a39f2b-d13a-45ed-b11f-ab2a54e47898",
+        "type": "Checking",
+        "nickname": "FT-probe-B",
+        "rewards": 0,
+        "balance": 0,
+        "account_number": "0931148018935779",
+        "customer_id": "5970304a-02b8-481b-b994-c3e69aa7092e"
+      }
+    },
+    {
+      "label": "transfer 1.5",
+      "method": "POST",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27/transfers",
+      "request": {
+        "amount": 1.5,
+        "transaction_date": "2026-10-04",
+        "status": "completed",
+        "description": "probe [ik:probe-1]"
+      },
+      "status": 201,
+      "ms": 114,
+      "response": {
+        "code": 201,
+        "message": "Transfer created",
+        "objectCreated": {
+          "transaction_date": "2026-10-04",
+          "status": "completed",
+          "amount": 1,
+          "description": "probe [ik:probe-1]",
+          "_id": "6c0b43f0-824c-41bc-8220-fd0e95359884"
+        }
+      }
+    },
+    {
+      "label": "A after decimal transfer",
+      "method": "GET",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+      "request": null,
+      "status": 200,
+      "ms": 126,
+      "response": {
+        "_id": "c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+        "type": "Checking",
+        "nickname": "FT-probe-A",
+        "rewards": 0,
+        "balance": 100,
+        "account_number": "2018758422123634",
+        "customer_id": "5970304a-02b8-481b-b994-c3e69aa7092e"
+      }
+    },
+    {
+      "label": "transfer 500",
+      "method": "POST",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27/transfers",
+      "request": {
+        "amount": 500,
+        "transaction_date": "2026-10-04",
+        "status": "completed",
+        "description": "probe [ik:probe-1]"
+      },
+      "status": 201,
+      "ms": 113,
+      "response": {
+        "code": 201,
+        "message": "Transfer created",
+        "objectCreated": {
+          "transaction_date": "2026-10-04",
+          "status": "completed",
+          "amount": 500,
+          "description": "probe [ik:probe-1]",
+          "_id": "780c622e-9730-461d-b35b-3d7c44d679f8"
+        }
+      }
+    },
+    {
+      "label": "transfer 0",
+      "method": "POST",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27/transfers",
+      "request": {
+        "amount": 0,
+        "transaction_date": "2026-10-04",
+        "status": "completed",
+        "description": "probe [ik:probe-1]"
+      },
+      "status": 201,
+      "ms": 121,
+      "response": {
+        "code": 201,
+        "message": "Transfer created",
+        "objectCreated": {
+          "transaction_date": "2026-10-04",
+          "status": "completed",
+          "amount": 0,
+          "description": "probe [ik:probe-1]",
+          "_id": "bf34155b-448a-43b1-9178-0b693d195798"
+        }
+      }
+    },
+    {
+      "label": "transfer -1",
+      "method": "POST",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27/transfers",
+      "request": {
+        "amount": -1,
+        "transaction_date": "2026-10-04",
+        "status": "completed",
+        "description": "probe [ik:probe-1]"
+      },
+      "status": 201,
+      "ms": 120,
+      "response": {
+        "code": 201,
+        "message": "Transfer created",
+        "objectCreated": {
+          "transaction_date": "2026-10-04",
+          "status": "completed",
+          "amount": -1,
+          "description": "probe [ik:probe-1]",
+          "_id": "dd561950-9fbf-49b2-b4f9-4cfe9f160aae"
+        }
+      }
+    },
+    {
+      "label": "transfer with payee_id (rejected: no payee field in sandbox)",
+      "method": "POST",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27/transfers",
+      "request": {
+        "payee_id": "97a39f2b-d13a-45ed-b11f-ab2a54e47898",
+        "amount": 1,
+        "transaction_date": "2026-10-04",
+        "status": "completed",
+        "description": "x"
+      },
+      "status": 400,
+      "ms": 97,
+      "response": "1 validation error for TransferCreate\npayee_id\n  extra fields not permitted (type=value_error.extra)"
+    },
+    {
+      "label": "transfer with medium (rejected)",
+      "method": "POST",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27/transfers",
+      "request": {
+        "medium": "balance",
+        "amount": 1,
+        "transaction_date": "2026-10-04",
+        "status": "completed",
+        "description": "x"
+      },
+      "status": 400,
+      "ms": 101,
+      "response": "1 validation error for TransferCreate\nmedium\n  extra fields not permitted (type=value_error.extra)"
+    },
+    {
+      "label": "get missing account",
+      "method": "GET",
+      "path": "/accounts/000000000000000000000000",
+      "request": null,
+      "status": 404,
+      "ms": 125,
+      "response": ""
+    },
+    {
+      "label": "get t1",
+      "method": "GET",
+      "path": "/transfers/ee4ea771-a134-4205-8e9a-50674453bb8e",
+      "request": null,
+      "status": 200,
+      "ms": 117,
+      "response": {
+        "id": "ee4ea771-a134-4205-8e9a-50674453bb8e",
+        "transaction_date": "2026-10-04",
+        "status": "pending",
+        "amount": 5,
+        "description": "probe [ik:probe-1]"
+      }
+    },
+    {
+      "label": "create merchant",
+      "method": "POST",
+      "path": "/merchants",
+      "request": {
+        "name": "FT Probe Pizza",
+        "category": "food",
+        "address": {
+          "street_number": "1",
+          "street_name": "Main St",
+          "city": "Ann Arbor",
+          "state": "MI",
+          "zip": "48104"
+        },
+        "geocode": {
+          "lat": 42.28,
+          "lng": -83.74
+        }
+      },
+      "status": 201,
+      "ms": 142,
+      "response": {
+        "code": 201,
+        "message": "Merchant created",
+        "objectCreated": {
+          "name": "FT Probe Pizza",
+          "category": "food",
+          "address": {
+            "street_number": "1",
+            "street_name": "Main St",
+            "city": "Ann Arbor",
+            "state": "MI",
+            "zip": "48104"
+          },
+          "geocode": {
+            "lat": 42.28,
+            "lng": -83.74
+          },
+          "_id": "f47d05c4-0695-47e2-9d08-f70683da1866"
+        }
+      }
+    },
+    {
+      "label": "purchase",
+      "method": "POST",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27/purchases",
+      "request": {
+        "merchant_id": "f47d05c4-0695-47e2-9d08-f70683da1866",
+        "medium": "balance",
+        "purchase_date": "2026-10-04",
+        "amount": 3,
+        "status": "pending",
+        "description": "probe [ik:probe-p]"
+      },
+      "status": 201,
+      "ms": 118,
+      "response": {
+        "code": 201,
+        "message": "Purchase created",
+        "objectCreated": {
+          "merchant_id": "f47d05c4-0695-47e2-9d08-f70683da1866",
+          "medium": "balance",
+          "purchase_date": "2026-10-04",
+          "amount": 3,
+          "status": "pending",
+          "description": "probe [ik:probe-p]",
+          "_id": "d987a759-4404-4caf-b5f4-3e954c12294d",
+          "type": "merchant",
+          "payer_id": "c3f41bab-5783-4cff-b6c6-1222ecff3b27"
+        }
+      }
+    },
+    {
+      "label": "A after purchase",
+      "method": "GET",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+      "request": null,
+      "status": 200,
+      "ms": 122,
+      "response": {
+        "_id": "c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+        "type": "Checking",
+        "nickname": "FT-probe-A",
+        "rewards": 0,
+        "balance": 100,
+        "account_number": "2018758422123634",
+        "customer_id": "5970304a-02b8-481b-b994-c3e69aa7092e"
+      }
+    },
+    {
+      "label": "purchase completed",
+      "method": "POST",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27/purchases",
+      "request": {
+        "merchant_id": "f47d05c4-0695-47e2-9d08-f70683da1866",
+        "medium": "balance",
+        "purchase_date": "2026-10-04",
+        "amount": 2,
+        "status": "completed",
+        "description": "probe [ik:probe-p2]"
+      },
+      "status": 201,
+      "ms": 118,
+      "response": {
+        "code": 201,
+        "message": "Purchase created",
+        "objectCreated": {
+          "merchant_id": "f47d05c4-0695-47e2-9d08-f70683da1866",
+          "medium": "balance",
+          "purchase_date": "2026-10-04",
+          "amount": 2,
+          "status": "completed",
+          "description": "probe [ik:probe-p2]",
+          "_id": "9a2e9d91-1307-47f1-a5ef-db292eea98ce",
+          "type": "merchant",
+          "payer_id": "c3f41bab-5783-4cff-b6c6-1222ecff3b27"
+        }
+      }
+    },
+    {
+      "label": "A after purchase2",
+      "method": "GET",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+      "request": null,
+      "status": 200,
+      "ms": 102,
+      "response": {
+        "_id": "c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+        "type": "Checking",
+        "nickname": "FT-probe-A",
+        "rewards": 0,
+        "balance": 100,
+        "account_number": "2018758422123634",
+        "customer_id": "5970304a-02b8-481b-b994-c3e69aa7092e"
+      }
+    },
+    {
+      "label": "withdrawal",
+      "method": "POST",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27/withdrawals",
+      "request": {
+        "medium": "balance",
+        "transaction_date": "2026-10-04",
+        "amount": 4,
+        "status": "completed",
+        "description": "probe [ik:probe-w]"
+      },
+      "status": 201,
+      "ms": 108,
+      "response": {
+        "code": 201,
+        "message": "Withdrawal created",
+        "objectCreated": {
+          "medium": "balance",
+          "transaction_date": "2026-10-04",
+          "status": "completed",
+          "amount": 4,
+          "description": "probe [ik:probe-w]",
+          "_id": "5babe471-dc00-4137-8a1c-67e1811f482b",
+          "creation_date": "2026-10-04",
+          "type": "withdrawal",
+          "payer_id": "c3f41bab-5783-4cff-b6c6-1222ecff3b27"
+        }
+      }
+    },
+    {
+      "label": "A after withdrawal",
+      "method": "GET",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+      "request": null,
+      "status": 200,
+      "ms": 112,
+      "response": {
+        "_id": "c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+        "type": "Checking",
+        "nickname": "FT-probe-A",
+        "rewards": 0,
+        "balance": 100,
+        "account_number": "2018758422123634",
+        "customer_id": "5970304a-02b8-481b-b994-c3e69aa7092e"
+      }
+    },
+    {
+      "label": "deposit",
+      "method": "POST",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27/deposits",
+      "request": {
+        "medium": "balance",
+        "transaction_date": "2026-10-04",
+        "amount": 1,
+        "status": "completed",
+        "description": "probe [ik:probe-d]"
+      },
+      "status": 201,
+      "ms": 138,
+      "response": {
+        "code": 201,
+        "message": "Deposit created",
+        "objectCreated": {
+          "medium": "balance",
+          "transaction_date": "2026-10-04",
+          "status": "completed",
+          "amount": 1,
+          "description": "probe [ik:probe-d]",
+          "_id": "a52babfb-3068-4315-9b79-2f6c09384476",
+          "creation_date": "2026-10-04"
+        }
+      }
+    },
+    {
+      "label": "A after deposit",
+      "method": "GET",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+      "request": null,
+      "status": 200,
+      "ms": 123,
+      "response": {
+        "_id": "c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+        "type": "Checking",
+        "nickname": "FT-probe-A",
+        "rewards": 0,
+        "balance": 100,
+        "account_number": "2018758422123634",
+        "customer_id": "5970304a-02b8-481b-b994-c3e69aa7092e"
+      }
+    },
+    {
+      "label": "list transfers payer",
+      "method": "GET",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27/transfers?type=payer",
+      "request": null,
+      "status": 200,
+      "ms": 118,
+      "response": [
+        {
+          "id": "6c0b43f0-824c-41bc-8220-fd0e95359884",
+          "transaction_date": "2026-10-04",
+          "status": "completed",
+          "amount": 1,
+          "description": "probe [ik:probe-1]"
+        },
+        {
+          "id": "780c622e-9730-461d-b35b-3d7c44d679f8",
+          "transaction_date": "2026-10-04",
+          "status": "completed",
+          "amount": 500,
+          "description": "probe [ik:probe-1]"
+        },
+        {
+          "id": "bf34155b-448a-43b1-9178-0b693d195798",
+          "transaction_date": "2026-10-04",
+          "status": "completed",
+          "amount": 0,
+          "description": "probe [ik:probe-1]"
+        },
+        {
+          "id": "dd561950-9fbf-49b2-b4f9-4cfe9f160aae",
+          "transaction_date": "2026-10-04",
+          "status": "completed",
+          "amount": -1,
+          "description": "probe [ik:probe-1]"
+        },
+        {
+          "id": "ee4ea771-a134-4205-8e9a-50674453bb8e",
+          "transaction_date": "2026-10-04",
+          "status": "pending",
+          "amount": 5,
+          "description": "probe [ik:probe-1]"
+        },
+        {
+          "id": "f211a1e0-a7ec-4794-b73b-46bcdddfa58a",
+          "transaction_date": "2026-10-04",
+          "status": "completed",
+          "amount": 5,
+          "description": "probe [ik:probe-1]"
+        }
+      ]
+    },
+    {
+      "label": "list transfers payee",
+      "method": "GET",
+      "path": "/accounts/97a39f2b-d13a-45ed-b11f-ab2a54e47898/transfers?type=payee",
+      "request": null,
+      "status": 404,
+      "ms": 122,
+      "response": "No transfers found for this account"
+    },
+    {
+      "label": "list purchases",
+      "method": "GET",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27/purchases",
+      "request": null,
+      "status": 200,
+      "ms": 104,
+      "response": [
+        {
+          "_id": "9a2e9d91-1307-47f1-a5ef-db292eea98ce",
+          "type": "merchant",
+          "merchant_id": "f47d05c4-0695-47e2-9d08-f70683da1866",
+          "payer_id": "c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+          "purchase_date": "2026-10-04",
+          "amount": 2,
+          "status": "completed",
+          "medium": "balance",
+          "description": "probe [ik:probe-p2]"
+        },
+        {
+          "_id": "d987a759-4404-4caf-b5f4-3e954c12294d",
+          "type": "merchant",
+          "merchant_id": "f47d05c4-0695-47e2-9d08-f70683da1866",
+          "payer_id": "c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+          "purchase_date": "2026-10-04",
+          "amount": 3,
+          "status": "pending",
+          "medium": "balance",
+          "description": "probe [ik:probe-p]"
+        }
+      ]
+    },
+    {
+      "label": "list withdrawals",
+      "method": "GET",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27/withdrawals",
+      "request": null,
+      "status": 200,
+      "ms": 100,
+      "response": [
+        {
+          "_id": "5babe471-dc00-4137-8a1c-67e1811f482b",
+          "type": "withdrawal",
+          "transaction_date": "2026-10-04",
+          "status": "completed",
+          "payer_id": "c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+          "medium": "balance",
+          "amount": 4,
+          "description": "probe [ik:probe-w]"
+        }
+      ]
+    },
+    {
+      "label": "list deposits",
+      "method": "GET",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27/deposits",
+      "request": null,
+      "status": 200,
+      "ms": 112,
+      "response": [
+        {
+          "_id": "a52babfb-3068-4315-9b79-2f6c09384476",
+          "medium": "balance",
+          "transaction_date": "2026-10-04",
+          "status": "completed",
+          "amount": 1,
+          "description": "probe [ik:probe-d]"
+        }
+      ]
+    },
+    {
+      "label": "list accounts",
+      "method": "GET",
+      "path": "/customers/5970304a-02b8-481b-b994-c3e69aa7092e/accounts",
+      "request": null,
+      "status": 200,
+      "ms": 106,
+      "response": [
+        {
+          "_id": "97a39f2b-d13a-45ed-b11f-ab2a54e47898",
+          "type": "Checking",
+          "nickname": "FT-probe-B",
+          "rewards": 0,
+          "balance": 0,
+          "account_number": "0931148018935779",
+          "customer_id": "5970304a-02b8-481b-b994-c3e69aa7092e"
+        },
+        {
+          "_id": "c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+          "type": "Checking",
+          "nickname": "FT-probe-A",
+          "rewards": 0,
+          "balance": 100,
+          "account_number": "2018758422123634",
+          "customer_id": "5970304a-02b8-481b-b994-c3e69aa7092e"
+        },
+        {
+          "_id": "f2072c8f-a1fc-4f49-ba1b-edc5d7949100",
+          "type": "Checking",
+          "nickname": "FT-probe-dec",
+          "rewards": 0,
+          "balance": 12,
+          "account_number": "6636732894608231",
+          "customer_id": "5970304a-02b8-481b-b994-c3e69aa7092e"
+        }
+      ]
+    },
+    {
+      "label": "rate 0",
+      "method": "GET",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+      "request": null,
+      "status": 200,
+      "ms": 107,
+      "response": {
+        "_id": "c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+        "type": "Checking",
+        "nickname": "FT-probe-A",
+        "rewards": 0,
+        "balance": 100,
+        "account_number": "2018758422123634",
+        "customer_id": "5970304a-02b8-481b-b994-c3e69aa7092e"
+      }
+    },
+    {
+      "label": "rate 1",
+      "method": "GET",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+      "request": null,
+      "status": 200,
+      "ms": 112,
+      "response": {
+        "_id": "c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+        "type": "Checking",
+        "nickname": "FT-probe-A",
+        "rewards": 0,
+        "balance": 100,
+        "account_number": "2018758422123634",
+        "customer_id": "5970304a-02b8-481b-b994-c3e69aa7092e"
+      }
+    },
+    {
+      "label": "rate 2",
+      "method": "GET",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+      "request": null,
+      "status": 200,
+      "ms": 107,
+      "response": {
+        "_id": "c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+        "type": "Checking",
+        "nickname": "FT-probe-A",
+        "rewards": 0,
+        "balance": 100,
+        "account_number": "2018758422123634",
+        "customer_id": "5970304a-02b8-481b-b994-c3e69aa7092e"
+      }
+    },
+    {
+      "label": "rate 3",
+      "method": "GET",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+      "request": null,
+      "status": 200,
+      "ms": 104,
+      "response": {
+        "_id": "c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+        "type": "Checking",
+        "nickname": "FT-probe-A",
+        "rewards": 0,
+        "balance": 100,
+        "account_number": "2018758422123634",
+        "customer_id": "5970304a-02b8-481b-b994-c3e69aa7092e"
+      }
+    },
+    {
+      "label": "rate 4",
+      "method": "GET",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+      "request": null,
+      "status": 200,
+      "ms": 105,
+      "response": {
+        "_id": "c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+        "type": "Checking",
+        "nickname": "FT-probe-A",
+        "rewards": 0,
+        "balance": 100,
+        "account_number": "2018758422123634",
+        "customer_id": "5970304a-02b8-481b-b994-c3e69aa7092e"
+      }
+    },
+    {
+      "label": "rate 5",
+      "method": "GET",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+      "request": null,
+      "status": 200,
+      "ms": 111,
+      "response": {
+        "_id": "c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+        "type": "Checking",
+        "nickname": "FT-probe-A",
+        "rewards": 0,
+        "balance": 100,
+        "account_number": "2018758422123634",
+        "customer_id": "5970304a-02b8-481b-b994-c3e69aa7092e"
+      }
+    },
+    {
+      "label": "rate 6",
+      "method": "GET",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+      "request": null,
+      "status": 200,
+      "ms": 110,
+      "response": {
+        "_id": "c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+        "type": "Checking",
+        "nickname": "FT-probe-A",
+        "rewards": 0,
+        "balance": 100,
+        "account_number": "2018758422123634",
+        "customer_id": "5970304a-02b8-481b-b994-c3e69aa7092e"
+      }
+    },
+    {
+      "label": "rate 7",
+      "method": "GET",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+      "request": null,
+      "status": 200,
+      "ms": 105,
+      "response": {
+        "_id": "c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+        "type": "Checking",
+        "nickname": "FT-probe-A",
+        "rewards": 0,
+        "balance": 100,
+        "account_number": "2018758422123634",
+        "customer_id": "5970304a-02b8-481b-b994-c3e69aa7092e"
+      }
+    },
+    {
+      "label": "rate 8",
+      "method": "GET",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+      "request": null,
+      "status": 200,
+      "ms": 102,
+      "response": {
+        "_id": "c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+        "type": "Checking",
+        "nickname": "FT-probe-A",
+        "rewards": 0,
+        "balance": 100,
+        "account_number": "2018758422123634",
+        "customer_id": "5970304a-02b8-481b-b994-c3e69aa7092e"
+      }
+    },
+    {
+      "label": "rate 9",
+      "method": "GET",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+      "request": null,
+      "status": 200,
+      "ms": 103,
+      "response": {
+        "_id": "c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+        "type": "Checking",
+        "nickname": "FT-probe-A",
+        "rewards": 0,
+        "balance": 100,
+        "account_number": "2018758422123634",
+        "customer_id": "5970304a-02b8-481b-b994-c3e69aa7092e"
+      }
+    },
+    {
+      "label": "rate 10",
+      "method": "GET",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+      "request": null,
+      "status": 200,
+      "ms": 101,
+      "response": {
+        "_id": "c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+        "type": "Checking",
+        "nickname": "FT-probe-A",
+        "rewards": 0,
+        "balance": 100,
+        "account_number": "2018758422123634",
+        "customer_id": "5970304a-02b8-481b-b994-c3e69aa7092e"
+      }
+    },
+    {
+      "label": "rate 11",
+      "method": "GET",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+      "request": null,
+      "status": 200,
+      "ms": 104,
+      "response": {
+        "_id": "c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+        "type": "Checking",
+        "nickname": "FT-probe-A",
+        "rewards": 0,
+        "balance": 100,
+        "account_number": "2018758422123634",
+        "customer_id": "5970304a-02b8-481b-b994-c3e69aa7092e"
+      }
+    },
+    {
+      "label": "rate 12",
+      "method": "GET",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+      "request": null,
+      "status": 200,
+      "ms": 115,
+      "response": {
+        "_id": "c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+        "type": "Checking",
+        "nickname": "FT-probe-A",
+        "rewards": 0,
+        "balance": 100,
+        "account_number": "2018758422123634",
+        "customer_id": "5970304a-02b8-481b-b994-c3e69aa7092e"
+      }
+    },
+    {
+      "label": "rate 13",
+      "method": "GET",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+      "request": null,
+      "status": 200,
+      "ms": 109,
+      "response": {
+        "_id": "c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+        "type": "Checking",
+        "nickname": "FT-probe-A",
+        "rewards": 0,
+        "balance": 100,
+        "account_number": "2018758422123634",
+        "customer_id": "5970304a-02b8-481b-b994-c3e69aa7092e"
+      }
+    },
+    {
+      "label": "rate 14",
+      "method": "GET",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+      "request": null,
+      "status": 200,
+      "ms": 107,
+      "response": {
+        "_id": "c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+        "type": "Checking",
+        "nickname": "FT-probe-A",
+        "rewards": 0,
+        "balance": 100,
+        "account_number": "2018758422123634",
+        "customer_id": "5970304a-02b8-481b-b994-c3e69aa7092e"
+      }
+    },
+    {
+      "label": "delete account",
+      "method": "DELETE",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+      "request": null,
+      "status": 200,
+      "ms": 114,
+      "response": ""
+    },
+    {
+      "label": "delete account",
+      "method": "DELETE",
+      "path": "/accounts/97a39f2b-d13a-45ed-b11f-ab2a54e47898",
+      "request": null,
+      "status": 200,
+      "ms": 183,
+      "response": ""
+    },
+    {
+      "label": "delete account",
+      "method": "DELETE",
+      "path": "/accounts/f2072c8f-a1fc-4f49-ba1b-edc5d7949100",
+      "request": null,
+      "status": 200,
+      "ms": 110,
+      "response": ""
+    },
+    {
+      "label": "get deleted account",
+      "method": "GET",
+      "path": "/accounts/c3f41bab-5783-4cff-b6c6-1222ecff3b27",
+      "request": null,
+      "status": 404,
+      "ms": 105,
+      "response": ""
+    },
+    {
+      "label": "delete customer",
+      "method": "DELETE",
+      "path": "/customers/5970304a-02b8-481b-b994-c3e69aa7092e",
+      "request": null,
+      "status": 403,
+      "ms": 82,
+      "response": {
+        "message": "Missing Authentication Token"
+      }
+    },
+    {
+      "label": "delete merchant",
+      "method": "DELETE",
+      "path": "/merchants/f47d05c4-0695-47e2-9d08-f70683da1866",
+      "request": null,
+      "status": 403,
+      "ms": 82,
+      "response": {
+        "message": "Missing Authentication Token"
+      }
+    }
+  ]
+}

@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { formatCents, useFeed, useMe } from '@/data';
 import { vibrate } from './effects';
+import { playSfx } from '@/lib/sfx';
 import { Button } from './ui/Button';
 import { Flakey } from './ui/Flakey';
 import { Icon } from './ui/Icon';
@@ -43,6 +44,7 @@ export function FlakeWatcher() {
       const cents = Number(ev.meta?.amountCents ?? 0);
       if (ev.actorUserId === me?.id) {
         vibrate([80, 40, 80]);
+        playSfx('flake');
         setFlake({ id: ev.id, text: ev.text, cents });
       } else {
         toast(`${ev.text.split(' flaked')[0]} flaked ${formatCents(cents)}`, 'error');

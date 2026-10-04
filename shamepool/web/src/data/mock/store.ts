@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { evaluateDeadlines, settleWithdrawals } from './engine';
+import { evaluateDeadlines, settleCharity, settleWithdrawals } from './engine';
 import { makeSeed } from './seed';
 import { type Ctx, type MockState, MOCK_VERSION, STORAGE_KEY } from './state';
 
@@ -96,11 +96,11 @@ export function runSchedulerTick(): void {
   if (!amLeader()) return;
   // dry run first so idle ticks don't bump rev / re-render every tab
   const probe = structuredClone(latest());
-  const before = JSON.stringify([probe.goals, probe.withdrawals]);
+  const before = JSON.stringify([probe.goals, probe.withdrawals, probe.squads, probe.donations]);
   const pens = evaluateDeadlines({ s: probe, now: nowMs(), userId: null });
-  const settled = settleWithdrawals({ s: probe, now: nowMs(), userId: null });
-  if (pens.length === 0 && settled === 0 && JSON.stringify([probe.goals, probe.withdrawals]) === before) return;
-  commit((c) => { evaluateDeadlines(c); settleWithdrawals(c); return 0; });
+  const settled = settleWithdrawals({ s: probe, now: nowMs(), userId: null }) + settleCharity({ s: probe, now: nowMs(), userId: null });
+  if (pens.length === 0 && settled === 0 && JSON.stringify([probe.goals, probe.withdrawals, probe.squads, probe.donations]) === before) return;
+  commit((c) => { evaluateDeadlines(c); settleWithdrawals(c); settleCharity(c); return 0; });
 }
 
 /** Start sync + scheduler once per tab. Returns a stop function. */

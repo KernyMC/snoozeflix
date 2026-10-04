@@ -1,4 +1,5 @@
 'use client';
+import { Heart } from 'lucide-react';
 import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useConnection, useSquad } from '@/data';
@@ -20,7 +21,10 @@ function Dashboard() {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <h1 className="font-display font-black text-3xl truncate">{squad.name}</h1>
-        <Button href="/squad?tv=1" variant="ghost" full={false} className="px-2 min-h-11"><Icon name="tv" /> TV</Button>
+        <div className="flex items-center">
+          <Button href="/charity" variant="ghost" full={false} className="px-2 min-h-11"><Heart size={18} strokeWidth={2.5} /> Charity</Button>
+          <Button href="/squad?tv=1" variant="ghost" full={false} className="px-2 min-h-11"><Icon name="tv" /> TV</Button>
+        </div>
       </div>
       <PoolCard squad={squad} />
       <CashoutBanner />

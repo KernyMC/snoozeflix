@@ -1,13 +1,15 @@
 import type {
-  AccountInfo, Address, AddressInput, PaymentMethod, PaymentMethodInput, PlanStart, PlanTier, RegisterInput, BotReply, CashoutProposal, Checkin, DemoFlags, FeedEvent, Goal, GoalInput, PhotoVerdict, Penalty, Pos, Result, Squad, User, Withdrawal,
+  AccountInfo, Address, AddressInput, PaymentMethod, PaymentMethodInput, PlanStart, PlanTier, RegisterInput, AiBotInput, BotReply, CashoutProposal, Checkin, DemoFlags, FeedEvent, Goal, GoalInput, PhotoVerdict, Penalty, Pos, Result, Squad, User, Withdrawal,
 } from '../types';
 import * as E from './engine';
 import * as A from './authEngine';
 import * as B from './billingEngine';
 import { err } from './state';
-import { commit, resetAll, setIdentity, useMockStore } from './store';
+import { commit, nowMs, resetAll, setIdentity, useMockStore } from './store';
+import { buildBotContext } from './botContext';
+import { DEMO_ENABLED } from '@/lib/demo';
 
-const DEMO = process.env.NEXT_PUBLIC_DEMO === 'true';
+const DEMO = DEMO_ENABLED;
 
 function flag(name: string): boolean {
   if (typeof window === 'undefined') return false;
@@ -82,15 +84,20 @@ export const updateGoalPenalty = (id: string, base: number): Promise<Result<Goal
 /* check-in */
 export const startCheckin = (id: string, pos: Pos): Promise<Result<Checkin>> => run((c) => E.startCheckin(c, id, effectivePos(pos)));
 export const pingCheckin = (id: string, pos: Pos): Promise<Result<Checkin>> => run((c) => E.pingCheckin(c, id, effectivePos(pos)));
-export const finishCheckin = (id: string, photo: string): Promise<Result<{ checkin: Checkin; verdict: PhotoVerdict }>> =>
-  run((c) => E.finishCheckin(c, id, photo));
+export const finishCheckin = (id: string, photo: string, ai?: PhotoVerdict | null): Promise<Result<{ checkin: Checkin; verdict: PhotoVerdict }>> =>
+  run((c) => E.finishCheckin(c, id, photo, ai));
 
 /* penalties */
 export const forceFlake = (goalId: string): Promise<Result<Penalty>> => run((c) => E.forceFlake(c, goalId));
 
 /* social / bot */
 export const postMessage = (text: string): Promise<Result<FeedEvent>> => run((c) => E.postMessage(c, text));
-export const askBot = (text: string): Promise<Result<BotReply>> => run((c) => E.askBot(c, text));
+export const askBot = (text: string, ai?: AiBotInput): Promise<Result<BotReply>> => run((c) => E.askBot(c, text, ai));
+/** Snapshot of the user's app data for the AI bot (sync, no latency). null when signed out or without a squad. */
+export function getBotContext(): Record<string, unknown> | null {
+  const st = useMockStore.getState();
+  return st.userId ? buildBotContext(st.state, st.userId, nowMs()) : null;
+}
 export const confirmBotAction = (id: string): Promise<Result<BotReply>> => run((c) => E.confirmBotAction(c, id));
 
 /* pool */
@@ -109,6 +116,11 @@ export const addPaymentMethod = (i: PaymentMethodInput): Promise<Result<PaymentM
 export const removePaymentMethod = (id: string): Promise<Result<true>> => run((c) => B.removePaymentMethod(c, id));
 export const addAddress = (i: AddressInput): Promise<Result<Address>> => run((c) => B.addAddress(c, i));
 export const removeAddress = (id: string): Promise<Result<true>> => run((c) => B.removeAddress(c, id));
+
+/* charity */
+export const setCharity = (id: string): Promise<Result<Squad>> => run((c) => E.setCharity(c, id));
+export const proposeDonation = (): Promise<Result<CashoutProposal>> => run((c) => E.proposeDonation(c));
+export const demoExpirePoolDeadline = (): Promise<Result<Squad>> => run((c) => E.demoExpirePoolDeadline(c));
 
 /* demo */
 export async function resetDemoData(): Promise<Result<true>> {

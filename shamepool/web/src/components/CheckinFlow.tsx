@@ -7,6 +7,8 @@ import {
   finishCheckin, formatDistance, getDemoFlags, pingCheckin, startCheckin, useGoal, useNow, type Goal, type Pos,
 } from '@/data';
 import { fireConfetti, vibrate } from './effects';
+import { playSfx } from '@/lib/sfx';
+import { verifyPhotoAi } from '@/lib/ai/client';
 import { geoError } from './LocationPicker';
 import { PhotoCapture } from './PhotoCapture';
 import { ResultSheet } from './ResultSheet';
@@ -15,12 +17,13 @@ import { Button } from './ui/Button';
 import { Flakey, type Mood } from './ui/Flakey';
 import { Icon } from './ui/Icon';
 import { errorText } from './ui/States';
+import { DEMO_ENABLED } from '@/lib/demo';
 
 type Step = 'locating' | 'too_far' | 'geo_error' | 'blocked' | 'stay' | 'photo' | 'verifying' | 'success' | 'rejected' | 'failed';
 const SEGMENTS = ['Locate', 'Stay', 'Photo', 'Verify'];
 const segIndex = (s: Step) => ({ locating: 0, too_far: 0, geo_error: 0, blocked: 0, stay: 1, photo: 2, verifying: 3, success: 3, rejected: 3, failed: 1 }[s]);
 const LOADING_LINES = ['Asking the AI nicely…', 'Squinting at your photo…', 'Checking for couches…', 'Consulting Flakey…', 'Counting your abs (kidding)…'];
-const DEMO = process.env.NEXT_PUBLIC_DEMO === 'true';
+const DEMO = DEMO_ENABLED;
 
 function getPos(): Promise<Pos> {
   const fake = DEMO ? getDemoFlags().fakeLocation : null;
@@ -92,9 +95,10 @@ export function CheckinFlow({ goal }: { goal: Goal }) {
     if (!photo || submitting) return; // U4/C19: no double submit
     setSubmitting(true);
     setStep('verifying');
-    const r = await finishCheckin(checkinId, photo.b64);
+    const ai = await verifyPhotoAi(live.title, photo.b64); // null = AI unavailable: the check-in fails open, flagged
+    const r = await finishCheckin(checkinId, photo.b64, ai);
     setSubmitting(false);
-    if (r.ok) { fireConfetti(true); vibrate(60); setStep('success'); return; }
+    if (r.ok) { fireConfetti(true); vibrate(60); playSfx('success'); setStep('success'); return; }
     const verdict = r.meta?.verdict as { roast?: string | null; reason?: string } | undefined;
     if (r.error === 'photo_rejected') { setRoast(verdict?.roast ?? 'Nice try.'); setReason(verdict?.reason ?? ''); setAttemptsLeft(Number(r.meta?.attemptsLeft ?? 0)); setPhoto(null); setStep('rejected'); return; }
     if (r.error === 'too_many_attempts') { setMsg(verdict?.roast ? `${verdict.roast} No more tries.` : errorText(r.error)); setStep('failed'); return; }

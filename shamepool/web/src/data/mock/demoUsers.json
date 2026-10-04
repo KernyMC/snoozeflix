@@ -1,0 +1,46 @@
+{
+  "_note": "DEMO ACCOUNTS ONLY. Plain-text credentials for the mock backend, read by seed.ts when the demo data is created (passwords and answers are hashed at seed time, never stored as text in the app state). Sign in at '/' with username + password. Security answers are for 'Forgot password'.",
+  "squad": { "name": "MHacks Crew", "inviteCode": "PIZZA6" },
+  "users": [
+    {
+      "username": "kevin",
+      "password": "Password1",
+      "firstName": "Kevin",
+      "lastName": "Demo",
+      "email": "kevin@example.com",
+      "avatar": "/assets/avatar/01-coin-thief.png",
+      "securityQuestions": ["pet", "city", "car"],
+      "securityAnswers": ["demo", "demo", "demo"]
+    },
+    {
+      "username": "ana",
+      "password": "Password1",
+      "firstName": "Ana",
+      "lastName": "Demo",
+      "email": "ana@example.com",
+      "avatar": "/assets/avatar/02-savings-buddy.png",
+      "securityQuestions": ["pet", "city", "car"],
+      "securityAnswers": ["demo", "demo", "demo"]
+    },
+    {
+      "username": "leo",
+      "password": "Password1",
+      "firstName": "Leo",
+      "lastName": "Demo",
+      "email": "leo@example.com",
+      "avatar": "/assets/avatar/03-wallet-friend.png",
+      "securityQuestions": ["pet", "city", "car"],
+      "securityAnswers": ["demo", "demo", "demo"]
+    },
+    {
+      "username": "maya",
+      "password": "Password1",
+      "firstName": "Maya",
+      "lastName": "Demo",
+      "email": "maya@example.com",
+      "avatar": "/assets/avatar/04-fist-bump.png",
+      "securityQuestions": ["pet", "city", "car"],
+      "securityAnswers": ["demo", "demo", "demo"]
+    }
+  ]
+}

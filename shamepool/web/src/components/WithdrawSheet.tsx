@@ -4,6 +4,7 @@ import { X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { formatCents, requestWithdrawal, type Wallet } from '@/data';
 import { fireConfetti } from './effects';
+import { playSfx } from '@/lib/sfx';
 import { Icon } from './ui/Icon';
 import { Button } from './ui/Button';
 import { dollarsToCents, Field } from './ui/Field';
@@ -44,6 +45,7 @@ export function WithdrawSheet({ open, onClose, wallet }: { open: boolean; onClos
     setBusy(false);
     if (r.ok) {
       fireConfetti();
+      playSfx('cash');
       toast('Withdrawal started. Cooling off...', 'success');
       return onClose();
     }

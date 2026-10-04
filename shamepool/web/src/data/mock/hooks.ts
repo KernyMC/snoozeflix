@@ -1,11 +1,11 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
 import type {
-  AccountInfo, Billing, BotThreadMessage, CashoutProposal, Cents, Checkin, DemoFlags, FeedEvent, Goal, LeaderboardRow, Penalty, Squad, User, Wallet, Withdrawal,
+  AccountInfo, Billing, BotThreadMessage, CashoutProposal, Cents, Checkin, DemoFlags, FeedEvent, Goal, LeaderboardRow, Penalty, Squad, User, Wallet, Withdrawal, Donation, CharityStatus,
 } from '../types';
 import { accountInfo } from './authEngine';
 import { billingFor } from './billingEngine';
-import { leaderboardFor, openProposal, walletFor } from './engine';
+import { charityStatusFor, leaderboardFor, openProposal, walletFor } from './engine';
 import { useMockStore } from './store';
 
 const useS = () => useMockStore((s) => s.state);
@@ -143,4 +143,15 @@ export function useWithdrawals(): Withdrawal[] {
   const s = useS();
   const id = useUserId();
   return useMemo(() => Object.values(s.withdrawals).filter((w) => w.userId === id).sort((a, b) => b.createdAt - a.createdAt), [s, id]);
+}
+
+export function useCharityStatus(): CharityStatus | null {
+  const squad = useSquad();
+  return useMemo(() => (squad ? charityStatusFor(squad) : null), [squad]);
+}
+
+export function useDonations(): Donation[] {
+  const s = useS();
+  const me = useMe();
+  return useMemo(() => (me?.squadId ? Object.values(s.donations).filter((d) => d.squadId === me.squadId).sort((a, b) => b.createdAt - a.createdAt) : []), [s, me?.squadId]);
 }

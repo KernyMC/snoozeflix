@@ -1,9 +1,10 @@
 'use client';
 import { useState } from 'react';
 import {
-  cancelCashout, formatCents, proposeCashout, setPoolGoal, useMe, useOpenCashout, useSquad, useSquadMembers, voteCashout,
+  cancelCashout, charityById, formatCents, proposeCashout, setPoolGoal, useCharityStatus, useMe, useNow, useOpenCashout, useSquad, useSquadMembers, voteCashout,
 } from '@/data';
 import { fireConfetti } from './effects';
+import { playSfx } from '@/lib/sfx';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
 import { dollarsToCents, Field } from './ui/Field';
@@ -18,6 +19,8 @@ export function CashoutBanner() {
   const me = useMe();
   const open = useOpenCashout();
   const members = useSquadMembers();
+  const charity = useCharityStatus();
+  const now = useNow(1000);
   const { toast } = useToast();
   const [busy, setBusy] = useState(false);
   const [merchant, setMerchant] = useState('Pizza House');
@@ -30,7 +33,7 @@ export function CashoutBanner() {
     const r = await fn();
     setBusy(false);
     if (!r.ok) toast(errorText(r.error ?? 'unknown'), 'error');
-    else if (success) { toast(success, 'success'); fireConfetti(true); }
+    else if (success) { toast(success, 'success'); fireConfetti(true); playSfx('cash'); }
   };
 
   if (open) {
@@ -42,7 +45,7 @@ export function CashoutBanner() {
         <div className="flex items-center gap-3">
           <Flakey mood="cheer" size={56} />
           <div>
-            <h2 className="font-display font-black text-xl">Spend {formatCents(open.amountCents)} at {open.merchantName}?</h2>
+            <h2 className="font-display font-black text-xl">{open.kind === 'donate' ? `Donate ${formatCents(open.amountCents)} to ${open.merchantName}?` : `Spend ${formatCents(open.amountCents)} at ${open.merchantName}?`}</h2>
             <p className="text-sm font-bold text-ink-soft">{yes} yes · need {need} of {members.length}</p>
           </div>
         </div>
@@ -63,6 +66,7 @@ export function CashoutBanner() {
           <div>
             <h2 className="font-display font-black text-xl text-leaf-dark">Pool is full! <Icon name="party" /></h2>
             <p className="text-sm font-bold text-ink-soft">Time to spend {formatCents(squad.poolGoalCents)} on {squad.poolGoalName}.</p>
+            {charity?.deadlineAt && <p className="text-xs font-extrabold text-ember-dark mt-1">Spend it within {leftText(charity.deadlineAt - now)} or it goes to {charityById(charity.charityId).name}.</p>}
           </div>
         </div>
         <Field label="Where?" value={merchant} onChange={(e) => setMerchant(e.target.value)} maxLength={30} />
@@ -98,4 +102,11 @@ export function NewPoolGoal() {
       <Button variant="pool" loading={busy} onClick={save}>Save goal</Button>
     </Card>
   );
+}
+
+function leftText(ms: number): string {
+  if (ms <= 0) return 'a moment';
+  const s = Math.ceil(ms / 1000);
+  const d = Math.floor(s / 86400), h = Math.floor((s % 86400) / 3600), m = Math.floor((s % 3600) / 60);
+  return d > 0 ? `${d}d ${h}h` : h > 0 ? `${h}h ${m}m` : m > 0 ? `${m}m ${String(s % 60).padStart(2, '0')}s` : `${s}s`;
 }

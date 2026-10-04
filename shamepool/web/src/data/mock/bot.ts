@@ -1,4 +1,6 @@
-import { buildLeaderboard, formatCents, LIMITS, nextPenaltyCents } from '../logic';
+import {
+  buildLeaderboard, deadlinePassed, formatCents, formatCountdown, isDueToday, LIMITS, localDate, msUntilDeadline, nextPenaltyCents,
+} from '../logic';
 import type { MockState } from './state';
 import { squadMembers } from './state';
 
@@ -51,6 +53,37 @@ export function answer(s: MockState, userId: string, text: string, now: number):
       action: { label: `${goal.title}: ${formatCents(goal.basePenaltyCents)} → ${formatCents(cents)}`, args: { goalId: goal.id, baseCents: cents } },
     };
   }
+  const board = () => buildLeaderboard(members, Object.values(s.goals).filter((g) => memberIds.has(g.userId)),
+    Object.values(s.checkins), Object.values(s.penalties), now, squad.timezone);
+
+  if (/^\s*(hi|hello|hey|help)\W*$|what can you do|help me/.test(t)) {
+    return { text: 'Ask me who is flaking, who is winning, what is due today, your balance, how close the pool is, or say raise my penalty to ten dollars.' };
+  }
+  if (/(balance|my money|how much (do i|have i)|wallet|am i broke|how broke)/.test(t)) {
+    const g0 = myGoals[0];
+    return {
+      text: user.balanceCents <= 0
+        ? 'You are at zero. Flaking is now free, which is somehow worse.'
+        : `You have ${formatCents(user.balanceCents)}.${g0 ? ` Your next miss on ${g0.title} costs ${formatCents(nextPenaltyCents(g0))}.` : ''}`,
+    };
+  }
+  if (/(winning|leader|champion|first place|best (one|player|member)|\btop\b)/.test(t)) {
+    const top = board()[0];
+    if (!top) return { text: 'Nobody is on the board yet.' };
+    const pct = top.completionRate === null ? '' : ` with ${Math.round(top.completionRate * 100)} percent this week`;
+    return { text: `${top.user.name} is on top${pct}${top.streak > 0 ? ` and a ${top.streak} day streak` : ''}. Show-off.` };
+  }
+  if (/(deadline|\bdue\b|what.?s next|next goal|today|when)/.test(t)) {
+    const tz = squad.timezone;
+    const today = localDate(now, tz);
+    const due = myGoals
+      .filter((g) => isDueToday(g, now, tz) && !deadlinePassed(g, now, tz)
+        && !Object.values(s.checkins).some((c) => c.goalId === g.id && c.localDate === today && c.status === 'completed'))
+      .map((g) => ({ g, ms: msUntilDeadline(g, now, tz) }))
+      .sort((a, b) => a.ms - b.ms);
+    if (due.length === 0) return { text: 'Nothing is due right now. Enjoy it while it lasts.' };
+    return { text: `${due.map((d) => `${d.g.title} is due in ${formatCountdown(d.ms)}`).join('. ')}. Move it.` };
+  }
   if (/(flak|worst|who|lazy|skip)/.test(t)) {
     const rows = buildLeaderboard(members, Object.values(s.goals).filter((g) => memberIds.has(g.userId)),
       Object.values(s.checkins), Object.values(s.penalties), now, squad.timezone);
@@ -77,5 +110,5 @@ export function answer(s: MockState, userId: string, text: string, now: number):
     const nxt = myGoals[0] ? formatCents(nextPenaltyCents(myGoals[0])) : '$0';
     return { text: best > 0 ? `Your best streak is ${best} 🔥. Next miss costs ${nxt}.` : `No streak right now. Next miss costs ${nxt}. No pressure. (Pressure.)` };
   }
-  return { text: 'I can answer "who is flaking?", "how close are we to pizza?" and change your penalty. Try a chip below 👇' };
+  return { text: 'I can answer who is flaking, who is winning, what is due today, your balance and how close the pool is, and change your penalty. Try a chip below 👇' };
 }

@@ -13,9 +13,10 @@ import { GoalIcon, Icon } from '@/components/ui/Icon';
 import { EmptyState, errorText, Skeleton } from '@/components/ui/States';
 import { useToast } from '@/components/ui/Toast';
 import type { Goal } from '@/data';
+import { DEMO_ENABLED } from '@/lib/demo';
 
 const Map = dynamic(() => import('@/components/LocationPickerMap'), { ssr: false, loading: () => <Skeleton className="h-40 w-full" /> });
-const DEMO = process.env.NEXT_PUBLIC_DEMO === 'true';
+const DEMO = DEMO_ENABLED;
 
 function Detail({ goal }: { goal: Goal }) {
   const me = useMe();

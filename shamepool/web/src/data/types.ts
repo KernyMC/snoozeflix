@@ -17,6 +17,8 @@ export interface Squad {
   id: string; name: string; inviteCode: string;
   poolGoalName: string; poolGoalCents: Cents; poolBalanceCents: Cents;
   timezone: string; relayLinked: boolean;
+  charityId: string; // where a full pool goes if nobody spends it in time
+  poolFullAt: number | null; // when the pool first reached its goal (starts the cash-out clock)
 }
 
 export interface Goal {
@@ -61,11 +63,22 @@ export interface CashoutProposal {
   id: string; squadId: string; proposerUserId: string; merchantName: string;
   amountCents: Cents; status: 'open' | 'approved' | 'rejected' | 'paid' | 'cancelled';
   votes: Record<string, boolean>; createdAt: number;
+  kind?: 'spend' | 'donate'; // default 'spend'
+  charityId?: string;
 }
+
+export interface Donation {
+  id: string; squadId: string; charityId: string; amountCents: Cents;
+  reason: 'auto_deadline' | 'vote'; createdAt: number;
+}
+export interface CharityStatus { charityId: string; deadlineAt: number | null; windowMs: number }
 
 export interface PhotoVerdict { verified: boolean; confidence: number; reason: string; roast: string | null; }
 
 export interface PendingAction { id: string; label: string; kind: 'update_goal_penalty'; args: Record<string, unknown>; expiresAt: number; }
+/** An answer produced by the AI bot (server side). The engine validates the action before it becomes a pending action. */
+export interface AiBotInput { text: string; action?: { goalTitle: string; dollars: number } | null }
+
 export interface BotReply { text: string; pendingAction?: PendingAction; }
 export interface BotThreadMessage { id: string; from: 'me' | 'bot'; text: string; pendingAction?: PendingAction; createdAt: number; }
 
@@ -79,6 +92,7 @@ export type ErrorCode =
   | 'username_taken' | 'email_taken' | 'invalid_security' | 'invalid_credentials' | 'account_not_found' | 'wrong_answers'
   | 'auth_locked' | 'invalid_reset'
   | 'no_account' | 'wrong_password' | 'same_email' | 'same_password' | 'invalid_avatar'
+  | 'invalid_charity' | 'charity_locked'
   | 'below_minimum' | 'insufficient_available' | 'withdrawal_pending' | 'withdrawal_not_found'
   | 'invalid_card_name' | 'invalid_card_number' | 'unsupported_card' | 'invalid_expiry' | 'card_expired' | 'invalid_cvc' | 'invalid_nickname'
   | 'duplicate_card' | 'too_many_payments' | 'payment_not_found' | 'payment_in_use' | 'payment_required' | 'invalid_tier' | 'same_tier'

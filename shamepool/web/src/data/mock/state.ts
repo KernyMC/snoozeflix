@@ -1,8 +1,9 @@
 import type {
-  Account, Billing, BotThreadMessage, CashoutProposal, Checkin, DemoFlags, ErrorCode, FeedEvent, Goal, PendingAction, Penalty, Result, Squad, User, Withdrawal,
+  Account, Billing, BotThreadMessage, CashoutProposal, Checkin, DemoFlags, ErrorCode, FeedEvent, Goal, PendingAction, Penalty, Result, Squad, User, Withdrawal, Donation,
 } from '../types';
 
-export const MOCK_VERSION = 3;
+// Bump whenever the seed or the state shape changes: browsers keep the old seeded data until the version differs.
+export const MOCK_VERSION = 5;
 export const STORAGE_KEY = 'shamepool-mock-v1';
 
 export interface MockState {
@@ -18,6 +19,7 @@ export interface MockState {
   feed: FeedEvent[]; // newest first
   cashouts: Record<string, CashoutProposal>;
   withdrawals: Record<string, Withdrawal>;
+  donations: Record<string, Donation>;
   /** Plan, cards and addresses by user id. Optional because states saved before it existed do not have it. */
   billing?: Record<string, Billing>;
   botThreads: Record<string, BotThreadMessage[]>;

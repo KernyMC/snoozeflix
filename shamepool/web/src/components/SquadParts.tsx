@@ -9,6 +9,7 @@ import { Avatar } from './ui/Avatar';
 import { Button } from './ui/Button';
 import { Card, Pill } from './ui/Card';
 import { Flakey } from './ui/Flakey';
+import { SpeakButton } from './voice/SpeakButton';
 import { Icon, type IconName } from './ui/Icon';
 import { IconText } from './ui/IconText';
 import { CountUpMoney, MoneyText } from './ui/Money';
@@ -140,6 +141,7 @@ export function Feed({ limit = 50, big = false, autoScroll = false }: { limit?: 
                   </p>
                   <p className={`font-bold text-ink-faint ${big ? 'text-base' : 'text-xs'}`}>{relTime(f.createdAt, now)}</p>
                 </div>
+                {bot && !big && <SpeakButton text={f.text} />}
               </motion.li>
             );
           })}

@@ -1,4 +1,5 @@
 'use client';
+import { Heart } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { logout, resetDemoData, useConnection, useMe, useSquad } from '@/data';
 import { AccountSettings, ProfileCard } from '@/components/AccountForms';
@@ -6,11 +7,13 @@ import { AppShell } from '@/components/AppShell';
 import { PlanCard } from '@/components/BillingForms';
 import { NewPoolGoal } from '@/components/Cashout';
 import { InviteQr } from '@/components/InviteQr';
+import { VoiceSettings } from '@/components/voice/VoiceSettings';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Icon } from '@/components/ui/Icon';
+import { DEMO_ENABLED } from '@/lib/demo';
 
-const DEMO = process.env.NEXT_PUBLIC_DEMO === 'true';
+const DEMO = DEMO_ENABLED;
 
 function Settings() {
   const me = useMe();
@@ -47,10 +50,12 @@ function Settings() {
           <NewPoolGoal />
         </section>
       )}
+      <VoiceSettings />
 
       <section aria-labelledby="more" className="space-y-3">
         <h2 id="more" className={h2}>More</h2>
         <Button variant="secondary" href="/wallet"><Icon name="cash" /> Wallet and withdrawals</Button>
+        <Button variant="secondary" href="/charity"><Heart size={20} strokeWidth={2.5} /> Squad charity</Button>
         <Button variant="secondary" href="/squad?tv=1"><Icon name="tv" /> Open projector view</Button>
         <Card>
           <p className="font-extrabold">Backend: <b className="text-sky-dark">{conn.mode}</b> ({conn.status})</p>

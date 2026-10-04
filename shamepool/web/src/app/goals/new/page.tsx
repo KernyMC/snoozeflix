@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { createGoal, formatCents, useBilling, useMyGoals } from '@/data';
 import { AppShell } from '@/components/AppShell';
+import { CoachCard } from '@/components/CoachCard';
 import { DayChips, EscalationPreview, PenaltyStepper } from '@/components/GoalFormParts';
 import { LocationPicker } from '@/components/LocationPicker';
 import { GOAL_LIMITS, openUpgrade, PAID_TIER_PRICE_CENTS } from '@/components/UpgradeBanner';
@@ -12,8 +13,9 @@ import { Field } from '@/components/ui/Field';
 import { GOAL_ICONS, Icon } from '@/components/ui/Icon';
 import { errorText } from '@/components/ui/States';
 import { useToast } from '@/components/ui/Toast';
+import { DEMO_ENABLED } from '@/lib/demo';
 
-const DEMO = process.env.NEXT_PUBLIC_DEMO === 'true';
+const DEMO = DEMO_ENABLED;
 const STAYS = DEMO ? [1, 5, 15, 30, 60] : [15, 30, 45, 60, 90];
 const CAP = 4000;
 
@@ -33,6 +35,18 @@ function NewGoal() {
   const [errs, setErrs] = useState<Record<string, string>>({});
   const { tier } = useBilling();
   const full = goals.length >= GOAL_LIMITS[tier];
+
+  const applyPlan = (p: import('@/lib/ai/types').CoachPlan) => {
+    setTitle(p.title);
+    setEmoji(p.icon);
+    setDays(p.days);
+    setTime(`${String(Math.floor(p.deadlineMinutes / 60)).padStart(2, '0')}:${String(p.deadlineMinutes % 60).padStart(2, '0')}`);
+    setStay(p.minStayMinutes);
+    setBase(p.basePenaltyCents);
+    setRadius(p.radiusM);
+    setErrs({});
+  };
+  const stayOptions = STAYS.includes(stay) ? STAYS : [...STAYS, stay].sort((a, b) => a - b);
 
   const submit = async () => {
     const [h, m] = time.split(':').map(Number);
@@ -60,6 +74,7 @@ function NewGoal() {
         <button onClick={() => router.back()} aria-label="Back" className="size-11 -ml-2 grid place-items-center"><ArrowLeft strokeWidth={3} /></button>
         <h1 className="font-display font-black text-3xl">New commitment</h1>
       </div>
+      {!full && <CoachCard onPlan={applyPlan} />}
       {full && (tier === 'free' ? (
         <p role="alert" className="rounded-xl border-2 border-sun bg-sun-light p-3 font-extrabold">
           The free tier has {GOAL_LIMITS.free} goal. <button type="button" onClick={openUpgrade} aria-haspopup="dialog" className="font-black underline decoration-2 underline-offset-2">Upgrade for {formatCents(PAID_TIER_PRICE_CENTS)}</button> to get all {GOAL_LIMITS.paid}.
@@ -93,7 +108,7 @@ function NewGoal() {
         <div className="mt-3"><Field label="Deadline" type="time" value={time} onChange={(e) => setTime(e.target.value)} error={errs.time} /></div>
         <p className={`${label} mt-3`}>Minimum stay</p>
         <div className="flex gap-2" role="radiogroup" aria-label="Minimum stay">
-          {STAYS.map((s) => (
+          {stayOptions.map((s) => (
             <button key={s} type="button" role="radio" aria-checked={stay === s} onClick={() => setStay(s)}
               className={`flex-1 min-h-[48px] rounded-xl border-2 font-display font-black shadow-chunky-sm ${stay === s ? 'border-sky bg-sky-light text-sky-dark [--edge:var(--color-sky-dark)]' : 'border-surface-line text-ink-soft'}`}>{s}m</button>
           ))}

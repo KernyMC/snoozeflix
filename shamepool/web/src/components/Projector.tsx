@@ -7,6 +7,7 @@ import { CashoutBanner } from './Cashout';
 import { inviteUrl } from './InviteQr';
 import { Feed, Leaderboard, PoolCard } from './SquadParts';
 import { Flakey } from './ui/Flakey';
+import { setPrefs, speak, usePrefs } from '@/lib/voice';
 
 /**
  * Full-screen viewer for a projector. No nav, huge type. In mock mode a fresh tab
@@ -39,6 +40,7 @@ export function Projector() {
   }
   const joinUrl = inviteUrl(origin, squad.inviteCode);
   return (
+    <>
     <main className="min-h-dvh bg-surface-muted p-6 grid grid-cols-[1.1fr_1fr_1fr] gap-6 text-[1.15em]" aria-label="Projector view">
       <section className="space-y-5">
         <div className="flex items-center justify-between"><Wordmark className="text-5xl" /><span className="font-display font-black text-3xl text-ink-soft">{squad.name}</span></div>
@@ -61,5 +63,19 @@ export function Projector() {
         <div className="flex-1 min-h-0"><Feed limit={30} big autoScroll /></div>
       </section>
     </main>
+    <SoundToggle />
+    </>
+  );
+}
+
+/** Browsers block autoplay: one tap on the big screen unlocks Flakey's voice for the room. */
+function SoundToggle() {
+  const prefs = usePrefs();
+  return (
+    <button type="button" aria-pressed={prefs.voice}
+      onClick={() => { const on = !prefs.voice; setPrefs({ voice: on }); if (on) void speak("Sound is on. Flakey is watching you."); }}
+      className="fixed bottom-4 right-4 z-50 rounded-full bg-primary text-white px-5 py-3 font-display font-extrabold shadow-chunky [--edge:var(--color-primary-dark)] active:translate-y-1 active:shadow-none">
+      {prefs.voice ? 'Sound on' : 'Enable sound'}
+    </button>
   );
 }

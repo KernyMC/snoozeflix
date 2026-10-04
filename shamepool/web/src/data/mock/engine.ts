@@ -5,9 +5,10 @@ import {
   validateGoalInput, validateName, validatePoolGoal,
 } from '../logic';
 import type {
-  BotReply, CashoutProposal, Checkin, FeedEvent, Goal, GoalInput, PhotoVerdict, Penalty, Pos, Result, Squad, User, Wallet, Withdrawal,
+  BotReply, CashoutProposal, Checkin, FeedEvent, Goal, GoalInput, PhotoVerdict, Penalty, Pos, Result, Squad, User, Wallet, Withdrawal, Donation, CharityStatus, AiBotInput,
 } from '../types';
-import { answer, brokeLine, hypeLine, photoRoast, roastLine } from './bot';
+import { answer, brokeLine, hypeLine, photoRoast, roastLine, type BotAnswer } from './bot';
+import { CASHOUT_WINDOW_DEMO_MS, CASHOUT_WINDOW_REAL_MS, DEFAULT_CHARITY_ID, charityById, isCharityId } from '../charities';
 import { type Ctx, type MockState, err, ok, pushFeed, squadMembers, uid } from './state';
 
 const STALE_CHECKIN_MS = 3 * 3600_000;
@@ -49,7 +50,7 @@ export function createSquad(c: Ctx, input: { name: string; poolGoalName: string;
   while (taken.has(code)) code = generateInviteCode(); // E11
   const squad: Squad = {
     id: uid(c.s, 'sq'), name: input.name.trim(), inviteCode: code, poolGoalName: input.poolGoalName.trim(),
-    poolGoalCents: input.poolGoalCents, poolBalanceCents: 0, timezone: 'America/Detroit', relayLinked: false,
+    poolGoalCents: input.poolGoalCents, poolBalanceCents: 0, timezone: 'America/Detroit', relayLinked: false, charityId: DEFAULT_CHARITY_ID, poolFullAt: null,
   };
   c.s.squads[squad.id] = squad;
   me.squadId = squad.id;
@@ -165,7 +166,8 @@ export function pingCheckin(c: Ctx, checkinId: string, pos: Pos): Result<Checkin
   return ok(ck);
 }
 
-export function finishCheckin(c: Ctx, checkinId: string, photo: string): Result<{ checkin: Checkin; verdict: PhotoVerdict }> {
+/** `ai`: a vision verdict from the server; `null` = the AI check was unavailable (accept, flagged); `undefined` = not attempted (mock default). */
+export function finishCheckin(c: Ctx, checkinId: string, photo: string, ai?: PhotoVerdict | null): Result<{ checkin: Checkin; verdict: PhotoVerdict }> {
   const ck = c.s.checkins[checkinId];
   if (!ck || ck.userId !== c.userId) return err('checkin_not_found');
   const goal = c.s.goals[ck.goalId];
@@ -184,9 +186,16 @@ export function finishCheckin(c: Ctx, checkinId: string, photo: string): Result<
   if (localDate(c.now, tz) !== ck.localDate || localMinutes(c.now, tz) > goal.deadlineMinutes + GRACE_MIN) return err('deadline_passed');
 
   ck.attempts += 1;
-  if (c.s.demo.nextPhotoFails) {
-    c.s.demo.nextPhotoFails = false;
-    const verdict: PhotoVerdict = { verified: false, confidence: 0.92, reason: 'Not the right place', roast: photoRoast(hash(ck.id) + ck.attempts) };
+  const forced = c.s.demo.nextPhotoFails;
+  if (forced) c.s.demo.nextPhotoFails = false;
+  const aiOk = ai ? { ...ai, confidence: Math.max(0, Math.min(1, Number(ai.confidence) || 0.7)), reason: String(ai.reason ?? '').slice(0, 120), roast: ai.roast ? String(ai.roast).slice(0, 140) : null } : ai;
+  const rejection: PhotoVerdict | null = forced
+    ? { verified: false, confidence: 0.92, reason: 'Not the right place', roast: photoRoast(hash(ck.id) + ck.attempts) }
+    : aiOk && !aiOk.verified
+      ? { ...aiOk, verified: false, reason: aiOk.reason || 'Not the right place', roast: aiOk.roast ?? photoRoast(hash(ck.id) + ck.attempts) }
+      : null;
+  if (rejection) {
+    const verdict = rejection;
     ck.aiVerified = false; ck.aiReason = verdict.reason; ck.aiRoast = verdict.roast;
     if (ck.attempts >= LIMITS.maxPhotoAttempts) {
       ck.status = 'failed';
@@ -194,8 +203,10 @@ export function finishCheckin(c: Ctx, checkinId: string, photo: string): Result<
     }
     return err('photo_rejected', { verdict, attemptsLeft: LIMITS.maxPhotoAttempts - ck.attempts });
   }
-  const verdict: PhotoVerdict = { verified: true, confidence: 0.94, reason: `Looks like a real ${goal.title.toLowerCase()} moment`, roast: null };
-  ck.status = 'completed'; ck.aiVerified = true; ck.aiReason = verdict.reason; ck.aiRoast = null;
+  const verdict: PhotoVerdict = aiOk && aiOk.verified
+    ? { verified: true, confidence: aiOk.confidence, reason: aiOk.reason || 'Looks right', roast: null }
+    : { verified: true, confidence: ai === null ? 0.5 : 0.94, reason: ai === null ? 'AI check unavailable' : `Looks like a real ${goal.title.toLowerCase()} moment`, roast: null };
+  ck.status = 'completed'; ck.aiVerified = ai !== null; ck.aiReason = verdict.reason; ck.aiRoast = null;
   goal.streak += 1;
   goal.consecutiveFlakes = 0;
   pushFeed(c.s, goal.squadId, me.id, 'checkin', `${me.name} kept their promise: ${goal.title}. ${goal.streak} in a row 🔥`, c.now);
@@ -247,6 +258,7 @@ export function applyFlake(c: Ctx, goal: Goal, date: string): Penalty {
   pushFeed(c.s, squad.id, null, 'bot',
     shortfall > 0 && charged === 0 ? `${user.name} owes ${formatCents(intended)} but has $0. ${brokeLine(n)}` : `${user.name}: ${roastLine(n)}`, c.now);
   checkPoolMilestones(c, squad);
+  syncPoolFull(c, squad);
   return pen;
 }
 
@@ -309,13 +321,29 @@ function addThread(c: Ctx, from: 'me' | 'bot', text: string, pendingAction?: Bot
   (c.s.botThreads[uidv] ??= []).push({ id: uid(c.s, 'm'), from, text, pendingAction, createdAt: c.now });
 }
 
-export function askBot(c: Ctx, text: string): Result<BotReply> {
+/** Turns an AI answer into text plus a validated action (the model is never trusted with money or ownership). */
+function fromAi(c: Ctx, userId: string, ai: AiBotInput): BotAnswer {
+  const text = String(ai.text ?? '').replace(/\s+/g, ' ').trim().slice(0, 400) || 'Hmm, I got nothing. Try again?';
+  if (!ai.action) return { text };
+  const goals = Object.values(c.s.goals).filter((g) => g.userId === userId && g.active);
+  const want = String(ai.action.goalTitle ?? '').trim().toLowerCase();
+  const goal = goals.find((g) => g.title.toLowerCase() === want)
+    ?? goals.find((g) => want && (g.title.toLowerCase().includes(want) || want.includes(g.title.toLowerCase())));
+  if (!goal) return { text: `${text} (I could not find that goal, so nothing will change.)` };
+  const cents = Math.round(Number(ai.action.dollars) * 100);
+  if (!Number.isInteger(cents) || cents < LIMITS.penaltyMin || cents > goal.maxPenaltyCents) {
+    return { text: `The penalty on ${goal.title} has to be between $1 and ${formatCents(goal.maxPenaltyCents)}.` };
+  }
+  return { text, action: { label: `${goal.title}: ${formatCents(goal.basePenaltyCents)} \u2192 ${formatCents(cents)}`, args: { goalId: goal.id, baseCents: cents } } };
+}
+
+export function askBot(c: Ctx, text: string, ai?: AiBotInput): Result<BotReply> {
   const me = meOf(c);
   if (!me) return err('no_user');
   const t = text.trim();
   if (t.length < 1 || t.length > LIMITS.messageMax) return err('invalid_message');
   addThread(c, 'me', t);
-  const a = answer(c.s, me.id, t, c.now);
+  const a = ai ? fromAi(c, me.id, ai) : answer(c.s, me.id, t, c.now);
   let pendingAction: BotReply['pendingAction'];
   if (a.action) {
     pendingAction = { id: uid(c.s, 'act'), label: a.action.label, kind: 'update_goal_penalty', args: a.action.args, expiresAt: c.now + ACTION_TTL_MS };
@@ -352,6 +380,7 @@ export function setPoolGoal(c: Ctx, name: string, cents: number): Result<Squad> 
   const sq = c.s.squads[me.squadId];
   sq.poolGoalName = name.trim();
   sq.poolGoalCents = cents;
+  syncPoolFull(c, sq);
   pushFeed(c.s, sq.id, me.id, 'commit', `New pool goal: ${sq.poolGoalName} (${formatCents(cents)}).`, c.now);
   checkPoolMilestones(c, sq);
   return ok(sq);
@@ -369,7 +398,7 @@ export function proposeCashout(c: Ctx, merchant: string): Result<CashoutProposal
   if (openProposal(c.s, sq.id)) return err('proposal_open');
   const p: CashoutProposal = {
     id: uid(c.s, 'co'), squadId: sq.id, proposerUserId: me.id, merchantName: merchant.trim().slice(0, 30) || 'Pizza House',
-    amountCents: sq.poolGoalCents, status: 'open', votes: { [me.id]: true }, createdAt: c.now,
+    amountCents: sq.poolGoalCents, status: 'open', votes: { [me.id]: true }, createdAt: c.now, kind: 'spend',
   };
   c.s.cashouts[p.id] = p;
   pushFeed(c.s, sq.id, me.id, 'cashout', `${me.name} proposed spending ${formatCents(p.amountCents)} at ${p.merchantName}. Vote!`, c.now);
@@ -385,9 +414,14 @@ function resolveVotes(c: Ctx, p: CashoutProposal): Result<CashoutProposal> {
   const no = votes.filter(([, v]) => !v).length;
   if (yes * 2 > n) {
     if (sq.poolBalanceCents < p.amountCents) return err('pool_changed'); // X6
-    sq.poolBalanceCents -= p.amountCents;
     p.status = 'paid';
-    pushFeed(c.s, sq.id, null, 'cashout', `Approved! ${formatCents(p.amountCents)} spent at ${p.merchantName} 🍕🎉`, c.now);
+    if (p.kind === 'donate') {
+      donate(c, sq, 'vote', p.amountCents, p.charityId);
+    } else {
+      sq.poolBalanceCents -= p.amountCents;
+      pushFeed(c.s, sq.id, null, 'cashout', `Approved! ${formatCents(p.amountCents)} spent at ${p.merchantName} 🍕🎉`, c.now);
+      syncPoolFull(c, sq);
+    }
   } else if (no * 2 > n) {
     p.status = 'rejected';
     pushFeed(c.s, sq.id, null, 'cashout', `The squad said no to ${p.merchantName}. Democracy hurts.`, c.now);
@@ -487,4 +521,87 @@ export function settleWithdrawals(c: Ctx): number {
     pushFeed(c.s, w.squadId, u?.id ?? null, 'withdrawal', `${u?.name ?? 'Someone'} withdrew ${formatCents(w.amountCents)} to ${w.destination}.`, c.now);
   }
   return n;
+}
+
+/* ---------- charity: a full pool nobody spends goes to the squad's charity ---------- */
+export const charityWindowMs = (): number =>
+  process.env.NEXT_PUBLIC_DEMO === 'true' ? CASHOUT_WINDOW_DEMO_MS : CASHOUT_WINDOW_REAL_MS;
+
+/** Starts the cash-out clock the first time the pool reaches its goal; stops it when the pool drops below. */
+function syncPoolFull(c: Ctx, squad: Squad): void {
+  const full = squad.poolGoalCents > 0 && squad.poolBalanceCents >= squad.poolGoalCents;
+  if (full && !squad.poolFullAt) squad.poolFullAt = c.now;
+  if (!full) squad.poolFullAt = null;
+}
+
+function donate(c: Ctx, squad: Squad, reason: Donation['reason'], amountCents: number, charityId?: string): Donation {
+  const ch = charityById(charityId ?? squad.charityId);
+  squad.poolBalanceCents -= amountCents;
+  const d: Donation = { id: uid(c.s, 'd'), squadId: squad.id, charityId: ch.id, amountCents, reason, createdAt: c.now };
+  c.s.donations[d.id] = d;
+  pushFeed(c.s, squad.id, null, 'cashout',
+    reason === 'vote'
+      ? `The squad donated ${formatCents(amountCents)} to ${ch.name}. Flaking did some good.`
+      : `Nobody spent the pool in time, so ${formatCents(amountCents)} went to ${ch.name}. Flaking did some good.`, c.now);
+  squad.poolFullAt = null;
+  syncPoolFull(c, squad); // overflow can start the next clock right away
+  return d;
+}
+
+export function charityStatusFor(squad: Squad): CharityStatus {
+  return { charityId: squad.charityId, windowMs: charityWindowMs(), deadlineAt: squad.poolFullAt ? squad.poolFullAt + charityWindowMs() : null };
+}
+
+export function setCharity(c: Ctx, charityId: string): Result<Squad> {
+  const me = meOf(c);
+  if (!me?.squadId) return err('not_in_squad');
+  if (!isCharityId(charityId)) return err('invalid_charity');
+  const sq = c.s.squads[me.squadId];
+  const open = openProposal(c.s, sq.id);
+  if (open?.kind === 'donate') return err('charity_locked'); // do not change it under a vote
+  if (sq.charityId === charityId) return ok(sq);
+  sq.charityId = charityId;
+  pushFeed(c.s, sq.id, me.id, 'commit', `${me.name} set the squad charity to ${charityById(charityId).name}.`, c.now);
+  return ok(sq);
+}
+
+export function proposeDonation(c: Ctx): Result<CashoutProposal> {
+  const me = meOf(c);
+  if (!me?.squadId) return err('not_in_squad');
+  const sq = c.s.squads[me.squadId];
+  if (sq.poolBalanceCents < sq.poolGoalCents) return err('pool_not_ready');
+  if (openProposal(c.s, sq.id)) return err('proposal_open');
+  const ch = charityById(sq.charityId);
+  const p: CashoutProposal = {
+    id: uid(c.s, 'co'), squadId: sq.id, proposerUserId: me.id, merchantName: ch.name, amountCents: sq.poolGoalCents,
+    status: 'open', votes: { [me.id]: true }, createdAt: c.now, kind: 'donate', charityId: ch.id,
+  };
+  c.s.cashouts[p.id] = p;
+  pushFeed(c.s, sq.id, me.id, 'cashout', `${me.name} proposed donating ${formatCents(p.amountCents)} to ${ch.name}. Vote!`, c.now);
+  return resolveVotes(c, p);
+}
+
+/** Scheduler: donate every pool whose cash-out window ran out with no vote in progress. Returns how many. */
+export function settleCharity(c: Ctx): number {
+  let n = 0;
+  for (const sq of Object.values(c.s.squads)) {
+    syncPoolFull(c, sq);
+    if (!sq.poolFullAt || c.now < sq.poolFullAt + charityWindowMs()) continue;
+    if (openProposal(c.s, sq.id)) continue; // the clock waits while the squad is voting
+    if (sq.poolBalanceCents < sq.poolGoalCents) continue;
+    donate(c, sq, 'auto_deadline', sq.poolGoalCents);
+    n++;
+  }
+  return n;
+}
+
+/** Demo helper: pretend the window already ran out and donate right away. */
+export function demoExpirePoolDeadline(c: Ctx): Result<Squad> {
+  const me = meOf(c);
+  if (!me?.squadId) return err('not_in_squad');
+  const sq = c.s.squads[me.squadId];
+  if (sq.poolBalanceCents < sq.poolGoalCents) return err('pool_not_ready');
+  sq.poolFullAt = c.now - charityWindowMs() - 1;
+  settleCharity(c);
+  return ok(sq);
 }

@@ -2,12 +2,16 @@
 import { motion } from 'framer-motion';
 import { Ellipsis, Send } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { askBot, confirmBotAction, useBotThread, useNow } from '@/data';
+import { askBot, confirmBotAction, getBotContext, useBotThread, useNow } from '@/data';
+import { askAi } from '@/lib/ai/client';
 import { AppShell } from '@/components/AppShell';
 import { Button } from '@/components/ui/Button';
 import { inputCls } from '@/components/ui/Field';
 import { Flakey } from '@/components/ui/Flakey';
 import { IconText } from '@/components/ui/IconText';
+import { SpeakButton } from '@/components/voice/SpeakButton';
+import { VoiceMic } from '@/components/voice/VoiceMic';
+import { speak, usePrefs } from '@/lib/voice';
 import { errorText } from '@/components/ui/States';
 import { useToast } from '@/components/ui/Toast';
 
@@ -20,23 +24,37 @@ function Chat() {
   const [text, setText] = useState('');
   const [typing, setTyping] = useState(false);
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
+  const prefs = usePrefs();
   const end = useRef<HTMLDivElement>(null);
   useEffect(() => { end.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }); }, [thread.length, typing]);
 
-  const send = async (t: string) => {
+  /** `spoken` = the question came from the microphone, so Flakey answers out loud. */
+  const send = async (t: string, spoken = false) => {
     const msg = t.trim();
     if (!msg || typing) return;
     setText('');
     setTyping(true);
-    const r = await askBot(msg);
+    const context = getBotContext();
+    const history = thread.slice(-6).map((m) => ({ from: m.from, text: m.text }));
+    const ai = context ? await askAi(msg, history, context) : null; // null = AI unavailable: the keyword bot answers
+    const r = await askBot(msg, ai ?? undefined);
     setTyping(false);
-    if (!r.ok) toast(errorText(r.error), 'error');
+    if (!r.ok) return toast(errorText(r.error), 'error');
+    if (spoken || prefs.voice) void speak(r.data.pendingAction ? `${r.data.text} Say yes to confirm.` : r.data.text);
   };
-  const confirm = async (id: string) => {
+  const confirm = async (id: string, spoken = false) => {
     setTyping(true);
     const r = await confirmBotAction(id);
     setTyping(false);
-    if (!r.ok) toast(errorText(r.error), 'error'); else toast('Done', 'success');
+    if (!r.ok) return toast(errorText(r.error), 'error');
+    toast('Done', 'success');
+    if (spoken || prefs.voice) void speak(r.data.text);
+  };
+  /** Voice input: "yes" confirms the open action, anything else is a new question. */
+  const onVoice = async (said: string) => {
+    const open = [...thread].reverse().find((m) => m.pendingAction && !dismissed.has(m.pendingAction.id) && m.pendingAction.expiresAt > Date.now())?.pendingAction;
+    if (open && /^\s*(yes|yeah|yep|yup|confirm|do it|sure|ok|okay)\b/i.test(said)) return confirm(open.id, true);
+    return send(said, true);
   };
 
   return (
@@ -56,7 +74,7 @@ function Chat() {
           <motion.div key={m.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex gap-2 items-end">
             <Flakey mood="smug" size={44} />
             <div className="max-w-[80%] space-y-2">
-              <div className="rounded-2xl rounded-bl-md bg-grape-light px-4 py-3 font-bold text-grape-dark break-words"><IconText>{m.text}</IconText></div>
+              <div className="flex items-start gap-1.5"><div className="rounded-2xl rounded-bl-md bg-grape-light px-4 py-3 font-bold text-grape-dark break-words"><IconText>{m.text}</IconText></div><SpeakButton text={m.text} className="mt-1 bg-grape-light" /></div>
               {m.pendingAction && !dismissed.has(m.pendingAction.id) && (
                 <div className="rounded-2xl border-2 border-grape bg-white p-3 space-y-2" role="group" aria-label="Confirm action">
                   <p className="text-xs font-extrabold uppercase tracking-wide text-grape-dark">Confirm action</p>
@@ -89,7 +107,8 @@ function Chat() {
           ))}
         </div>
         <form onSubmit={(e) => { e.preventDefault(); void send(text); }} className="flex gap-2">
-          <input value={text} onChange={(e) => setText(e.target.value)} maxLength={280} aria-label="Message Squad Bot" placeholder="Ask Squad Bot…" className={inputCls} />
+          <VoiceMic onTranscript={onVoice} disabled={typing} />
+          <input value={text} onChange={(e) => setText(e.target.value)} maxLength={280} aria-label="Message Squad Bot" placeholder="Type or tap the mic…" className={inputCls} />
           <Button variant="bot" full={false} type="submit" disabled={!text.trim() || typing} aria-label="Send" className="px-4"><Send size={20} strokeWidth={3} /></Button>
         </form>
       </div>
