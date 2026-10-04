@@ -29,7 +29,7 @@ function Settings() {
       </section>
 
       <section aria-labelledby="acct" className="space-y-3">
-        <h2 id="acct" className={h2}>Account</h2>
+        <h2 id="acct" className={`${h2} scroll-mt-20`}>Account</h2>
         <AccountSettings />
       </section>
 

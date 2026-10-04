@@ -3,14 +3,14 @@ import { useRef, useState } from 'react';
 import { Crown, MapPin, Plus, Sprout, Trash2 } from 'lucide-react';
 import {
   addAddress, addPaymentMethod, BRAND_LABEL, detectBrand, formatAddress, formatCardNumber, formatExpiry, formatExpiryInput, isExpired,
-  formatCents, MAX_ADDRESSES, MAX_PAYMENT_METHODS, removeAddress, removePaymentMethod, setPlanTier, useBilling, useConnection, useNow,
+  formatCents, inTrial, MAX_ADDRESSES, MAX_PAYMENT_METHODS, removeAddress, removePaymentMethod, setPlanTier, useBilling, useConnection, useNow,
   validateAddressLabel, validateAddressName, validateCardName, validateCardNumber, validateCity, validateCvc, validateExpiry, validateNickname,
   validateState, validateStreet, validateUnit, validateZip, type Address, type ErrorCode, type PaymentMethod, type Result,
 } from '@/data';
 import { type Errs, FormError, useErrors } from '@/components/AccountParts';
 import { focusFirstInvalid } from '@/components/auth/AuthShell';
-import { fireConfetti } from '@/components/effects';
-import { GOAL_LIMITS, PAID_TIER_PRICE_CENTS } from '@/components/UpgradeBanner';
+import { GOAL_LIMITS, openUpgrade, PAID_TIER_PRICE_CENTS } from '@/components/UpgradeBanner';
+import { shortDate } from '@/components/UpgradePopup';
 import { Button } from '@/components/ui/Button';
 import { Card, Pill } from '@/components/ui/Card';
 import { Field } from '@/components/ui/Field';
@@ -32,23 +32,23 @@ export function TierPill({ className = '' }: { className?: string }) {
   return <Pill tone={tier === 'paid' ? 'sky' : 'gray'} className={className}>{tier === 'paid' ? 'Paid tier' : 'Free tier'}</Pill>;
 }
 
-/** Which tier the user is on, with the switch to the other one. Going paid needs a saved card that has not expired. */
+/** Which tier the user is on, with the switch to the other one. Upgrading goes through the upgrade pop-up. */
 export function PlanCard() {
   const billing = useBilling();
   const now = useNow(60_000);
   const { toast } = useToast();
   const [busy, setBusy] = useState(false);
   const paid = billing.tier === 'paid';
-  const hasCard = billing.payments.some((p) => !isExpired(p, now));
+  const price = formatCents(PAID_TIER_PRICE_CENTS);
+  const trial = inTrial(billing, now);
 
-  const change = async () => {
+  const toFree = async () => {
     if (busy) return;
     setBusy(true);
-    const r = await setPlanTier(paid ? 'free' : 'paid');
+    const r = await setPlanTier('free');
     setBusy(false);
     if (!r.ok) return toast(errorText(r.error), 'error');
-    if (r.data === 'paid') fireConfetti();
-    toast(r.data === 'paid' ? 'You are on the paid tier' : 'You are back on the free tier', 'success');
+    toast('You are back on the free tier', 'success');
   };
 
   return (
@@ -61,17 +61,17 @@ export function PlanCard() {
           <p className="text-xs font-extrabold uppercase tracking-wide text-ink-soft">Your plan</p>
           <p className="font-display font-black text-2xl leading-tight">{paid ? 'Paid tier' : 'Free tier'}</p>
           <p className="text-sm font-bold text-ink-soft">
-            {paid ? `Up to ${GOAL_LIMITS.paid} goals` : `${GOAL_LIMITS.free} goal. Pay ${formatCents(PAID_TIER_PRICE_CENTS)} to get all ${GOAL_LIMITS.paid}.`}
+            {paid ? `Up to ${GOAL_LIMITS.paid} goals · ${price} a month` : `${GOAL_LIMITS.free} goal. Pay ${price} to get all ${GOAL_LIMITS.paid}.`}
           </p>
+          {trial && billing.trialEndsAt != null && (
+            <p className="text-sm font-extrabold text-sky-dark">Free trial. Your card is charged {price} on {shortDate(billing.trialEndsAt)}.</p>
+          )}
         </div>
       </div>
       {paid ? (
-        <Button variant="secondary" type="button" loading={busy} onClick={change}>Switch to free</Button>
+        <Button variant="secondary" type="button" loading={busy} onClick={toFree}>Switch to free</Button>
       ) : (
-        <>
-          <Button type="button" loading={busy} disabled={!hasCard} onClick={change}>Upgrade to paid</Button>
-          {!hasCard && <p className="text-sm font-bold text-ink-soft text-center">Save a card under Payment methods to upgrade.</p>}
-        </>
+        <Button type="button" aria-haspopup="dialog" onClick={openUpgrade}>Upgrade to paid</Button>
       )}
     </Card>
   );

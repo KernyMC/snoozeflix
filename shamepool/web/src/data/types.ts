@@ -101,6 +101,8 @@ export interface RegisterInput {
 
 /* ---------- plan, payment methods and addresses ---------- */
 export type PlanTier = 'free' | 'paid';
+/** How a paid plan begins: billed monthly from today, or after a free trial. */
+export type PlanStart = 'monthly' | 'trial';
 export type CardBrand = 'visa' | 'mastercard' | 'amex' | 'discover';
 export interface Address {
   id: string; label: string; fullName: string; line1: string; line2: string; city: string; state: string; zip: string; createdAt: number;
@@ -115,7 +117,11 @@ export interface PaymentMethod {
 }
 /** What the card form submits. `cardNumber` and `cvc` are validated and then discarded. */
 export interface PaymentMethodInput { nickname: string; nameOnCard: string; cardNumber: string; expiry: string; cvc: string; addressId: string | null }
-export interface Billing { tier: PlanTier; payments: PaymentMethod[]; addresses: Address[] }
+export interface Billing {
+  tier: PlanTier; payments: PaymentMethod[]; addresses: Address[];
+  /** When a free trial ends and the first monthly charge is due. Null or absent when the plan did not start with a trial. */
+  trialEndsAt?: number | null;
+}
 
 export type Result<T> = { ok: true; data: T } | { ok: false; error: ErrorCode; meta?: Record<string, unknown> };
 

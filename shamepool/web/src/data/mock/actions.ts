@@ -1,5 +1,5 @@
 import type {
-  AccountInfo, Address, AddressInput, PaymentMethod, PaymentMethodInput, PlanTier, RegisterInput, BotReply, CashoutProposal, Checkin, DemoFlags, FeedEvent, Goal, GoalInput, PhotoVerdict, Penalty, Pos, Result, Squad, User, Withdrawal,
+  AccountInfo, Address, AddressInput, PaymentMethod, PaymentMethodInput, PlanStart, PlanTier, RegisterInput, BotReply, CashoutProposal, Checkin, DemoFlags, FeedEvent, Goal, GoalInput, PhotoVerdict, Penalty, Pos, Result, Squad, User, Withdrawal,
 } from '../types';
 import * as E from './engine';
 import * as A from './authEngine';
@@ -104,7 +104,7 @@ export const requestWithdrawal = (cents: number): Promise<Result<Withdrawal>> =>
 export const cancelWithdrawal = (id: string): Promise<Result<Withdrawal>> => run((c) => E.cancelWithdrawal(c, id));
 
 /* plan, payment methods, addresses */
-export const setPlanTier = (tier: PlanTier): Promise<Result<PlanTier>> => run((c) => B.setPlanTier(c, tier));
+export const setPlanTier = (tier: PlanTier, start: PlanStart = 'monthly'): Promise<Result<PlanTier>> => run((c) => B.setPlanTier(c, tier, start));
 export const addPaymentMethod = (i: PaymentMethodInput): Promise<Result<PaymentMethod>> => run((c) => B.addPaymentMethod(c, i));
 export const removePaymentMethod = (id: string): Promise<Result<true>> => run((c) => B.removePaymentMethod(c, id));
 export const addAddress = (i: AddressInput): Promise<Result<Address>> => run((c) => B.addAddress(c, i));

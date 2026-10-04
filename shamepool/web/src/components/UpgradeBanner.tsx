@@ -1,6 +1,5 @@
 'use client';
 import { X } from 'lucide-react';
-import Link from 'next/link';
 import { useEffect, useSyncExternalStore } from 'react';
 import { formatCents, type PlanTier, useBilling, useMe } from '@/data';
 
@@ -26,6 +25,15 @@ function setClosedBy(userId: string | null) {
   listeners.forEach((l) => l());
 }
 
+/* Whether the upgrade pop-up is showing. One pop-up serves every upgrade button; it is mounted in Providers. */
+let upgradeOpen = false;
+const openListeners = new Set<() => void>();
+const setUpgradeOpen = (v: boolean) => { if (upgradeOpen !== v) { upgradeOpen = v; openListeners.forEach((l) => l()); } };
+export const openUpgrade = () => setUpgradeOpen(true);
+export const closeUpgrade = () => setUpgradeOpen(false);
+export const useUpgradeOpen = (): boolean =>
+  useSyncExternalStore((l) => { openListeners.add(l); return () => { openListeners.delete(l); }; }, () => upgradeOpen, () => false);
+
 /** Forgets a closed banner once nobody is signed in. Mounted once for the whole app. */
 export function UpgradeBannerReset() {
   const me = useMe();
@@ -47,7 +55,7 @@ export function UpgradeBanner({ className = '' }: { className?: string }) {
       <p>
         <span className="mr-1.5 inline-block rounded-full bg-sun px-2 py-0.5 text-[11px] font-black uppercase tracking-wide">Free tier</span>
         {free} {free === 1 ? 'goal' : 'goals'}.{' '}
-        <Link href="/settings#plan" className="font-black underline decoration-2 underline-offset-2">Pay {formatCents(PAID_TIER_PRICE_CENTS)} to upgrade</Link>{' '}
+        <button type="button" onClick={openUpgrade} aria-haspopup="dialog" className="font-black underline decoration-2 underline-offset-2">Pay {formatCents(PAID_TIER_PRICE_CENTS)} to upgrade</button>{' '}
         and get all {GOAL_LIMITS.paid}.
       </p>
       <button type="button" onClick={close} aria-label="Close" className="absolute right-0 top-0 grid size-9 place-items-center rounded-2xl active:translate-y-px">

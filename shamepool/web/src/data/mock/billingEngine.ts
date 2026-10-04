@@ -1,7 +1,7 @@
 import {
-  cardDigits, detectBrand, isExpired, MAX_ADDRESSES, MAX_PAYMENT_METHODS, parseExpiry, validateAddressInput, validatePaymentInput,
+  cardDigits, detectBrand, isExpired, MAX_ADDRESSES, MAX_PAYMENT_METHODS, parseExpiry, trialEnd, validateAddressInput, validatePaymentInput,
 } from '../billingLogic';
-import type { Address, AddressInput, Billing, PaymentMethod, PaymentMethodInput, PlanTier, Result } from '../types';
+import type { Address, AddressInput, Billing, PaymentMethod, PaymentMethodInput, PlanStart, PlanTier, Result } from '../types';
 import { type Ctx, err, type MockState, ok, uid } from './state';
 
 export const EMPTY_BILLING: Billing = { tier: 'free', payments: [], addresses: [] };
@@ -77,12 +77,14 @@ export function removePaymentMethod(c: Ctx, id: string): Result<true> {
   return ok(true);
 }
 
-export function setPlanTier(c: Ctx, tier: PlanTier): Result<PlanTier> {
+/** Going paid starts either with a charge today (`monthly`) or with a free trial whose first charge comes when it ends. */
+export function setPlanTier(c: Ctx, tier: PlanTier, start: PlanStart = 'monthly'): Result<PlanTier> {
   const b = own(c);
   if (!b) return err('no_user');
-  if (tier !== 'free' && tier !== 'paid') return err('invalid_tier');
+  if ((tier !== 'free' && tier !== 'paid') || (start !== 'monthly' && start !== 'trial')) return err('invalid_tier');
   if (b.tier === tier) return err('same_tier');
   if (tier === 'paid' && usable(b, c.now).length === 0) return err('payment_required');
   b.tier = tier;
+  b.trialEndsAt = tier === 'paid' && start === 'trial' ? trialEnd(c.now) : null;
   return ok(tier);
 }

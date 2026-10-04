@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
+import { inTrial } from '../billingLogic';
 import * as B from './billingEngine';
 import { makeSeed } from './seed';
 import type { Ctx, MockState } from './state';
@@ -112,6 +113,29 @@ describe('plan tier', () => {
     B.addPaymentMethod(ctx(), { ...card, expiry: '10/26' });
     now = new Date('2026-11-02T12:00:00-04:00').getTime();
     expect(B.setPlanTier(ctx(), 'paid')).toMatchObject({ ok: false, error: 'payment_required' });
+  });
+  it('starts monthly with no trial, and a trial with the first charge 7 days out', () => {
+    B.addPaymentMethod(ctx(), card);
+    B.setPlanTier(ctx(), 'paid');
+    expect(B.billingFor(s, 'seed_ana').trialEndsAt).toBeNull();
+    B.setPlanTier(ctx(), 'free');
+    expect(B.setPlanTier(ctx(), 'paid', 'trial')).toMatchObject({ ok: true, data: 'paid' });
+    const b = B.billingFor(s, 'seed_ana');
+    const end = new Date(b.trialEndsAt ?? 0);
+    expect([end.getFullYear(), end.getMonth(), end.getDate()]).toEqual([2026, 9, 14]); // Oct 7 is day 1, so day 8 is Oct 14
+    expect(inTrial(b, NOW)).toBe(true);
+    expect(inTrial(b, end.getTime() - 1)).toBe(true);
+    expect(inTrial(b, end.getTime())).toBe(false); // the trial is over; the plan stays paid
+    expect(b.tier).toBe('paid');
+  });
+  it('drops the trial when switching back to free', () => {
+    B.addPaymentMethod(ctx(), card);
+    B.setPlanTier(ctx(), 'paid', 'trial');
+    B.setPlanTier(ctx(), 'free');
+    const b = B.billingFor(s, 'seed_ana');
+    expect(b.trialEndsAt).toBeNull();
+    expect(inTrial(b, NOW)).toBe(false);
+    expect(B.setPlanTier(ctx(), 'paid', 'yearly' as never)).toMatchObject({ ok: false, error: 'invalid_tier' });
   });
   it('rejects the current tier and unknown tiers', () => {
     expect(B.setPlanTier(ctx(), 'free')).toMatchObject({ ok: false, error: 'same_tier' });

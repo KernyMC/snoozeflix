@@ -3,6 +3,19 @@ import type { Address, AddressInput, CardBrand, ErrorCode, PaymentMethod, Paymen
 export const MAX_PAYMENT_METHODS = 5;
 export const MAX_ADDRESSES = 5;
 
+/* ---------- plan ---------- */
+/** Free days before the first charge. The card is charged on the day after the last free one. */
+export const TRIAL_DAYS = 7;
+/** The first charge of a trial started at `now`: the same time of day, `TRIAL_DAYS` calendar days later. */
+export function trialEnd(now: number): number {
+  const d = new Date(now);
+  d.setDate(d.getDate() + TRIAL_DAYS);
+  return d.getTime();
+}
+/** True while a paid plan is still inside its free trial. */
+export const inTrial = (b: { tier: string; trialEndsAt?: number | null }, now: number): boolean =>
+  b.tier === 'paid' && b.trialEndsAt != null && now < b.trialEndsAt;
+
 export const BRAND_LABEL: Record<CardBrand, string> = { visa: 'Visa', mastercard: 'Mastercard', amex: 'American Express', discover: 'Discover' };
 
 export const US_STATES = [

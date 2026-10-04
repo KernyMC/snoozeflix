@@ -8,7 +8,7 @@ export {
   validateSecurity, passwordStrength, normalizeAnswer,
 } from './authLogic';
 export {
-  BRAND_LABEL, US_STATES, MAX_PAYMENT_METHODS, MAX_ADDRESSES, cardDigits, detectBrand, formatAddress, formatCardNumber, formatExpiry, formatExpiryInput,
+  BRAND_LABEL, US_STATES, MAX_PAYMENT_METHODS, MAX_ADDRESSES, TRIAL_DAYS, trialEnd, inTrial, cardDigits, detectBrand, formatAddress, formatCardNumber, formatExpiry, formatExpiryInput,
   isExpired, validateAddressLabel, validateAddressName, validateCardName, validateCardNumber, validateCity, validateCvc, validateExpiry,
   validateNickname, validateState, validateStreet, validateUnit, validateZip,
 } from './billingLogic';

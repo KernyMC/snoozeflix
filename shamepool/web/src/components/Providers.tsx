@@ -4,6 +4,7 @@ import { startBackend } from '@/data';
 import { DemoPanel } from './DemoPanel';
 import { FlakeWatcher } from './FlakeWatcher';
 import { UpgradeBannerReset } from './UpgradeBanner';
+import { UpgradePopup } from './UpgradePopup';
 import { ToastProvider } from './ui/Toast';
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -19,6 +20,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       {children}
       <FlakeWatcher />
       <UpgradeBannerReset />
+      <UpgradePopup />
       <DemoPanel />
     </ToastProvider>
   );
