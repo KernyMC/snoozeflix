@@ -80,6 +80,10 @@ export type ErrorCode =
   | 'auth_locked' | 'invalid_reset'
   | 'no_account' | 'wrong_password' | 'same_email' | 'same_password' | 'invalid_avatar'
   | 'below_minimum' | 'insufficient_available' | 'withdrawal_pending' | 'withdrawal_not_found'
+  | 'invalid_card_name' | 'invalid_card_number' | 'unsupported_card' | 'invalid_expiry' | 'card_expired' | 'invalid_cvc' | 'invalid_nickname'
+  | 'duplicate_card' | 'too_many_payments' | 'payment_not_found' | 'payment_in_use' | 'payment_required' | 'invalid_tier' | 'same_tier'
+  | 'invalid_label' | 'invalid_address_name' | 'invalid_street' | 'invalid_unit' | 'invalid_city' | 'invalid_state' | 'invalid_zip'
+  | 'too_many_addresses' | 'address_not_found'
   | 'offline' | 'mock_error' | 'unknown';
 
 export interface SecurityAnswer { qId: string; answerHash: number }
@@ -94,6 +98,24 @@ export interface RegisterInput {
   firstName: string; lastName: string; email: string; username: string; password: string; confirm: string;
   security: { qId: string; answer: string }[];
 }
+
+/* ---------- plan, payment methods and addresses ---------- */
+export type PlanTier = 'free' | 'paid';
+export type CardBrand = 'visa' | 'mastercard' | 'amex' | 'discover';
+export interface Address {
+  id: string; label: string; fullName: string; line1: string; line2: string; city: string; state: string; zip: string; createdAt: number;
+}
+export type AddressInput = Omit<Address, 'id' | 'createdAt'>;
+/** A saved card. Only the brand, last four digits and expiry are kept, never the full number or the security code. */
+export interface PaymentMethod {
+  id: string; nickname: string; nameOnCard: string; brand: CardBrand; last4: string;
+  expMonth: number; expYear: number; // 1–12, four-digit year
+  addressId: string | null; // billing address, one of the user's saved addresses
+  createdAt: number;
+}
+/** What the card form submits. `cardNumber` and `cvc` are validated and then discarded. */
+export interface PaymentMethodInput { nickname: string; nameOnCard: string; cardNumber: string; expiry: string; cvc: string; addressId: string | null }
+export interface Billing { tier: PlanTier; payments: PaymentMethod[]; addresses: Address[] }
 
 export type Result<T> = { ok: true; data: T } | { ok: false; error: ErrorCode; meta?: Record<string, unknown> };
 

@@ -31,6 +31,20 @@ export function makeSeed(now: number): MockState {
       security: ['pet', 'city', 'car'].map((qId) => ({ qId, answerHash: hash('demo') })),
     };
   }
+  // Kevin starts with a saved address and card so the profile has something to show. Everyone else starts empty.
+  s.billing = {
+    seed_kevin: {
+      tier: 'free',
+      addresses: [{
+        id: 'seed_addr_home', label: 'Home', fullName: 'Kevin Demo', line1: '123 Demo Street', line2: 'Apt 4', city: 'Ann Arbor', state: 'MI', zip: '48104',
+        createdAt: now - 9 * DAY,
+      }],
+      payments: [{
+        id: 'seed_pm_visa', nickname: 'Everyday Visa', nameOnCard: 'Kevin Demo', brand: 'visa', last4: '4242',
+        expMonth: 9, expYear: new Date(now).getUTCFullYear() + 3, addressId: 'seed_addr_home', createdAt: now - 9 * DAY,
+      }],
+    },
+  };
   // [owner, title, icon key (stored in `emoji`), lat, lng, days, deadlineMin, penalty, skipIdx[]]
   const defs: Array<[string, string, string, number, number, number[], number, number, number[]]> = [
     ['kevin', 'Gym', 'goal-gym', 42.2762, -83.7357, [1, 2, 3, 4, 5], 18 * 60, 500, [1, 3]],

@@ -1,9 +1,10 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
 import type {
-  AccountInfo, BotThreadMessage, CashoutProposal, Cents, Checkin, DemoFlags, FeedEvent, Goal, LeaderboardRow, Penalty, Squad, User, Wallet, Withdrawal,
+  AccountInfo, Billing, BotThreadMessage, CashoutProposal, Cents, Checkin, DemoFlags, FeedEvent, Goal, LeaderboardRow, Penalty, Squad, User, Wallet, Withdrawal,
 } from '../types';
 import { accountInfo } from './authEngine';
+import { billingFor } from './billingEngine';
 import { leaderboardFor, openProposal, walletFor } from './engine';
 import { useMockStore } from './store';
 
@@ -45,6 +46,13 @@ export function useAccount(): AccountInfo | null {
     const a = id ? Object.values(s.accounts).find((x) => x.userId === id) : undefined;
     return a ? accountInfo(a) : null;
   }, [s, id]);
+}
+
+/** The signed-in user's plan, saved cards and saved addresses. */
+export function useBilling(): Billing {
+  const s = useS();
+  const id = useUserId();
+  return billingFor(s, id);
 }
 
 export function useSquad(): Squad | null {

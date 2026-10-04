@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation';
 import { logout, resetDemoData, useConnection, useMe, useSquad } from '@/data';
 import { AccountSettings, ProfileCard } from '@/components/AccountForms';
 import { AppShell } from '@/components/AppShell';
+import { PlanCard } from '@/components/BillingForms';
 import { NewPoolGoal } from '@/components/Cashout';
 import { InviteQr } from '@/components/InviteQr';
 import { Button } from '@/components/ui/Button';
@@ -21,6 +22,11 @@ function Settings() {
     <div className="space-y-6">
       <h1 className="font-display font-black text-3xl">My profile</h1>
       <ProfileCard />
+
+      <section aria-labelledby="plan" className="space-y-3">
+        <h2 id="plan" className={h2}>Plan</h2>
+        <PlanCard />
+      </section>
 
       <section aria-labelledby="acct" className="space-y-3">
         <h2 id="acct" className={h2}>Account</h2>
