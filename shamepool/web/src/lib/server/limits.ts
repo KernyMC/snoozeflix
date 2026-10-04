@@ -1,6 +1,8 @@
+import { timingSafeEqual } from 'node:crypto';
+
 /**
- * In-memory abuse guard for the paid voice routes (per server instance, good enough for a demo).
- * A per-IP per-minute cap plus a global hourly budget so a public deploy cannot burn the credits.
+ * Abuse guards for the paid AI/voice routes (per server instance: good enough for a demo, not a substitute
+ * for a shared limiter such as Vercel Firewall rate limiting).
  */
 const perIp = new Map<string, number[]>();
 const global = new Map<string, number[]>();
@@ -18,19 +20,41 @@ export function tooMany(bucket: string, ip: string, perMinute: number, globalPer
   return recent.length > perMinute || hour.length > globalPerHour;
 }
 
-export const clientIp = (req: Request): string => req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'local';
+/** Client address as set by the platform first (Vercel overwrites these), then the generic proxy header. */
+export const clientIp = (req: Request): string =>
+  req.headers.get('x-vercel-forwarded-for')?.split(',')[0]?.trim()
+  || req.headers.get('x-real-ip')?.trim()
+  || req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+  || 'local';
 
-/** True when the request comes from another site (browsers send Origin on POST). */
-export function foreignOrigin(req: Request): boolean {
-  const origin = req.headers.get('origin');
-  const host = req.headers.get('host');
-  if (!origin || !host) return false;
-  try { return new URL(origin).host !== host; } catch { return true; }
+function sameSecret(a: string, b: string): boolean {
+  const x = Buffer.from(a);
+  const y = Buffer.from(b);
+  return x.length === y.length && timingSafeEqual(x, y);
 }
 
-/** Shared guard for the paid AI/voice routes: foreign origin → 403, too many calls → 429. Returns null when allowed. */
+/**
+ * Who may call the paid routes: our own pages (browsers always send a matching Origin, or Sec-Fetch-Site: same-origin
+ * on POST) or a trusted server-side client that presents AGENT_API_KEY (the iMessage agent). A bare curl is refused.
+ */
+export function allowedCaller(req: Request): boolean {
+  const key = process.env.AGENT_API_KEY?.trim();
+  const given = req.headers.get('x-agent-key');
+  if (key && given && sameSecret(key, given)) return true;
+  const origin = req.headers.get('origin');
+  const host = req.headers.get('host');
+  if (origin && host) {
+    try { return new URL(origin).host === host; } catch { return false; }
+  }
+  return req.headers.get('sec-fetch-site') === 'same-origin';
+}
+
+/** True when the request must be refused (kept under the old name for the routes that already use it). */
+export const foreignOrigin = (req: Request): boolean => !allowedCaller(req);
+
+/** Shared guard: not an allowed caller → 403, too many calls → 429. Returns null when the request may proceed. */
 export function guardRequest(req: Request, bucket: string, perMinute: number, globalPerHour: number): Response | null {
-  if (foreignOrigin(req)) return Response.json({ error: 'forbidden' }, { status: 403 });
+  if (!allowedCaller(req)) return Response.json({ error: 'forbidden' }, { status: 403 });
   if (tooMany(bucket, clientIp(req), perMinute, globalPerHour)) return Response.json({ error: 'rate_limited' }, { status: 429 });
   return null;
 }

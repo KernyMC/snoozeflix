@@ -17,6 +17,7 @@ import { Button } from './ui/Button';
 import { Flakey, type Mood } from './ui/Flakey';
 import { Icon } from './ui/Icon';
 import { errorText } from './ui/States';
+import { useToast } from './ui/Toast';
 import { DEMO_ENABLED } from '@/lib/demo';
 
 type Step = 'locating' | 'too_far' | 'geo_error' | 'blocked' | 'stay' | 'photo' | 'verifying' | 'success' | 'rejected' | 'failed';
@@ -39,6 +40,7 @@ function getPos(): Promise<Pos> {
 
 export function CheckinFlow({ goal }: { goal: Goal }) {
   const router = useRouter();
+  const { toast } = useToast();
   const live = useGoal(goal.id) ?? goal;
   const [step, setStep] = useState<Step>('locating');
   const [msg, setMsg] = useState('');
@@ -95,14 +97,23 @@ export function CheckinFlow({ goal }: { goal: Goal }) {
     if (!photo || submitting) return; // U4/C19: no double submit
     setSubmitting(true);
     setStep('verifying');
-    const ai = await verifyPhotoAi(live.title, photo.b64); // null = AI unavailable: the check-in fails open, flagged
-    const r = await finishCheckin(checkinId, photo.b64, ai);
+    const check = await verifyPhotoAi(live.title, photo.b64);
+    if (check.status === 'invalid') { // the photo itself was refused: do not accept it, ask for a retake
+      setSubmitting(false);
+      setPhoto(null);
+      setStep('photo');
+      toast('That photo could not be checked. Take another one.', 'error');
+      return;
+    }
+    // unavailable AI = null: the engine accepts it once (flagged) and then asks to try again
+    const r = await finishCheckin(checkinId, photo.b64, check.status === 'ok' ? check.verdict : null);
     setSubmitting(false);
     if (r.ok) { fireConfetti(true); vibrate(60); playSfx('success'); setStep('success'); return; }
     const verdict = r.meta?.verdict as { roast?: string | null; reason?: string } | undefined;
     if (r.error === 'photo_rejected') { setRoast(verdict?.roast ?? 'Nice try.'); setReason(verdict?.reason ?? ''); setAttemptsLeft(Number(r.meta?.attemptsLeft ?? 0)); setPhoto(null); setStep('rejected'); return; }
     if (r.error === 'too_many_attempts') { setMsg(verdict?.roast ? `${verdict.roast} No more tries.` : errorText(r.error)); setStep('failed'); return; }
     if (r.error === 'too_early') { setStep('stay'); return; }
+    if (r.error === 'ai_unavailable') { toast(errorText(r.error), 'error'); setStep('photo'); return; }
     setMsg(errorText(r.error));
     setStep('blocked');
   };

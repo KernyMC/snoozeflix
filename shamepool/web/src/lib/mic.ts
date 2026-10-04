@@ -21,7 +21,9 @@ export interface Recording {
 export async function startRecording(maxMs = 10_000): Promise<Recording> {
   const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
   const mime = pickMime();
-  const rec = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
+  let rec: MediaRecorder;
+  try { rec = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined); }
+  catch (e) { stream.getTracks().forEach((t) => t.stop()); throw e; } // do not leave the mic indicator on
   const chunks: Blob[] = [];
   let cancelled = false;
   rec.ondataavailable = (e) => { if (e.data.size) chunks.push(e.data); };

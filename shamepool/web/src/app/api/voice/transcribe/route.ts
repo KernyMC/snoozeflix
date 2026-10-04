@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { clientIp, foreignOrigin, tooMany } from '@/lib/server/limits';
+import { guardRequest } from '@/lib/server/limits';
 
 // Server-only: speech-to-text with ElevenLabs Scribe. The key never reaches the browser.
 export const runtime = 'nodejs';
@@ -7,10 +7,10 @@ export const runtime = 'nodejs';
 const MAX_BYTES = 2 * 1024 * 1024; // ~ 1 minute of opus audio is far below this
 
 export async function POST(req: Request) {
+  const blocked = guardRequest(req, 'stt', 15, 150);
+  if (blocked) return blocked;
   const key = process.env.ELEVENLABS_API_KEY?.trim();
   if (!key) return NextResponse.json({ error: 'voice_unavailable' }, { status: 503 });
-  if (foreignOrigin(req)) return NextResponse.json({ error: 'forbidden' }, { status: 403 });
-  if (tooMany('stt', clientIp(req), 15, 300)) return NextResponse.json({ error: 'rate_limited' }, { status: 429 });
 
   let audio: File | null = null;
   try {

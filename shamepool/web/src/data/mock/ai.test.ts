@@ -9,7 +9,7 @@ const K = 'seed_kevin';
 const AT = { lat: 42.2762, lng: -83.7357 };
 let s: MockState;
 const ctx = (userId: string | null = K, now = NOON): Ctx => ({ s, now, userId });
-beforeEach(() => { s = makeSeed(NOON); });
+beforeEach(() => { s = makeSeed(NOON, 'weekly'); });
 
 describe('askBot with an AI answer', () => {
   it('records the AI text and does not run the keyword router', () => {
@@ -71,6 +71,13 @@ describe('finishCheckin with a vision verdict', () => {
     const r = finish(id, null);
     expect(r.ok).toBe(true);
     expect(s.checkins[id]).toMatchObject({ status: 'completed', aiVerified: false, aiReason: 'AI check unavailable' });
+  });
+  it('a second outage on the same check-in is refused with ai_unavailable', () => {
+    const id = start();
+    s.checkins[id].aiUnavailableCount = 1; // already used the one free pass
+    expect(finish(id, null)).toMatchObject({ ok: false, error: 'ai_unavailable' });
+    expect(s.checkins[id].status).toBe('in_progress');
+    expect(s.checkins[id].attempts).toBe(0); // the retry does not burn a photo attempt
   });
   it('keeps working without any AI (undefined)', () => {
     const id = start();

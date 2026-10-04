@@ -82,7 +82,8 @@ export function createGoal(c: Ctx, input: GoalInput): Result<Goal> {
   if (active >= LIMITS.maxGoalsPerUser) return err('too_many_goals');
   const tz = tzOf(c.s, me.squadId);
   const goal: Goal = {
-    ...input, title: input.title.trim(), emoji: input.emoji || 'goal-target', daysOfWeek: [...new Set(input.daysOfWeek)].sort(),
+    ...input, deadlineMinutes: input.deadlineMinutes === 0 ? 1439 : input.deadlineMinutes, // 00:00 means end of day, never an impossible deadline
+    title: input.title.trim(), emoji: input.emoji || 'goal-target', daysOfWeek: [...new Set(input.daysOfWeek)].sort(),
     id: uid(c.s, 'g'), userId: me.id, squadId: me.squadId, consecutiveFlakes: 0, streak: 0, active: true,
     createdAt: c.now, lastEvaluatedDate: dateAddDays(localDate(c.now, tz), -1),
   };
@@ -185,6 +186,10 @@ export function finishCheckin(c: Ctx, checkinId: string, photo: string, ai?: Pho
   // C20: started before the deadline → 10 min grace
   if (localDate(c.now, tz) !== ck.localDate || localMinutes(c.now, tz) > goal.deadlineMinutes + GRACE_MIN) return err('deadline_passed');
 
+  if (ai === null) { // AI check unavailable: accept once (flagged), then ask for a retry
+    ck.aiUnavailableCount = (ck.aiUnavailableCount ?? 0) + 1;
+    if (ck.aiUnavailableCount > 1) return err('ai_unavailable');
+  }
   ck.attempts += 1;
   const forced = c.s.demo.nextPhotoFails;
   if (forced) c.s.demo.nextPhotoFails = false;
@@ -268,6 +273,8 @@ export function forceFlake(c: Ctx, goalId: string): Result<Penalty> {
   const goal = c.s.goals[goalId];
   if (!goal) return err('goal_not_found');
   if (goal.squadId !== me.squadId) return err('not_in_squad');
+  if (goal.userId !== me.id) return err('not_your_goal'); // demo tool: you can only flake your own goals
+  if (!goal.active) return err('goal_not_found');
   const date = localDate(c.now, tzOf(c.s, goal.squadId));
   const existing = c.s.penalties[penaltyKey(goal.id, date)];
   if (existing) return ok(existing);
@@ -378,6 +385,7 @@ export function setPoolGoal(c: Ctx, name: string, cents: number): Result<Squad> 
   const bad = validatePoolGoal(cents);
   if (bad) return err(bad);
   const sq = c.s.squads[me.squadId];
+  if (sq.poolFullAt && sq.poolBalanceCents >= sq.poolGoalCents) return err('goal_locked'); // no stalling the charity clock
   sq.poolGoalName = name.trim();
   sq.poolGoalCents = cents;
   syncPoolFull(c, sq);

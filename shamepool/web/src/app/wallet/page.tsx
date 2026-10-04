@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { cancelWithdrawal, formatCents, formatCountdown, useNow, useWallet, useWithdrawals } from '@/data';
 import { AppShell } from '@/components/AppShell';
+import { GoalIcon } from '@/components/ui/Icon';
 import { Icon } from '@/components/ui/Icon';
 import { WithdrawSheet } from '@/components/WithdrawSheet';
 import { Button } from '@/components/ui/Button';
@@ -64,7 +65,7 @@ function Wallet() {
           <ul className="space-y-2">
             {wallet.stake.map((s) => (
               <li key={s.goalId} className="flex items-center justify-between rounded-xl border-2 border-surface-line bg-white px-3 py-2.5">
-                <span className="font-extrabold">{s.emoji} {s.title}<span className="block text-xs font-bold text-ink-faint">{s.occurrences} check-in{s.occurrences > 1 ? 's' : ''} ahead</span></span>
+                <span className="font-extrabold"><GoalIcon value={s.emoji} size={20} /> {s.title}<span className="block text-xs font-bold text-ink-faint">{s.occurrences} check-in{s.occurrences > 1 ? 's' : ''} ahead</span></span>
                 <MoneyText cents={s.cents} kind="pool" />
               </li>
             ))}

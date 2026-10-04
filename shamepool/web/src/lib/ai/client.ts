@@ -18,9 +18,28 @@ async function postJson<T>(path: string, body: unknown, timeoutMs: number): Prom
 export const askAi = (message: string, history: { from: 'me' | 'bot'; text: string }[], context: Record<string, unknown>) =>
   postJson<AiChatReply>('/api/ai/chat', { message, history, context }, 14_000);
 
-/** Vision verdict for a check-in photo. null = the AI check was unavailable (the check-in then fails open, flagged). */
-export const verifyPhotoAi = (goalTitle: string, imageBase64: string) =>
-  postJson<AiVerdict>('/api/ai/verify-photo', { goalTitle, image: imageBase64 }, 18_000);
+export type PhotoCheck =
+  | { status: 'ok'; verdict: AiVerdict }
+  | { status: 'invalid' } // the server refused the photo itself (bad or too large): ask for another one
+  | { status: 'unavailable' }; // AI down, rate limited or timed out: the check-in may fail open once
+
+/** Vision verdict for a check-in photo. */
+export async function verifyPhotoAi(goalTitle: string, imageBase64: string): Promise<PhotoCheck> {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 18_000);
+  try {
+    const r = await fetch('/api/ai/verify-photo', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ goalTitle, image: imageBase64 }), signal: ctrl.signal,
+    });
+    if (r.ok) return { status: 'ok', verdict: (await r.json()) as AiVerdict };
+    return r.status === 400 || r.status === 413 ? { status: 'invalid' } : { status: 'unavailable' };
+  } catch {
+    return { status: 'unavailable' };
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 /** Turns a sentence into a goal plan. null = unavailable. */
 export const coachAi = (text: string, context?: Record<string, unknown>) =>

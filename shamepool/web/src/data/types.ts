@@ -38,6 +38,7 @@ export interface Checkin {
   id: string; goalId: string; userId: string; localDate: string;
   status: CheckinStatus; startedAt: number; lastDistanceM: number; lastPingAt: number;
   attempts: number;
+  aiUnavailableCount?: number; // photo checks skipped because the AI was down (fail-open allowed once)
   aiVerified?: boolean; aiReason?: string; aiRoast?: string | null;
 }
 
@@ -92,7 +93,7 @@ export type ErrorCode =
   | 'username_taken' | 'email_taken' | 'invalid_security' | 'invalid_credentials' | 'account_not_found' | 'wrong_answers'
   | 'auth_locked' | 'invalid_reset'
   | 'no_account' | 'wrong_password' | 'same_email' | 'same_password' | 'invalid_avatar'
-  | 'invalid_charity' | 'charity_locked'
+  | 'invalid_charity' | 'charity_locked' | 'goal_locked' | 'ai_unavailable'
   | 'below_minimum' | 'insufficient_available' | 'withdrawal_pending' | 'withdrawal_not_found'
   | 'invalid_card_name' | 'invalid_card_number' | 'unsupported_card' | 'invalid_expiry' | 'card_expired' | 'invalid_cvc' | 'invalid_nickname'
   | 'duplicate_card' | 'too_many_payments' | 'payment_not_found' | 'payment_in_use' | 'payment_required' | 'invalid_tier' | 'same_tier'

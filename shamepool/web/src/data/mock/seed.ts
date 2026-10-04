@@ -1,4 +1,4 @@
-import { DEFAULT_TZ, dateAddDays, dowOfDate, localDate, penaltyKey } from '../logic';
+import { DEFAULT_TZ, dateAddDays, deadlinePassed, dowOfDate, localDate, penaltyKey } from '../logic';
 import type { Checkin, Goal, Penalty, User } from '../types';
 import { hash } from './authEngine';
 import demoUsers from './demoUsers.json';
@@ -6,7 +6,14 @@ import { MOCK_VERSION, type MockState } from './state';
 
 const DAY = 86_400_000;
 
-export function makeSeed(now: number): MockState {
+/**
+ * `demo` (default): every seeded goal is due every day with a late deadline, so any teammate can check in on stage
+ * whatever the weekday or hour. `weekly`: the original Mon-Fri schedule, used by the unit tests.
+ */
+export type SeedProfile = 'demo' | 'weekly';
+
+export function makeSeed(now: number, profile: SeedProfile = 'demo'): MockState {
+  const demo = profile === 'demo';
   const tz = DEFAULT_TZ;
   const today = localDate(now, tz);
   const s: MockState = {
@@ -33,7 +40,7 @@ export function makeSeed(now: number): MockState {
   // Kevin starts with a saved address and card so the profile has something to show. Everyone else starts empty.
   s.billing = {
     seed_kevin: {
-      tier: 'free',
+      tier: 'free', // one goal fits the free plan, so a second one shows the upgrade pop-up
       addresses: [{
         id: 'seed_addr_home', label: 'Home', fullName: 'Kevin Demo', line1: '123 Demo Street', line2: 'Apt 4', city: 'Ann Arbor', state: 'MI', zip: '48104',
         createdAt: now - 9 * DAY,
@@ -45,13 +52,21 @@ export function makeSeed(now: number): MockState {
     },
   };
   // [owner, title, icon key (stored in `emoji`), lat, lng, days, deadlineMin, penalty, skipIdx[]]
-  const defs: Array<[string, string, string, number, number, number[], number, number, number[]]> = [
-    ['kevin', 'Gym', 'goal-gym', 42.2762, -83.7357, [1, 2, 3, 4, 5], 18 * 60, 500, [1, 3]],
-    ['kevin', 'Study at the library', 'goal-book', 42.2768, -83.7382, [0, 1, 2, 3, 4], 21 * 60, 500, [2]],
-    ['ana', 'Morning run', 'goal-run', 42.2780, -83.7382, [1, 2, 3, 4, 5, 6], 9 * 60, 500, []],
-    ['leo', 'Practice guitar', 'goal-guitar', 42.2750, -83.7415, [1, 3, 5], 20 * 60, 500, [0]],
-    ['maya', 'Yoga', 'goal-yoga', 42.2762, -83.7357, [2, 4, 6], 19 * 60, 500, []],
-  ];
+  const ALL = [0, 1, 2, 3, 4, 5, 6];
+  const defs: Array<[string, string, string, number, number, number[], number, number, number[]]> = demo
+    ? [
+        ['kevin', 'Gym', 'goal-gym', 42.2762, -83.7357, ALL, 23 * 60 + 30, 500, [1, 3]],
+        ['ana', 'Daily run', 'goal-run', 42.2780, -83.7382, ALL, 23 * 60, 500, []],
+        ['leo', 'Practice guitar', 'goal-guitar', 42.2750, -83.7415, ALL, 22 * 60 + 30, 500, [0, 2, 4]],
+        ['maya', 'Yoga', 'goal-yoga', 42.2762, -83.7357, ALL, 23 * 60 + 15, 500, [1]],
+      ]
+    : [
+        ['kevin', 'Gym', 'goal-gym', 42.2762, -83.7357, [1, 2, 3, 4, 5], 18 * 60, 500, [1, 3]],
+        ['kevin', 'Study at the library', 'goal-book', 42.2768, -83.7382, [0, 1, 2, 3, 4], 21 * 60, 500, [2]],
+        ['ana', 'Morning run', 'goal-run', 42.2780, -83.7382, [1, 2, 3, 4, 5, 6], 9 * 60, 500, []],
+        ['leo', 'Practice guitar', 'goal-guitar', 42.2750, -83.7415, [1, 3, 5], 20 * 60, 500, [0]],
+        ['maya', 'Yoga', 'goal-yoga', 42.2762, -83.7357, [2, 4, 6], 19 * 60, 500, []],
+      ];
   let n = 0;
   for (const [owner, title, emoji, lat, lng, days, deadline, base, skip] of defs) {
     const g: Goal = {
@@ -59,6 +74,8 @@ export function makeSeed(now: number): MockState {
       deadlineMinutes: deadline, minStayMinutes: 1, basePenaltyCents: base, maxPenaltyCents: 4000,
       consecutiveFlakes: 0, streak: 0, active: true, createdAt: now - 10 * DAY, lastEvaluatedDate: today,
     };
+    // demo: today's deadline can still pass during the demo and flake the goal automatically
+    if (demo && !deadlinePassed(g, now, tz)) g.lastEvaluatedDate = dateAddDays(today, -1);
     let idx = 0;
     let streak = 0;
     for (let i = 6; i >= 1; i--) {
@@ -92,14 +109,15 @@ export function makeSeed(now: number): MockState {
     s.squads[squadId].poolBalanceCents += cents;
   };
   pen('seed_goal_0', 2, 2000);
-  pen('seed_goal_3', 3, 1500);
+  pen(demo ? 'seed_goal_2' : 'seed_goal_3', 3, 1500);
 
   const ev = (actor: string | null, kind: 'commit' | 'checkin' | 'flake' | 'bot' | 'milestone', text: string, ago: number) =>
     s.feed.push({ id: `seed_f_${s.feed.length}`, squadId, actorUserId: actor, kind, text, createdAt: now - ago });
-  ev('seed_ana', 'checkin', 'Ana kept her promise: Morning run. 6 days in a row 🔥', 25 * 60_000);
-  ev(null, 'bot', 'Leo flaked on "Practice guitar". $15 to the pool. The strings are lonely.', 3 * 3600_000);
+  ev('seed_ana', 'checkin', `Ana kept her promise: ${demo ? 'Daily run' : 'Morning run'}. 6 days in a row 🔥`, 25 * 60_000);
+  ev(null, 'bot', 'Leo flaked on "Practice guitar". $15 to the pool. The strings are lonely.', 3 * DAY);
   ev('seed_kevin', 'flake', 'Kevin flaked on "Gym". $20 to the pool.', 2 * DAY);
   ev('seed_maya', 'commit', 'Maya committed to Yoga. Brave.', 5 * DAY);
+  if (demo) s.milestones['pool:squad_mhacks:6000:0.5'] = true; // seed pool is already past halfway
   s.feed.sort((a, b) => b.createdAt - a.createdAt);
   return s;
 }

@@ -6,7 +6,7 @@ import { POST as verify } from './verify-photo/route';
 let n = 0;
 const post = (path: string, body: unknown, headers: Record<string, string> = {}) =>
   new Request(`http://localhost:3100/api/ai/${path}`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json', host: 'localhost:3100', 'x-forwarded-for': `10.0.0.${++n}`, ...headers }, body: JSON.stringify(body),
+    method: 'POST', headers: { 'Content-Type': 'application/json', host: 'localhost:3100', origin: 'http://localhost:3100', 'x-forwarded-for': `10.0.0.${++n}`, ...headers }, body: JSON.stringify(body),
   });
 const xai = (message: unknown) => vi.fn(async () => new Response(JSON.stringify({ choices: [{ message }] }), { status: 200 }));
 const b64 = 'A'.repeat(400);
@@ -112,5 +112,28 @@ describe('POST /api/ai/coach', () => {
   it('502 when the plan is invalid', async () => {
     vi.stubGlobal('fetch', xai({ content: '{"title":"","days":[]}' }));
     expect((await coach(post('coach', { text: 'I want to hit the gym' }))).status).toBe(502);
+  });
+});
+
+describe('who may call the paid routes', () => {
+  const bare = (headers: Record<string, string>) =>
+    new Request('http://localhost:3100/api/ai/chat', { method: 'POST', headers: { 'Content-Type': 'application/json', host: 'localhost:3100', 'x-forwarded-for': `10.1.0.${++n}`, ...headers }, body: JSON.stringify({ message: 'hi', context: { a: 1 } }) });
+  it('refuses a bare request with no Origin (curl), even before checking the key', async () => {
+    delete process.env.XAI_API_KEY;
+    expect((await chat(bare({}))).status).toBe(403);
+  });
+  it('accepts same-origin browsers (Origin or Sec-Fetch-Site) and the agent key', async () => {
+    vi.stubGlobal('fetch', xai({ content: 'ok' }));
+    expect((await chat(bare({ origin: 'http://localhost:3100' }))).status).toBe(200);
+    expect((await chat(bare({ 'sec-fetch-site': 'same-origin' }))).status).toBe(200);
+    process.env.AGENT_API_KEY = 'agent-secret';
+    expect((await chat(bare({ 'x-agent-key': 'agent-secret' }))).status).toBe(200);
+    expect((await chat(bare({ 'x-agent-key': 'wrong' }))).status).toBe(403);
+    delete process.env.AGENT_API_KEY;
+    expect((await chat(bare({ 'x-agent-key': 'agent-secret' }))).status).toBe(403); // no key configured: the header means nothing
+  });
+  it('refuses a malformed or foreign Origin', async () => {
+    expect((await chat(bare({ origin: 'not a url' }))).status).toBe(403);
+    expect((await chat(bare({ origin: 'https://evil.example', 'sec-fetch-site': 'same-origin' }))).status).toBe(403);
   });
 });

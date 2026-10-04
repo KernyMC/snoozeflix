@@ -12,7 +12,7 @@ const input = {
   security: [{ qId: 'pet', answer: 'Rex' }, { qId: 'city', answer: 'Ann Arbor' }, { qId: 'car', answer: 'Honda' }],
 };
 
-beforeEach(() => { s = makeSeed(NOW); now = NOW; });
+beforeEach(() => { s = makeSeed(NOW, 'weekly'); now = NOW; });
 
 describe('registerAccount', () => {
   it('creates a user and account', () => {

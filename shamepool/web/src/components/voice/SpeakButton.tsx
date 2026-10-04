@@ -28,7 +28,7 @@ export function SpeakButton({ text, className = '' }: { text: string; className?
 
   return (
     <button type="button" onClick={click} aria-label={active ? 'Stop speaking' : 'Listen'} aria-pressed={active}
-      className={`size-9 shrink-0 rounded-full grid place-items-center bg-white/70 text-grape-dark active:scale-95 ${className}`}>
+      className={`size-11 shrink-0 rounded-full grid place-items-center bg-white/70 text-grape-dark active:scale-95 ${className}`}>
       {loading ? <Loader2 size={18} className="animate-spin" /> : active ? <Square size={16} fill="currentColor" /> : <Volume2 size={18} strokeWidth={2.5} />}
     </button>
   );

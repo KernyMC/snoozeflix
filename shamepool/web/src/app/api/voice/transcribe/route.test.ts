@@ -4,7 +4,7 @@ import { POST } from './route';
 function req(parts: Record<string, Blob | string>, headers: Record<string, string> = {}) {
   const fd = new FormData();
   for (const [k, v] of Object.entries(parts)) { if (typeof v === 'string') fd.append(k, v); else fd.append(k, v, 'speech.webm'); }
-  return new Request('http://localhost:3100/api/voice/transcribe', { method: 'POST', headers: { host: 'localhost:3100', ...headers }, body: fd });
+  return new Request('http://localhost:3100/api/voice/transcribe', { method: 'POST', headers: { host: 'localhost:3100', origin: 'http://localhost:3100', ...headers }, body: fd });
 }
 const audio = (n = 100) => new Blob([new Uint8Array(n)], { type: 'audio/webm' });
 

@@ -53,7 +53,7 @@ function Chat() {
   /** Voice input: "yes" confirms the open action, anything else is a new question. */
   const onVoice = async (said: string) => {
     const open = [...thread].reverse().find((m) => m.pendingAction && !dismissed.has(m.pendingAction.id) && m.pendingAction.expiresAt > Date.now())?.pendingAction;
-    if (open && /^\s*(yes|yeah|yep|yup|confirm|do it|sure|ok|okay)\b/i.test(said)) return confirm(open.id, true);
+    if (open && /^\s*(yes|yeah|yep|yup|confirm|do it|sure)\W*$/i.test(said)) return confirm(open.id, true);
     return send(said, true);
   };
 

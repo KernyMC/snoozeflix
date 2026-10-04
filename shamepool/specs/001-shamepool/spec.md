@@ -10,7 +10,7 @@ Friends form a **squad**. Each member commits to goals with a location, schedule
 | **Best use of Spacetime** | SpacetimeDB is the whole backend: reducers, scheduled deadline checks, live subscriptions across phones + projector |
 | **Relay — Interactive Agents** | Squad Bot lives in the squad's Relay group chat |
 | **Best Use of Nessie** | Real accounts, transfers into a pool account, cash-out purchase |
-| **MLH Best Use of Gemini** | Gemini vision verifies photos; Gemini powers Squad Bot |
+| **AI that does real work** | Grok (xAI) vision verifies photos, powers Squad Bot with tool use that the engine validates, and plans goals; ElevenLabs gives Flakey a voice (the Gemini prize is not targeted: the code uses xAI) |
 | **MLH Best .Tech Domain** | `shamepool.tech` |
 | **Best Design** | Polished, playful gamified UI |
 | **Judged by an LLM** | Strong README + architecture |

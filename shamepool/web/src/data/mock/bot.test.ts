@@ -12,7 +12,7 @@ const say = (text: string, user = 'seed_kevin', now = NOON) => {
   return r.ok ? r.data : { text: '', pendingAction: undefined };
 };
 
-beforeEach(() => { s = makeSeed(NOON); });
+beforeEach(() => { s = makeSeed(NOON, 'weekly'); });
 
 describe('bot intents', () => {
   it('answers balance', () => {

@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { sanitizeSpeech } from '@/lib/speech';
-import { clientIp, foreignOrigin, tooMany } from '@/lib/server/limits';
+import { guardRequest } from '@/lib/server/limits';
 
 // Server-only: the ElevenLabs key never reaches the browser.
 export const runtime = 'nodejs';
@@ -10,15 +10,14 @@ const DEFAULT_VOICE = 'EXAVITQu4vr4xnSDxMaL';
 const MODEL = 'eleven_flash_v2_5';
 const CACHE_MAX = 60;
 const RATE_PER_MIN = 20;
-const GLOBAL_PER_HOUR = 400;
+const GLOBAL_PER_HOUR = 250;
 
 const cache = new Map<string, ArrayBuffer>();
 export async function POST(req: Request) {
+  const blocked = guardRequest(req, 'tts', RATE_PER_MIN, GLOBAL_PER_HOUR);
+  if (blocked) return blocked;
   const key = process.env.ELEVENLABS_API_KEY?.trim();
   if (!key) return NextResponse.json({ error: 'voice_unavailable' }, { status: 503 });
-
-  if (foreignOrigin(req)) return NextResponse.json({ error: 'forbidden' }, { status: 403 });
-  if (tooMany('tts', clientIp(req), RATE_PER_MIN, GLOBAL_PER_HOUR)) return NextResponse.json({ error: 'rate_limited' }, { status: 429 });
 
   let body: unknown;
   try { body = await req.json(); } catch { return NextResponse.json({ error: 'invalid_body' }, { status: 400 }); }

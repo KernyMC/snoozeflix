@@ -7,12 +7,13 @@ import type { Ctx, MockState } from './state';
 // Wed 2026-10-07 12:00 America/Detroit (EDT)
 const NOON = new Date('2026-10-07T12:00:00-04:00').getTime();
 const T = 'seed_kevin';
+const K2 = 'seed_kevin';
 const GYM = 'seed_goal_0';
 let s: MockState;
 const ctx = (userId: string | null = T, now = NOON): Ctx => ({ s, now, userId });
 const pool = () => s.squads.squad_mhacks.poolBalanceCents;
 
-beforeEach(() => { s = makeSeed(NOON); });
+beforeEach(() => { s = makeSeed(NOON, 'weekly'); });
 
 describe('seed invariants', () => {
   it('pool equals charged penalties; balances non-negative', () => {
@@ -59,9 +60,38 @@ describe('forceFlake', () => {
   });
   it('announces pool 50% once (F11)', () => {
     E.forceFlake(ctx(), GYM);
-    E.forceFlake(ctx(), 'seed_goal_2');
-    E.forceFlake(ctx(), 'seed_goal_4');
+    E.forceFlake(ctx('seed_ana'), 'seed_goal_2');
+    E.forceFlake(ctx('seed_maya'), 'seed_goal_4');
     expect(s.feed.filter((f) => f.kind === 'milestone')).toHaveLength(1);
+  });
+});
+
+describe('forceFlake ownership (audit M7)', () => {
+  it('cannot flake a friend goal, not even on their rest day', () => {
+    expect(E.forceFlake(ctx('seed_kevin'), 'seed_goal_2')).toMatchObject({ ok: false, error: 'not_your_goal' }); // Ana's run
+    expect(Object.keys(s.penalties).filter((k) => k.startsWith('seed_goal_2:2026-10-07'))).toHaveLength(0);
+  });
+  it('cannot flake an inactive goal', () => {
+    s.goals[GYM].active = false;
+    expect(E.forceFlake(ctx(), GYM)).toMatchObject({ ok: false, error: 'goal_not_found' });
+  });
+});
+
+describe('goal deadlines (audit M2 / spec G6)', () => {
+  it('turns a 00:00 deadline into end of day, so it can always be completed', () => {
+    const r = E.createGoal(ctx(), {
+      title: 'Night walk', emoji: 'goal-run', lat: 42.27, lng: -83.74, radiusM: 100, daysOfWeek: [0, 1, 2, 3, 4, 5, 6],
+      deadlineMinutes: 0, minStayMinutes: 1, basePenaltyCents: 500, maxPenaltyCents: 4000,
+    });
+    // Kevin already has 2 seeded goals; the limit is 5
+    const g = r.ok ? r.data : (null as never);
+    expect(g.deadlineMinutes).toBe(1439);
+    const start = E.startCheckin(ctx(K2, NOON), g.id, { lat: 42.27, lng: -83.74 });
+    expect(start.ok).toBe(true);
+    // the scheduler does not flake it at 00:00:30 the next day for a goal checked in earlier
+    const justAfterMidnight = new Date('2026-10-08T00:00:30-04:00').getTime();
+    const pens = E.evaluateDeadlines({ s, now: justAfterMidnight, userId: null }).filter((p) => p.goalId === g.id);
+    expect(pens.length).toBeLessThanOrEqual(1);
   });
 });
 
@@ -290,7 +320,7 @@ describe('cash-out', () => {
 
 describe('global invariants (P13)', () => {
   it('pool == charged penalties - paid cash-outs after chaos', () => {
-    for (const g of Object.keys(s.goals)) E.forceFlake(ctx('seed_kevin'), g);
+    for (const g of Object.keys(s.goals)) E.forceFlake(ctx(s.goals[g].userId), g);
     E.evaluateDeadlines(ctx(null, NOON + 12 * 3600_000));
     const charged = Object.values(s.penalties).reduce((a, p) => a + p.amountCents, 0);
     expect(pool()).toBe(charged);

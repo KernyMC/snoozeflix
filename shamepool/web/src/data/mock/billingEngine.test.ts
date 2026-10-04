@@ -11,7 +11,7 @@ const ctx = (userId: string | null = 'seed_ana'): Ctx => ({ s, now, userId });
 const card = { nickname: 'Everyday', nameOnCard: 'Ana Demo', cardNumber: '4242 4242 4242 4242', expiry: '09/29', cvc: '123', addressId: null as string | null };
 const address = { label: 'Home', fullName: 'Ana Demo', line1: '1 Main Street', line2: '', city: 'Ann Arbor', state: 'mi', zip: '48104' };
 
-beforeEach(() => { s = makeSeed(NOW); now = NOW; });
+beforeEach(() => { s = makeSeed(NOW, 'weekly'); now = NOW; });
 
 describe('billingFor', () => {
   it('defaults to the free tier with nothing saved', () => {

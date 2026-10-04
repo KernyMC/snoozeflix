@@ -9,7 +9,7 @@ const NOON = new Date('2026-10-07T12:00:00-04:00').getTime();
 const K = 'seed_kevin';
 let s: MockState;
 const ctx = (userId: string | null = K, now = NOON): Ctx => ({ s, now, userId });
-beforeEach(() => { s = makeSeed(NOON); });
+beforeEach(() => { s = makeSeed(NOON, 'weekly'); });
 
 describe('stake math', () => {
   const g = { daysOfWeek: [0, 1, 2, 3, 4, 5, 6], deadlineMinutes: 18 * 60, active: true };
@@ -17,12 +17,13 @@ describe('stake math', () => {
     expect(upcomingOccurrences(g, NOON, 'America/Detroit', false)).toBe(3);
     expect(upcomingOccurrences(g, NOON, 'America/Detroit', true)).toBe(2); // today already done
     const late = new Date('2026-10-07T19:00:00-04:00').getTime();
-    expect(upcomingOccurrences(g, late, 'America/Detroit', false)).toBe(2);
+    expect(upcomingOccurrences(g, late, 'America/Detroit', false)).toBe(3); // deadline passed but not charged yet: still owed
+    expect(upcomingOccurrences(g, late, 'America/Detroit', true)).toBe(2); // flake charged / checked in: handled
     expect(upcomingOccurrences({ ...g, active: false }, NOON, 'America/Detroit', false)).toBe(0);
   });
   it('rolling window: Sunday night still has days ahead (never zero)', () => {
     const sunNight = new Date('2026-10-11T23:00:00-04:00').getTime();
-    expect(upcomingOccurrences(g, sunNight, 'America/Detroit', false)).toBe(2);
+    expect(upcomingOccurrences(g, sunNight, 'America/Detroit', false)).toBe(3);
   });
   it('worst case escalates then caps', () => {
     const goal = { basePenaltyCents: 500, maxPenaltyCents: 4000, consecutiveFlakes: 0 };
@@ -47,6 +48,20 @@ describe('wallet', () => {
     const w2 = E.walletFor(s, 'seed_leo', NOON);
     expect(w2.stakeCents).toBe(0);
     expect(w2.availableCents).toBe(w2.balanceCents);
+  });
+});
+
+describe('stake after the deadline (audit M1)', () => {
+  it('cannot be withdrawn between the deadline and the charge', () => {
+    // Kevin's gym is due 18:00. At 18:05 nothing has been charged yet, but today's penalty is still owed.
+    const goal = s.goals.seed_goal_0;
+    const after = new Date('2026-10-07T18:05:00-04:00').getTime();
+    const before = E.walletFor(s, K, new Date('2026-10-07T17:55:00-04:00').getTime());
+    const owed = E.walletFor(s, K, after);
+    expect(owed.stakeCents).toBeGreaterThanOrEqual(before.stakeCents);
+    expect(owed.stake.find((x) => x.goalId === goal.id)?.occurrences).toBeGreaterThanOrEqual(1);
+    const w = E.requestWithdrawal({ s, now: after, userId: K }, owed.availableCents || 500);
+    if (w.ok) expect(s.users[K].balanceCents).toBeGreaterThanOrEqual(owed.stakeCents); // never below the stake
   });
 });
 

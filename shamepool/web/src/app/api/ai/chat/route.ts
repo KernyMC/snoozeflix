@@ -7,9 +7,9 @@ import { AiError, firstMessage, xaiChat } from '@/lib/server/xai';
 export const runtime = 'nodejs';
 
 export async function POST(req: Request) {
-  if (!process.env.XAI_API_KEY?.trim()) return NextResponse.json({ error: 'ai_unavailable' }, { status: 503 });
-  const blocked = guardRequest(req, 'ai-chat', 12, 300);
+  const blocked = guardRequest(req, 'ai-chat', 12, 150);
   if (blocked) return blocked;
+  if (!process.env.XAI_API_KEY?.trim()) return NextResponse.json({ error: 'ai_unavailable' }, { status: 503 });
 
   let body: { message?: unknown; history?: unknown; context?: unknown };
   try { body = await req.json(); } catch { return NextResponse.json({ error: 'invalid_body' }, { status: 400 }); }

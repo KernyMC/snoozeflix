@@ -2,7 +2,7 @@
 import { Check, Droplets, Heart, LifeBuoy, PawPrint, Trophy, Utensils } from 'lucide-react';
 import { useState } from 'react';
 import {
-  CHARITIES, charityById, formatCents, proposeDonation, setCharity, useCharityStatus, useDonations, useNow, useOpenCashout, useSquad,
+  CHARITIES, charityById, formatCents, proposeDonation, setCharity, useCharityStatus, useConnection, useDonations, useNow, useOpenCashout, useSquad,
   type CharityKind,
 } from '@/data';
 import { AppShell } from '@/components/AppShell';
@@ -29,11 +29,13 @@ const windowLabel = (ms: number) => (ms >= 86_400_000 ? `${Math.round(ms / 86_40
 function Charity() {
   const squad = useSquad();
   const status = useCharityStatus();
+  const conn = useConnection();
   const open = useOpenCashout();
   const donations = useDonations();
   const now = useNow(1000);
   const { toast } = useToast();
   const [busy, setBusy] = useState<string | null>(null);
+  if (conn.mode === 'live' && !status) return <EmptyState title="Charity is not available yet" line="This rule runs on the demo backend for now." mood="sleepy" />;
   if (!squad || !status) return <ListSkeleton rows={3} h="h-32" />;
 
   const charity = charityById(status.charityId);

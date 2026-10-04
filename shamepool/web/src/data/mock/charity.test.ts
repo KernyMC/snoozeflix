@@ -16,7 +16,7 @@ function fillPool(now = NOON) {
   E.forceFlake(ctx('seed_kevin', now), 'seed_goal_0'); // Kevin: $10 → pool 6500
 }
 
-beforeEach(() => { s = makeSeed(NOON); });
+beforeEach(() => { s = makeSeed(NOON, 'weekly'); });
 
 describe('cash-out clock', () => {
   it('is off while the pool is below its goal', () => {
@@ -29,11 +29,22 @@ describe('cash-out clock', () => {
     expect(sq().poolFullAt).toBe(NOON);
     expect(E.charityStatusFor(sq()).deadlineAt).toBe(NOON + WINDOW);
   });
-  it('does not restart on later flakes and stops when the goal is raised above the pool', () => {
+  it('does not restart on later flakes', () => {
     fillPool();
     E.forceFlake(ctx('seed_ana', NOON + 1000), 'seed_goal_2');
     expect(sq().poolFullAt).toBe(NOON);
-    E.setPoolGoal(ctx(), 'Big night', 50_000);
+  });
+  it('locks the pool goal while the clock runs, so the clock cannot be stalled (audit M6)', () => {
+    fillPool();
+    expect(E.setPoolGoal(ctx('seed_ana'), 'Big night', 50_000)).toMatchObject({ ok: false, error: 'goal_locked' });
+    expect(sq().poolFullAt).toBe(NOON);
+    expect(sq().poolGoalCents).toBe(6000);
+    // the clock still runs out as planned
+    expect(E.settleCharity(ctx(null, NOON + WINDOW))).toBe(1);
+  });
+  it('lets the squad change the pool goal while the pool is not full', () => {
+    expect(E.setPoolGoal(ctx(), 'Ramen', 9000).ok).toBe(true);
+    expect(sq().poolGoalCents).toBe(9000);
     expect(sq().poolFullAt).toBeNull();
   });
 });

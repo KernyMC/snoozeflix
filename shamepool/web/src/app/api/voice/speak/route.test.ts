@@ -3,7 +3,7 @@ import { POST } from './route';
 
 const req = (body: unknown, headers: Record<string, string> = {}) =>
   new Request('http://localhost:3100/api/voice/speak', {
-    method: 'POST', headers: { 'Content-Type': 'application/json', host: 'localhost:3100', ...headers }, body: JSON.stringify(body),
+    method: 'POST', headers: { 'Content-Type': 'application/json', host: 'localhost:3100', origin: 'http://localhost:3100', ...headers }, body: JSON.stringify(body),
   });
 
 describe('POST /api/voice/speak', () => {

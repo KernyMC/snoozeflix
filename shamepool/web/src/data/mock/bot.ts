@@ -41,7 +41,9 @@ export function answer(s: MockState, userId: string, text: string, now: number):
 
   // actions: "raise my gym penalty to $10"
   if (/(raise|increase|bump|set|change|lower)/.test(t) && /penalt/.test(t)) {
-    const m = t.match(/\$?\s*(\d+(?:\.\d{1,2})?)/);
+    const toNum = t.match(/\bto\s+\$?\s*(\d+(?:\.\d{1,2})?)/);
+    const all = [...t.matchAll(/\$?\s*(\d+(?:\.\d{1,2})?)/g)];
+    const m = toNum ?? (all.length ? all[all.length - 1] : null);
     if (!m) return { text: 'How much? Try "raise my gym penalty to $10".' };
     const cents = Math.round(parseFloat(m[1]) * 100);
     if (myGoals.length === 0) return { text: 'You have no goals yet. Scared?' };

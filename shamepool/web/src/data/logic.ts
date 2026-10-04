@@ -225,8 +225,8 @@ export const WITHDRAW_COOLDOWN_REAL_MS = 24 * 3600_000;
 export const WITHDRAW_COOLDOWN_DEMO_MS = 20_000;
 
 /**
- * Check-ins still ahead in the next 3 days (rolling). Today counts only if it is
- * scheduled, not already done/flaked and the deadline has not passed.
+ * Check-ins still ahead in the next 3 days (rolling). Today counts while it is scheduled and not handled
+ * (checked in or already flaked), EVEN after its deadline: until the scheduler charges the flake the money is still owed.
  */
 export function upcomingOccurrences(
   goal: Pick<Goal, 'daysOfWeek' | 'deadlineMinutes' | 'active'>, now: number, tz: string, todayHandled: boolean,
@@ -237,7 +237,7 @@ export function upcomingOccurrences(
   for (let i = 0; i < STAKE_LOOKAHEAD_DAYS; i++) {
     const d = dateAddDays(today, i);
     if (!isScheduledOn(goal, d)) continue;
-    if (i === 0 && (todayHandled || deadlinePassed(goal, now, tz))) continue;
+    if (i === 0 && todayHandled) continue;
     n++;
   }
   return n;
