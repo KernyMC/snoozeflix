@@ -166,7 +166,7 @@ export function CheckinFlow({ goal }: { goal: Goal }) {
             </>)}
 
             {step === 'success' && (<>
-              <motion.div initial={{ scale: 0.6 }} animate={{ scale: [0.6, 1.1, 1] }} transition={{ type: 'spring' }}><Flakey mood="cheer" size={150} /></motion.div>
+              <motion.div initial={{ scale: 0.6 }} animate={{ scale: [0.6, 1.1, 1] }} transition={{ duration: 0.45, ease: 'easeOut' }}><Flakey mood="cheer" size={150} /></motion.div>
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: -10 }} className="font-display font-black text-4xl text-flame">+1 <Icon name="fire" /></motion.div>
             </>)}
 
