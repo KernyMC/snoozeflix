@@ -1,5 +1,5 @@
 'use client';
-import { Bot, Flame, Home, LogOut, Plus, User, Users } from 'lucide-react';
+import { Flame, Home, LogOut, Plus, User, Users } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -69,20 +69,22 @@ function TopBar() {
 
 function TabBar() {
   const path = usePathname();
-  const tab = (href: string, label: string, Icon: typeof Home, tint: string) => {
+  // Every tab shares one selected look: the gold pill behind the icon, with the icon and label in ink.
+  const tab = (href: string, label: string, icon: React.ReactNode) => {
     const active = path === href || (href !== '/home' && path.startsWith(href));
     return (
       <Link href={href} aria-current={active ? 'page' : undefined} className="flex-1 flex flex-col items-center justify-center gap-0.5 min-h-[56px]">
-        <span className={`rounded-xl px-4 py-1 ${active ? 'bg-sky-light' : ''} ${active ? tint : 'text-ink-faint'}`}><Icon size={26} strokeWidth={2.5} /></span>
-        <span className={`text-[11px] font-extrabold uppercase tracking-wide ${active ? 'text-sky-dark' : 'text-ink-faint'}`}>{label}</span>
+        <span className={`rounded-xl px-4 py-1 ${active ? 'bg-sun text-ink' : 'text-ink-faint'}`}>{icon}</span>
+        <span className={`text-[11px] font-extrabold uppercase tracking-wide ${active ? 'text-ink' : 'text-ink-faint'}`}>{label}</span>
       </Link>
     );
   };
+  const line = { size: 26, strokeWidth: 2.5 };
   return (
     <nav className="fixed bottom-0 inset-x-0 z-30 bg-white border-t-2 border-surface-line pb-[env(safe-area-inset-bottom)]" aria-label="Main">
       <div className="mx-auto max-w-md flex items-end">
-        {tab('/home', 'Home', Home, 'text-sky')}
-        {tab('/squad', 'Squad', Users, 'text-sun-dark')}
+        {tab('/home', 'Home', <Home {...line} />)}
+        {tab('/squad', 'Squad', <Users {...line} />)}
         <Link href="/goals/new" aria-label="New goal" className="group relative flex-1 min-h-[56px]">
           {/* The bar rising to wrap the button: a 3px white rim carrying the bar's own 2px line. */}
           <span aria-hidden className="absolute left-1/2 -top-[11px] size-[58px] -translate-x-1/2 rounded-full bg-white border-2 border-surface-line" />
@@ -90,8 +92,10 @@ function TabBar() {
           <span aria-hidden className="absolute left-1/2 top-0 h-12 w-[58px] -translate-x-1/2 bg-white" />
           <span className="absolute left-1/2 -top-1.5 size-12 -translate-x-1/2 rounded-full bg-primary text-white grid place-items-center shadow-chunky [--edge:var(--color-primary-dark)] group-active:translate-y-1 group-active:shadow-none"><Plus size={28} strokeWidth={3.5} /></span>
         </Link>
-        {tab('/settings', 'Profile', User, 'text-sky')}
-        {tab('/bot', 'Bot', Bot, 'text-grape')}
+        {tab('/settings', 'Profile', <User {...line} />)}
+        {/* The bot is the mascot. The picture has empty space around the coin, so it is drawn a little larger than its 26px box. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        {tab('/bot', 'Bot', <img src="/assets/Shamepool-Benny-the-Penny.png" alt="" width={26} height={26} className="block size-[26px] scale-[1.45] object-contain" />)}
       </div>
     </nav>
   );
