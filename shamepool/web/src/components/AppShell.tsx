@@ -55,8 +55,8 @@ function TopBar() {
         {/* One row, 32px tall. The tier label stacks into two lines when squeezed and drops to a clipped second row when even that cannot fit. */}
         <div className="flex-1 min-w-0 h-8 overflow-hidden flex flex-wrap items-center justify-center gap-x-1 gap-y-4">
           <Link href="/wallet" className="shrink-0 whitespace-nowrap rounded-full bg-surface-muted px-2.5 py-1 text-sm min-h-8 inline-flex items-center" aria-label="Your balance, open wallet"><Icon name="cash" />&nbsp;<MoneyText cents={me?.balanceCents ?? 0} /></Link>
-          <span className="shrink-0 whitespace-nowrap rounded-full bg-sun-light px-2.5 py-1 text-sm" aria-label="Pool balance"><Icon name="pizza" /> <MoneyText cents={squad?.poolBalanceCents ?? 0} kind="pool" /></span>
-          {showFreeTier && <Pill tone="gray" className="basis-[min-content] grow max-w-max min-h-5 justify-center !px-2 text-center leading-[1.05]">Free tier</Pill>}
+          <span className="shrink-0 whitespace-nowrap rounded-full bg-sun-light px-2.5 py-1 text-sm min-h-8 inline-flex items-center" aria-label="Pool balance"><Icon name="pizza" />&nbsp;<MoneyText cents={squad?.poolBalanceCents ?? 0} kind="pool" /></span>
+          {showFreeTier && <Pill tone="gray" className="basis-[min-content] grow max-w-max min-h-8 justify-center !px-2 text-center leading-[1.05]">Free tier</Pill>}
         </div>
         <button type="button" onClick={signOut} disabled={leaving} aria-label="Sign out" title="Sign out"
           className="group size-10 rounded-full bg-surface-muted grid place-items-center text-ink shrink-0 active:translate-y-px disabled:opacity-50">
