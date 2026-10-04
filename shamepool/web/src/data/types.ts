@@ -1,6 +1,6 @@
 export type Cents = number; // integer, always
 
-export interface User { id: string; name: string; avatar: string; squadId: string | null; balanceCents: Cents; email?: string; }
+export interface User { id: string; name: string; avatar: string; squadId: string | null; balanceCents: Cents; }
 
 export type WithdrawalStatus = 'pending' | 'completed' | 'cancelled';
 export interface Withdrawal {
@@ -74,9 +74,22 @@ export type ErrorCode =
   | 'too_far' | 'left_area' | 'too_early' | 'not_due_today' | 'deadline_passed' | 'already_done' | 'already_flaked' | 'invalid_photo' | 'photo_rejected' | 'too_many_attempts' | 'checkin_not_found'
   | 'invalid_message' | 'rate_limited' | 'action_expired' | 'action_not_found'
   | 'pool_not_ready' | 'proposal_open' | 'proposal_not_found' | 'pool_changed'
-  | 'invalid_email' | 'weak_password' | 'email_taken' | 'no_account'
+  | 'invalid_first_name' | 'invalid_last_name' | 'invalid_email' | 'invalid_username' | 'weak_password' | 'password_mismatch'
+  | 'username_taken' | 'email_taken' | 'invalid_security' | 'invalid_credentials' | 'account_not_found' | 'wrong_answers'
+  | 'auth_locked' | 'invalid_reset'
   | 'below_minimum' | 'insufficient_available' | 'withdrawal_pending' | 'withdrawal_not_found'
   | 'offline' | 'mock_error' | 'unknown';
+
+export interface SecurityAnswer { qId: string; answerHash: number }
+export interface Account {
+  userId: string; username: string; email: string; firstName: string; lastName: string;
+  passwordHash: number; // mock-only hash; the real backend must use a proper KDF
+  security: SecurityAnswer[];
+}
+export interface RegisterInput {
+  firstName: string; lastName: string; email: string; username: string; password: string; confirm: string;
+  security: { qId: string; answer: string }[];
+}
 
 export type Result<T> = { ok: true; data: T } | { ok: false; error: ErrorCode; meta?: Record<string, unknown> };
 

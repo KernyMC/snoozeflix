@@ -271,12 +271,3 @@ export function validateWithdrawal(amountCents: number, availableCents: Cents): 
   if (amountCents > availableCents) return 'insufficient_available';
   return null;
 }
-
-/* ---------- auth (mock-grade validation) ---------- */
-export const normalizeEmail = (s: string) => s.trim().toLowerCase();
-export function validateEmail(email: string): ErrorCode | null {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(normalizeEmail(email)) && email.length <= 80 ? null : 'invalid_email';
-}
-export function validatePassword(pw: string): ErrorCode | null {
-  return typeof pw === 'string' && pw.length >= 8 && pw.length <= 72 ? null : 'weak_password';
-}

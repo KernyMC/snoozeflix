@@ -1,13 +1,16 @@
 import type {
-  BotThreadMessage, CashoutProposal, Checkin, DemoFlags, ErrorCode, FeedEvent, Goal, PendingAction, Penalty, Result, Squad, User, Withdrawal,
+  Account, BotThreadMessage, CashoutProposal, Checkin, DemoFlags, ErrorCode, FeedEvent, Goal, PendingAction, Penalty, Result, Squad, User, Withdrawal,
 } from '../types';
 
-export const MOCK_VERSION = 2;
-export const STORAGE_KEY = 'shamepool-mock-v2';
+export const MOCK_VERSION = 3;
+export const STORAGE_KEY = 'shamepool-mock-v1';
 
 export interface MockState {
   version: number;
   users: Record<string, User>;
+  accounts: Record<string, Account>; // key = lowercase username
+  authAttempts: Record<string, { n: number; until: number }>;
+  resetTokens: Record<string, { token: string; expires: number }>;
   squads: Record<string, Squad>;
   goals: Record<string, Goal>;
   checkins: Record<string, Checkin>;

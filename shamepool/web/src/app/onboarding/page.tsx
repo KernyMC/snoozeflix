@@ -2,8 +2,9 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 import { Check, Copy, Share2 } from 'lucide-react';
-import { createSquad, joinSquad, useMe, useSquad } from '@/data';
+import { createSquad, joinSquad, registerUser, useMe, useSquad } from '@/data';
 import { Wordmark } from '@/components/AppShell';
+import { Avatar, AVATARS } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { dollarsToCents, Field } from '@/components/ui/Field';
@@ -19,6 +20,8 @@ function Onboarding() {
   const params = useSearchParams();
   const { toast } = useToast();
   const [mode, setMode] = useState<'create' | 'join'>(params.get('join') ? 'join' : 'create');
+  const [name, setName] = useState('');
+  const [avatar, setAvatar] = useState(AVATARS[0]);
   const [squadName, setSquadName] = useState('');
   const [poolName, setPoolName] = useState('Pizza night');
   const [poolAmount, setPoolAmount] = useState('60');
@@ -28,13 +31,21 @@ function Onboarding() {
   const [created, setCreated] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const joinParam = params.get('join');
+  useEffect(() => { if (me === null) router.replace('/'); }, [me, router]); // sign in first
   useEffect(() => { if (me?.squadId && !created) router.replace('/home'); }, [me, created, router]);
-  useEffect(() => { if (me === null) router.replace(`/register${joinParam ? `?join=${encodeURIComponent(joinParam)}` : ''}`); }, [me, joinParam, router]);
 
-  if (!me) return <div className="mx-auto max-w-md p-5 space-y-3"><Skeleton className="h-40" /><Skeleton className="h-24" /></div>;
+  if (me === undefined) return <div className="mx-auto max-w-md p-5 space-y-3"><Skeleton className="h-40" /><Skeleton className="h-24" /></div>;
 
-  const step = created && squad ? 3 : 2;
+  const step = created && squad ? 3 : me ? 2 : 1;
+
+  const doRegister = async () => {
+    setErr({});
+    if (name.trim().length < 1 || name.trim().length > 20) return setErr({ name: errorText('invalid_name') });
+    setBusy(true);
+    const r = await registerUser({ name, avatar });
+    setBusy(false);
+    if (!r.ok) setErr({ name: errorText(r.error) });
+  };
 
   const doCreate = async () => {
     setErr({});
@@ -79,6 +90,24 @@ function Onboarding() {
           {[1, 2, 3].map((n) => <span key={n} className={`h-2.5 w-8 rounded-full ${n <= step ? 'bg-sky' : 'bg-surface-line'}`} />)}
         </div>
       </div>
+
+      {step === 1 && (
+        <section className="space-y-5">
+          <div className="flex justify-center"><Flakey mood="happy" size={110} /></div>
+          <h1 className="font-display font-black text-3xl text-center">Who are you?</h1>
+          <Field label="Your name" value={name} maxLength={20} onChange={(e) => setName(e.target.value)} placeholder="Kevin" error={err.name} autoFocus />
+          <div>
+            <p className="text-xs font-extrabold uppercase tracking-wide text-ink-soft mb-1.5">Pick an avatar</p>
+            <div className="grid grid-cols-5 gap-2" role="radiogroup" aria-label="Avatar">
+              {AVATARS.map((e) => (
+                <button key={e} role="radio" aria-checked={avatar === e} onClick={() => setAvatar(e)}
+                  className={`aspect-square rounded-xl border-2 p-1 grid place-items-center shadow-chunky-sm ${avatar === e ? 'border-sky bg-sky-light [--edge:var(--color-sky-dark)]' : 'border-surface-line bg-white'}`}><Avatar value={e} size={48} /></button>
+              ))}
+            </div>
+          </div>
+          <Button onClick={doRegister} loading={busy}>Continue</Button>
+        </section>
+      )}
 
       {step === 2 && (
         <section className="space-y-5">

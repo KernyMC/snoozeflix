@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import {
   postMessage, useFeed, useLeaderboard, useMe, useNow, usePoolFunders, useSquad, type FeedKind, type LeaderboardRow, type Squad,
 } from '@/data';
+import { Avatar } from './ui/Avatar';
 import { Button } from './ui/Button';
 import { Card, Pill } from './ui/Card';
 import { Flakey } from './ui/Flakey';
@@ -40,7 +41,7 @@ export function PoolCard({ squad, big = false }: { squad: Squad; big?: boolean }
         <div className="flex flex-wrap gap-1.5" aria-label="Who funded the pool">
           {funders.map((f) => (
             <span key={f.user.id} className={`inline-flex items-center gap-1 rounded-full bg-white/70 px-2.5 py-1 font-extrabold ${big ? 'text-lg' : 'text-xs'}`}>
-              {f.user.avatar} {f.user.name} <MoneyText cents={f.totalCents} kind="loss" />
+              <Avatar value={f.user.avatar} size={20} /> {f.user.name} <MoneyText cents={f.totalCents} kind="loss" />
             </span>
           ))}
         </div>
@@ -56,7 +57,7 @@ function Row({ r, big, meId }: { r: LeaderboardRow; big?: boolean; meId?: string
     <motion.li layout transition={{ type: 'spring', stiffness: 500, damping: 35 }}
       className={`flex items-center gap-3 rounded-2xl border-2 px-3 ${big ? 'py-4' : 'py-2.5'} ${r.isFlakeOfWeek ? 'bg-ember-light border-ember/40' : r.user.id === meId ? 'bg-sky-light border-sky/50' : 'bg-white border-surface-line'}`}>
       <span className={`shrink-0 grid place-items-center rounded-full font-display font-black ${big ? 'size-11 text-xl' : 'size-8 text-sm'} ${MEDAL[r.rank - 1] ?? 'bg-surface-muted text-ink-soft'}`}>{r.rank}</span>
-      <span className={big ? 'text-4xl' : 'text-2xl'}>{r.user.avatar}</span>
+      <span className={big ? 'text-4xl' : 'text-2xl'}><Avatar value={r.user.avatar} size={big ? 48 : 32} /></span>
       <div className="flex-1 min-w-0">
         <p className={`font-display font-black truncate ${big ? 'text-2xl' : ''}`}>{r.user.name}</p>
         {r.isFlakeOfWeek && <Pill tone="ember" className="mt-0.5">🥶 Flake of the Week</Pill>}

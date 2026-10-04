@@ -1,7 +1,8 @@
 import type {
-  BotReply, CashoutProposal, Checkin, DemoFlags, FeedEvent, Goal, GoalInput, PhotoVerdict, Penalty, Pos, Result, Squad, User, Withdrawal,
+  RegisterInput, BotReply, CashoutProposal, Checkin, DemoFlags, FeedEvent, Goal, GoalInput, PhotoVerdict, Penalty, Pos, Result, Squad, User, Withdrawal,
 } from '../types';
 import * as E from './engine';
+import * as A from './authEngine';
 import { err } from './state';
 import { commit, resetAll, setIdentity, useMockStore } from './store';
 
@@ -32,20 +33,25 @@ export async function registerUser(input: { name: string; avatar: string }): Pro
   if (r.ok) setIdentity(r.data.id);
   return r;
 }
-export async function signUp(input: { name: string; email: string; password: string; avatar: string }): Promise<Result<User>> {
-  const r = await run((c) => E.signUp(c, input));
+export async function registerAccount(input: RegisterInput): Promise<Result<User>> {
+  const r = await run((c) => A.registerAccount(c, input));
   if (r.ok) setIdentity(r.data.id);
   return r;
 }
-export async function signIn(input: { email: string; password: string }): Promise<Result<User>> {
-  const r = await run((c) => E.signIn(c, input));
+export async function login(username: string, password: string): Promise<Result<User>> {
+  const r = await run((c) => A.login(c, username, password));
   if (r.ok) setIdentity(r.data.id);
   return r;
 }
-export async function signOut(): Promise<Result<true>> {
+export async function logout(): Promise<Result<true>> {
   setIdentity(null);
   return { ok: true, data: true };
 }
+export const getSecurityQuestions = (username: string): Promise<Result<string[]>> => run((c) => A.getSecurityQuestions(c, username));
+export const verifySecurityAnswers = (username: string, answers: string[]): Promise<Result<string>> =>
+  run((c) => A.verifySecurityAnswers(c, username, answers));
+export const resetPassword = (username: string, token: string, password: string, confirm: string): Promise<Result<true>> =>
+  run((c) => A.resetPassword(c, username, token, password, confirm));
 export async function claimSeedUser(userId: string): Promise<Result<User>> {
   const r = await run((c) => E.claimSeedUser(c, userId));
   if (r.ok) setIdentity(r.data.id);

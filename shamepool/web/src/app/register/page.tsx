@@ -1,75 +1,124 @@
 'use client';
-import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { Suspense, useEffect, useState } from 'react';
-import { signUp, useMe, validateEmail, validatePassword } from '@/data';
-import { AVATARS, AuthShell, PasswordField } from '@/components/AuthShell';
+import { useRouter } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
+import {
+  registerAccount, SECURITY_QUESTIONS, useMe, validateConfirm, validateEmail, validateFirstName, validateLastName, validatePassword,
+  validateUsername, normalizeAnswer, type ErrorCode,
+} from '@/data';
+import { AuthShell, focusFirstInvalid } from '@/components/auth/AuthShell';
+import { PasswordField } from '@/components/auth/PasswordField';
 import { Button } from '@/components/ui/Button';
-import { Field } from '@/components/ui/Field';
+import { Card } from '@/components/ui/Card';
+import { Field, inputCls } from '@/components/ui/Field';
 import { errorText } from '@/components/ui/States';
 
-function Register() {
-  const router = useRouter();
-  const params = useSearchParams();
-  const join = params.get('join');
-  const me = useMe();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [avatar, setAvatar] = useState(AVATARS[0]);
-  const [busy, setBusy] = useState(false);
-  const [errs, setErrs] = useState<Record<string, string>>({});
-  const next = `/onboarding${join ? `?join=${encodeURIComponent(join)}` : ''}`;
+interface Form { firstName: string; lastName: string; email: string; username: string; password: string; confirm: string }
+const EMPTY: Form = { firstName: '', lastName: '', email: '', username: '', password: '', confirm: '' };
 
-  useEffect(() => { if (me) router.replace(me.squadId ? '/home' : next); }, [me, next, router]);
+function validate(f: Form, qs: string[], ans: string[]): Record<string, string> {
+  const e: Record<string, string> = {};
+  const set = (k: string, c: ErrorCode | null) => { if (c) e[k] = errorText(c); };
+  set('firstName', validateFirstName(f.firstName));
+  set('lastName', validateLastName(f.lastName));
+  set('email', validateEmail(f.email));
+  set('username', validateUsername(f.username));
+  set('password', validatePassword(f.password));
+  if (!e.password) set('confirm', validateConfirm(f.password, f.confirm));
+  else if (!f.confirm) e.confirm = 'Re-enter your password.';
+  qs.forEach((q, i) => {
+    if (!q) e[`q${i}`] = 'Choose a question.';
+    const n = normalizeAnswer(ans[i]).length;
+    if (n < 2 || n > 50) e[`a${i}`] = 'Answer must be 2–50 characters.';
+  });
+  return e;
+}
+
+export default function RegisterPage() {
+  const me = useMe();
+  const router = useRouter();
+  const [f, setF] = useState<Form>(EMPTY);
+  const [qs, setQs] = useState(['', '', '']);
+  const [ans, setAns] = useState(['', '', '']);
+  const [err, setErr] = useState<Record<string, string>>({});
+  const [formErr, setFormErr] = useState('');
+  const [busy, setBusy] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => { if (me) router.replace(me.squadId ? '/home' : '/onboarding'); }, [me, router]);
+
+  const upd = (k: keyof Form) => (e: React.ChangeEvent<HTMLInputElement>) => setF((p) => ({ ...p, [k]: e.target.value }));
+  /** Validate one field when the user leaves it, so errors appear early but not while typing. */
+  const blur = (k: string) => () => {
+    const all = validate(f, qs, ans);
+    setErr((p) => {
+      const n = { ...p };
+      if (all[k]) n[k] = all[k]; else delete n[k];
+      return n;
+    });
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (busy) return;
-    const v: Record<string, string> = {};
-    if (name.trim().length < 1 || name.trim().length > 20) v.name = errorText('invalid_name');
-    const bad = validateEmail(email);
-    if (bad) v.email = 'Enter a valid email.';
-    if (validatePassword(password)) v.password = 'Use at least 8 characters.';
-    setErrs(v);
-    if (Object.keys(v).length) return;
+    setFormErr('');
+    const v = validate(f, qs, ans);
+    setErr(v);
+    if (Object.keys(v).length) return focusFirstInvalid(formRef.current);
     setBusy(true);
-    const r = await signUp({ name, email, password, avatar });
+    const r = await registerAccount({ ...f, security: qs.map((qId, i) => ({ qId, answer: ans[i] })) });
     setBusy(false);
-    if (r.ok) return router.replace(next);
-    if (r.error === 'email_taken') setErrs({ email: 'That email already has an account. Try signing in.' });
-    else if (r.error === 'invalid_email') setErrs({ email: 'Enter a valid email.' });
-    else if (r.error === 'weak_password') setErrs({ password: 'Use at least 8 characters.' });
-    else if (r.error === 'invalid_name') setErrs({ name: errorText(r.error) });
-    else setErrs({ form: errorText(r.error) });
+    if (r.ok) return router.replace('/onboarding');
+    const field: Partial<Record<ErrorCode, string>> = { username_taken: 'username', email_taken: 'email' };
+    const k = field[r.error];
+    if (k) { setErr({ [k]: errorText(r.error) }); focusFirstInvalid(formRef.current); } else setFormErr(errorText(r.error));
   };
 
   return (
-    <AuthShell title="Create your account" subtitle="Takes 20 seconds. Flaking takes less." mood="cheer">
-      <form onSubmit={submit} className="space-y-4" noValidate>
-        <div>
-          <p className="text-xs font-extrabold uppercase tracking-wide text-ink-soft mb-1.5">Pick an avatar</p>
-          <div className="grid grid-cols-6 gap-2" role="radiogroup" aria-label="Avatar">
-            {AVATARS.map((a) => (
-              <button type="button" key={a} role="radio" aria-checked={avatar === a} aria-label={a} onClick={() => setAvatar(a)}
-                className={`aspect-square rounded-xl border-2 text-2xl shadow-chunky-sm ${avatar === a ? 'border-sky bg-sky-light [--edge:var(--color-sky-dark)]' : 'border-surface-line bg-white'}`}>{a}</button>
-            ))}
-          </div>
+    <AuthShell mood={formErr || Object.keys(err).length ? 'worried' : 'happy'} title="Create your account" subtitle="Takes a minute. Then pick your squad.">
+      <form ref={formRef} onSubmit={submit} noValidate className="space-y-4">
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="First name" value={f.firstName} onChange={upd('firstName')} onBlur={blur('firstName')} error={err.firstName} maxLength={30}
+            placeholder="Jane" autoComplete="given-name" enterKeyHint="next" />
+          <Field label="Last name" value={f.lastName} onChange={upd('lastName')} onBlur={blur('lastName')} error={err.lastName} maxLength={30}
+            placeholder="Doe" autoComplete="family-name" enterKeyHint="next" />
         </div>
-        <Field label="Your name" value={name} maxLength={20} onChange={(e) => setName(e.target.value)} placeholder="Kevin" autoComplete="nickname" error={errs.name} />
-        <Field label="Email" type="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@school.edu" autoComplete="email" error={errs.email} />
-        <PasswordField value={password} onChange={setPassword} error={errs.password} autoComplete="new-password" />
-        {errs.form && <p role="alert" className="text-sm text-ember-dark font-extrabold">{errs.form}</p>}
+        <Field label="Email address" type="email" inputMode="email" value={f.email} onChange={upd('email')} onBlur={blur('email')} error={err.email}
+          maxLength={254} placeholder="jane@example.com" autoComplete="email" autoCapitalize="none" spellCheck={false} enterKeyHint="next" />
+        <Field label="Username" value={f.username} onChange={upd('username')} onBlur={blur('username')} error={err.username} maxLength={20}
+          placeholder="Choose a username" hint="3–20 letters, numbers or underscores. This is your display name."
+          autoComplete="username" autoCapitalize="none" autoCorrect="off" spellCheck={false} enterKeyHint="next" />
+        <PasswordField showStrength label="Password" value={f.password} onChange={upd('password')} onBlur={blur('password')} error={err.password}
+          maxLength={72} placeholder="At least 8 characters" hint="Use a letter and a number." autoComplete="new-password" enterKeyHint="next" />
+        <PasswordField label="Confirm password" value={f.confirm} onChange={upd('confirm')} onBlur={blur('confirm')} error={err.confirm}
+          maxLength={72} placeholder="Re-enter your password" autoComplete="new-password" enterKeyHint="next" />
+
+        <div className="pt-2">
+          <h2 className="font-display font-black text-xl">Security questions</h2>
+          <p className="text-sm font-bold text-ink-soft">You will need these if you forget your password.</p>
+        </div>
+        {[0, 1, 2].map((i) => (
+          <Card key={i} className="space-y-3">
+            <p className="text-xs font-black uppercase tracking-wide text-primary">Question {i + 1}</p>
+            <div>
+              <label htmlFor={`q${i}`} className="block text-xs font-extrabold uppercase tracking-wide text-ink-soft mb-1.5">Select a question</label>
+              <select id={`q${i}`} value={qs[i]} aria-invalid={!!err[`q${i}`] || undefined}
+                onChange={(e) => setQs((p) => p.map((v, j) => (j === i ? e.target.value : v)))} onBlur={blur(`q${i}`)}
+                className={`${inputCls} ${err[`q${i}`] ? 'border-ember bg-ember-light' : ''}`}>
+                <option value="">Choose a question…</option>
+                {SECURITY_QUESTIONS.filter((q) => q.id === qs[i] || !qs.includes(q.id)).map((q) => <option key={q.id} value={q.id}>{q.text}</option>)}
+              </select>
+              {err[`q${i}`] && <p className="text-sm text-ember-dark font-extrabold mt-1" role="alert">{err[`q${i}`]}</p>}
+            </div>
+            <Field label="Your answer" value={ans[i]} maxLength={50} placeholder="Enter your answer" error={err[`a${i}`]}
+              onChange={(e) => setAns((p) => p.map((v, j) => (j === i ? e.target.value : v)))} onBlur={blur(`a${i}`)}
+              autoComplete="off" autoCapitalize="none" spellCheck={false} enterKeyHint={i === 2 ? 'go' : 'next'} />
+          </Card>
+        ))}
+
+        {formErr && <p className="text-sm text-ember-dark font-extrabold text-center" role="alert">{formErr}</p>}
         <Button type="submit" loading={busy}>Create account</Button>
+        <Button variant="secondary" href="/">← Back to sign in</Button>
       </form>
-      <p className="text-center font-bold text-ink-soft mt-5">
-        Already have an account?{' '}
-        <Link href={`/login${join ? `?join=${encodeURIComponent(join)}` : ''}`} className="text-primary font-extrabold underline underline-offset-2">Sign in</Link>
-      </p>
     </AuthShell>
   );
-}
-
-export default function Page() {
-  return <Suspense fallback={null}><Register /></Suspense>;
 }

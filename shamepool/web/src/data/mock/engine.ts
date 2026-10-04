@@ -1,6 +1,6 @@
 import {
-  applyPenalty, availableToWithdraw, buildLeaderboard, MIN_WITHDRAW_CENTS, normalizeEmail, stakeBreakdown, validateEmail,
-  validatePassword, validateWithdrawal, WITHDRAW_COOLDOWN_DEMO_MS, WITHDRAW_COOLDOWN_REAL_MS, dateAddDays, deadlinePassed, formatCents, formatDistance, generateInviteCode, haversineM,
+  applyPenalty, availableToWithdraw, buildLeaderboard, MIN_WITHDRAW_CENTS, stakeBreakdown,
+  validateWithdrawal, WITHDRAW_COOLDOWN_DEMO_MS, WITHDRAW_COOLDOWN_REAL_MS, dateAddDays, deadlinePassed, formatCents, formatDistance, generateInviteCode, haversineM,
   isDueToday, isInside, LIMITS, localDate, localMinutes, missedDates, nextPenaltyCents, normalizeInviteCode, penaltyKey,
   validateGoalInput, validateName, validatePoolGoal,
 } from '../logic';
@@ -29,29 +29,6 @@ export function registerUser(c: Ctx, input: { name: string; avatar: string }): R
   const u: User = { id: uid(c.s, 'u'), name: input.name.trim(), avatar: input.avatar || '🙂', squadId: null, balanceCents: 20000 };
   c.s.users[u.id] = u;
   return ok(u);
-}
-
-export function signUp(c: Ctx, input: { name: string; email: string; password: string; avatar: string }): Result<User> {
-  const badName = validateName(input.name);
-  if (badName) return err(badName);
-  const badEmail = validateEmail(input.email);
-  if (badEmail) return err(badEmail);
-  const badPw = validatePassword(input.password);
-  if (badPw) return err(badPw);
-  const email = normalizeEmail(input.email);
-  if (Object.values(c.s.users).some((u) => u.email === email)) return err('email_taken');
-  const r = registerUser(c, { name: input.name, avatar: input.avatar });
-  if (r.ok) r.data.email = email; // the password is validated and discarded (mock)
-  return r;
-}
-
-export function signIn(c: Ctx, input: { email: string; password: string }): Result<User> {
-  const badEmail = validateEmail(input.email);
-  if (badEmail) return err(badEmail);
-  const badPw = validatePassword(input.password);
-  if (badPw) return err(badPw);
-  const user = Object.values(c.s.users).find((u) => u.email === normalizeEmail(input.email));
-  return user ? ok(user) : err('no_account');
 }
 
 export function claimSeedUser(c: Ctx, userId: string): Result<User> {

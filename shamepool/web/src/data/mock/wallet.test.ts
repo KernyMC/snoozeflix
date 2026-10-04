@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { upcomingOccurrences, validateEmail, validatePassword, worstCaseExposureCents } from '../logic';
+import { upcomingOccurrences, worstCaseExposureCents } from '../logic';
 import * as E from './engine';
 import { makeSeed } from './seed';
 import type { Ctx, MockState } from './state';
@@ -113,30 +113,5 @@ describe('withdrawals', () => {
     const pool = s.squads.squad_mhacks.poolBalanceCents;
     E.requestWithdrawal(ctx(), 1000);
     expect(s.squads.squad_mhacks.poolBalanceCents).toBe(pool);
-  });
-});
-
-describe('auth (mock)', () => {
-  const ok = { name: 'Zed', email: ' Zed@Example.com ', password: 'hunter2hunter2', avatar: '🦊' };
-  it('validates fields', () => {
-    expect(validateEmail('nope')).toBe('invalid_email');
-    expect(validateEmail('a@b.co')).toBeNull();
-    expect(validatePassword('short')).toBe('weak_password');
-    expect(E.signUp(ctx(null), { ...ok, name: ' ' })).toMatchObject({ ok: false, error: 'invalid_name' });
-    expect(E.signUp(ctx(null), { ...ok, email: 'x' })).toMatchObject({ ok: false, error: 'invalid_email' });
-    expect(E.signUp(ctx(null), { ...ok, password: '123' })).toMatchObject({ ok: false, error: 'weak_password' });
-  });
-  it('signs up, normalizes email, rejects duplicates, never stores the password', () => {
-    const r = E.signUp(ctx(null), ok);
-    expect(r.ok && r.data.email).toBe('zed@example.com');
-    expect(JSON.stringify(s)).not.toContain('hunter2');
-    expect(E.signUp(ctx(null), { ...ok, name: 'Other' })).toMatchObject({ ok: false, error: 'email_taken' });
-  });
-  it('signs in by email; unknown email fails', () => {
-    E.signUp(ctx(null), ok);
-    const r = E.signIn(ctx(null), { email: 'ZED@example.com', password: 'whatever-ok' });
-    expect(r.ok && r.data.name).toBe('Zed');
-    expect(E.signIn(ctx(null), { email: 'ghost@example.com', password: 'whatever-ok' })).toMatchObject({ ok: false, error: 'no_account' });
-    expect(E.signIn(ctx(null), { email: 'kevin@demo.test', password: 'abcdefgh' }).ok).toBe(true);
   });
 });

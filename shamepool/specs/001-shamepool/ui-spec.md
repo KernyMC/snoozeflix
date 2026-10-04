@@ -33,3 +33,12 @@ Loading (skeletons), empty (Flakey sleepy + CTA), error (retry), live update (an
 
 ## Accessibility
 Tap targets ≥ 44 px; color never the only signal; `prefers-reduced-motion`; labels on all inputs; focus rings; `aria-live="polite"` on feed + toasts.
+
+## Auth routes (see auth-plan.md)
+| Route | Screen |
+|---|---|
+| `/` | Login (first screen). Demo seed-user picker only when `NEXT_PUBLIC_DEMO=true`. |
+| `/register` | Name, email, username, password, 3 security Q&As, then `/onboarding` |
+| `/forgot-password` | 3 steps: find account, verify answers, new password |
+
+Signed-out visits to any app route (and `/onboarding`) redirect to `/`. Settings has "Sign out".

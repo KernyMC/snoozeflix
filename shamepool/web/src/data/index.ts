@@ -4,8 +4,12 @@ import * as mock from './mock';
 
 export * from './types';
 export {
+  SECURITY_QUESTIONS, validateFirstName, validateLastName, validateEmail, validateUsername, validatePassword, validateConfirm,
+  validateSecurity, passwordStrength, normalizeAnswer,
+} from './authLogic';
+export {
   buildLeaderboard, formatCents, formatCountdown, formatDeadline, formatDistance, haversineM, isInside, localDate, LIMITS,
-  msUntilDeadline, nextPenaltyCents, deadlinePassed, isDueToday, localMinutes, validateEmail, validatePassword, MIN_WITHDRAW_CENTS,
+  msUntilDeadline, nextPenaltyCents, deadlinePassed, isDueToday, localMinutes, MIN_WITHDRAW_CENTS,
 } from './logic';
 
 const impl = process.env.NEXT_PUBLIC_DATA_MODE === 'live' ? live : mock;
@@ -28,13 +32,16 @@ export const useBotThread = impl.useBotThread;
 export const useDemoFlags = impl.useDemoFlags;
 
 export const registerUser = impl.registerUser;
-export const signUp = impl.signUp;
-export const signIn = impl.signIn;
-export const signOut = impl.signOut;
+export const registerAccount = impl.registerAccount;
+export const login = impl.login;
+export const logout = impl.logout;
 export const requestWithdrawal = impl.requestWithdrawal;
 export const cancelWithdrawal = impl.cancelWithdrawal;
 export const useWallet = impl.useWallet;
 export const useWithdrawals = impl.useWithdrawals;
+export const getSecurityQuestions = impl.getSecurityQuestions;
+export const verifySecurityAnswers = impl.verifySecurityAnswers;
+export const resetPassword = impl.resetPassword;
 export const claimSeedUser = impl.claimSeedUser;
 export const listSeedUsers = impl.listSeedUsers;
 export const createSquad = impl.createSquad;

@@ -53,7 +53,7 @@ Pool ≥ goal → propose cash-out → members vote → strict majority → pool
 Every story must satisfy the matching rows in `edge-cases.md`. Highlights: insufficient balance, double-flake idempotency, GPS denied, camera denied, stale check-ins, timezone/DST, deleted goal mid-check-in, cash-out vote ties, empty squad.
 
 ## Non-goals
-Real money, real auth, background GPS, multiple squads per user, native apps, appeals, push notifications.
+Real money, real backend auth (mock login, register and password reset exist; see auth-plan.md), background GPS, multiple squads per user, native apps, appeals, push notifications.
 
 ## Demo script (2 min)
 1. Hook: "Resolutions fail because breaking them is free. We made it cost you — and your friends are watching."
