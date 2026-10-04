@@ -88,6 +88,30 @@ body {
   }
 }
 
+/*
+ * Slim scroll bar for panels that scroll inside themselves: a thin rounded thumb in the panel's own text
+ * colour and no visible track. The same thin space is kept on both sides whether or not the panel scrolls,
+ * so the content stays centred. The track stops short of the ends to stay clear of rounded corners.
+ */
+.scroll-slim {
+  --scroll-thumb: color-mix(in srgb, currentColor 45%, transparent);
+  --scroll-thumb-hover: color-mix(in srgb, currentColor 70%, transparent);
+  scrollbar-gutter: stable both-edges;
+}
+.scroll-slim::-webkit-scrollbar { width: 8px; }
+.scroll-slim::-webkit-scrollbar-track { background: transparent; margin-block: 24px; }
+.scroll-slim::-webkit-scrollbar-thumb {
+  background: var(--scroll-thumb);
+  background-clip: padding-box;
+  border: 2px solid transparent; /* leaves a 4px thumb inside the 8px bar */
+  border-radius: 999px;
+}
+.scroll-slim::-webkit-scrollbar-thumb:hover { background: var(--scroll-thumb-hover); background-clip: padding-box; }
+/* Browsers without the rules above (Firefox) take the standard ones. */
+@supports not selector(::-webkit-scrollbar) {
+  .scroll-slim { scrollbar-width: thin; scrollbar-color: var(--scroll-thumb) transparent; }
+}
+
 /* shimmer skeleton */
 @keyframes shimmer {
   0% { background-position: -200% 0; }

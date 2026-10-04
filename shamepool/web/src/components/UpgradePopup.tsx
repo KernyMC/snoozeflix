@@ -101,7 +101,7 @@ export function UpgradePopup() {
         <motion.div className="fixed inset-0 z-[65] flex items-center justify-center bg-black/50 p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
           onClick={closeUpgrade}>
           <motion.div ref={panel} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="upgrade-title" onClick={(e) => e.stopPropagation()}
-            className="relative max-h-full w-full max-w-md overflow-y-auto overscroll-contain rounded-3xl border-2 border-primary-dark bg-primary px-5 pb-6 pt-7 text-white outline-none
+            className="relative max-h-full w-full max-w-md scroll-slim overflow-y-auto overscroll-contain rounded-3xl border-2 border-primary-dark bg-primary px-5 pb-6 pt-7 text-white outline-none
               bg-[radial-gradient(120%_55%_at_50%_0%,color-mix(in_srgb,var(--color-sun)_38%,transparent),transparent_70%)]"
             initial={{ y: 40, scale: 0.96 }} animate={{ y: 0, scale: 1 }} exit={{ y: 40, scale: 0.96 }} transition={{ type: 'spring', stiffness: 380, damping: 30 }}>
             <button type="button" onClick={closeUpgrade} aria-label="Close" className="absolute right-3 top-3 grid size-10 place-items-center rounded-full bg-white/15 text-white">
