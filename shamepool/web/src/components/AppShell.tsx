@@ -1,9 +1,9 @@
 'use client';
-import { Bot, Flame, Home, Plus, User, Users } from 'lucide-react';
+import { Bot, Flame, Home, LogOut, Plus, User, Users } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-import { useMe, useMyGoals, useSquad } from '@/data';
+import { useEffect, useState } from 'react';
+import { logout, useMe, useMyGoals, useSquad } from '@/data';
 import { MoneyText } from './ui/Money';
 import { Icon } from './ui/Icon';
 import { Skeleton } from './ui/States';
@@ -33,7 +33,14 @@ function TopBar() {
   const me = useMe();
   const goals = useMyGoals();
   const squad = useSquad();
+  const router = useRouter();
+  const [leaving, setLeaving] = useState(false);
   const streak = goals.reduce((m, g) => Math.max(m, g.streak), 0);
+  const signOut = async () => {
+    setLeaving(true);
+    await logout();
+    router.replace('/');
+  };
   return (
     <header className="sticky top-0 z-30 h-14 bg-white border-b-2 border-surface-line">
       <div className="mx-auto max-w-md h-full px-3 flex items-center gap-2">
@@ -45,7 +52,8 @@ function TopBar() {
           <Link href="/wallet" className="rounded-full bg-surface-muted px-2.5 py-1 text-sm min-h-8 inline-flex items-center" aria-label="Your balance, open wallet"><Icon name="cash" />&nbsp;<MoneyText cents={me?.balanceCents ?? 0} /></Link>
           <span className="rounded-full bg-sun-light px-2.5 py-1 text-sm" aria-label="Pool balance"><Icon name="pizza" /> <MoneyText cents={squad?.poolBalanceCents ?? 0} kind="pool" /></span>
         </div>
-        <Link href="/bot" aria-label="Squad Bot" className="size-10 rounded-full bg-grape-light grid place-items-center text-grape-dark shrink-0"><Bot size={22} strokeWidth={2.5} /></Link>
+        <button type="button" onClick={signOut} disabled={leaving} aria-label="Sign out" title="Sign out"
+          className="size-10 rounded-full bg-surface-muted grid place-items-center text-ink shrink-0 active:translate-y-px disabled:opacity-50"><LogOut size={20} strokeWidth={2.5} aria-hidden /></button>
       </div>
     </header>
   );
