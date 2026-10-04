@@ -33,6 +33,7 @@ function Settings() {
         {DEMO && <p className="text-sm font-bold text-ink-soft mt-1">Demo controls live in the <Icon name="wrench" /> button. Add <code>?mockSlow=1</code> or <code>?mockError=1</code> to any URL to test loading and error states.</p>}
       </Card>
       <Button variant="secondary" href="/squad?tv=1"><Icon name="tv" /> Open projector view</Button>
+      <Button variant="secondary" href="/wallet"><Icon name="cash" /> Wallet and withdrawals</Button>
       <Button variant="secondary" onClick={async () => { await logout(); router.replace('/'); }}>Sign out</Button>
       {DEMO && <Button variant="danger" onClick={async () => { await resetDemoData(); router.push('/'); }}>Reset demo data</Button>}
     </div>

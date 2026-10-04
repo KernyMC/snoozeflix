@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { cancelWithdrawal, formatCents, formatCountdown, useNow, useWallet, useWithdrawals } from '@/data';
 import { AppShell } from '@/components/AppShell';
+import { Icon } from '@/components/ui/Icon';
 import { WithdrawSheet } from '@/components/WithdrawSheet';
 import { Button } from '@/components/ui/Button';
 import { Card, Pill } from '@/components/ui/Card';
@@ -36,7 +37,7 @@ function Wallet() {
         <MoneyText cents={wallet.availableCents} className="text-5xl" />
         <div className="grid grid-cols-3 gap-2 text-center">
           <div className="rounded-xl bg-surface-muted py-2"><p className="text-[11px] font-extrabold uppercase text-ink-soft">Balance</p><MoneyText cents={wallet.balanceCents} /></div>
-          <div className="rounded-xl bg-sun-light py-2"><p className="text-[11px] font-extrabold uppercase text-sun-dark">🔒 At stake</p><MoneyText cents={wallet.stakeCents} kind="pool" /></div>
+          <div className="rounded-xl bg-sun-light py-2"><p className="text-[11px] font-extrabold uppercase text-sun-dark"><Icon name="lock" /> At stake</p><MoneyText cents={wallet.stakeCents} kind="pool" /></div>
           <div className="rounded-xl bg-sky-light py-2"><p className="text-[11px] font-extrabold uppercase text-sky-dark">Pending</p><MoneyText cents={wallet.pendingCents} /></div>
         </div>
         <Button onClick={() => setOpen(true)} disabled={!!pending || wallet.availableCents < wallet.minWithdrawCents}>Withdraw</Button>
@@ -48,7 +49,7 @@ function Wallet() {
       {pending && (
         <Card tone="sky" className="space-y-2" aria-label="Withdrawal in progress">
           <div className="flex items-center justify-between">
-            <p className="font-display font-black text-xl">❄️ {formatCents(pending.amountCents)} cooling off</p>
+            <p className="font-display font-black text-xl"><Icon name="hourglass" size={26} /> {formatCents(pending.amountCents)} cooling off</p>
             <Pill tone="sky">{now >= pending.availableAt ? 'Landing…' : formatCountdown(pending.availableAt - now)}</Pill>
           </div>
           <p className="text-sm font-bold text-ink-soft">To {pending.destination}. You can still change your mind.</p>
@@ -72,7 +73,7 @@ function Wallet() {
       </section>
 
       <Card tone="sun" className="text-sm font-bold text-ink-soft">
-        <p className="font-display font-black text-base text-ink mb-1">🍕 The pool is shared</p>
+        <p className="font-display font-black text-base text-ink mb-1"><Icon name="pizza" size={24} /> The pool is shared</p>
         Penalties you already paid stay in the pool. It is spent together by squad vote, never paid out as cash. That is what keeps this from being gambling.
       </Card>
 
@@ -82,7 +83,7 @@ function Wallet() {
           <ul className="space-y-2">
             {history.map((w) => (
               <li key={w.id} className="flex items-center justify-between rounded-xl border-2 border-surface-line bg-white px-3 py-2.5">
-                <span className="font-extrabold">{w.status === 'completed' ? '🏧 Withdrawn' : '↩️ Cancelled'}<span className="block text-xs font-bold text-ink-faint">{new Date(w.createdAt).toLocaleDateString()}</span></span>
+                <span className="font-extrabold">{w.status === 'completed' ? <><Icon name="cash" /> Withdrawn</> : <><Icon name="undo" /> Cancelled</>}<span className="block text-xs font-bold text-ink-faint">{new Date(w.createdAt).toLocaleDateString()}</span></span>
                 <MoneyText cents={w.amountCents} kind={w.status === 'completed' ? 'neutral' : 'pool'} />
               </li>
             ))}

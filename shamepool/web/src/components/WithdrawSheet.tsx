@@ -4,6 +4,7 @@ import { X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { formatCents, requestWithdrawal, type Wallet } from '@/data';
 import { fireConfetti } from './effects';
+import { Icon } from './ui/Icon';
 import { Button } from './ui/Button';
 import { dollarsToCents, Field } from './ui/Field';
 import { useToast } from './ui/Toast';
@@ -43,7 +44,7 @@ export function WithdrawSheet({ open, onClose, wallet }: { open: boolean; onClos
     setBusy(false);
     if (r.ok) {
       fireConfetti();
-      toast('Withdrawal started. Cooling off ❄️', 'success');
+      toast('Withdrawal started. Cooling off...', 'success');
       return onClose();
     }
     if (r.error === 'withdrawal_pending') setError('You already have a withdrawal in progress.');
@@ -65,7 +66,7 @@ export function WithdrawSheet({ open, onClose, wallet }: { open: boolean; onClos
             </div>
             <p className="font-bold text-ink-soft">
               Available now: <b className="text-ink tabular">{formatCents(wallet.availableCents)}</b>
-              {wallet.stakeCents > 0 && <> · <span title="Locked">🔒 {formatCents(wallet.stakeCents)} stays at stake</span></>}
+              {wallet.stakeCents > 0 && <> · <span title="Locked"><Icon name="lock" /> {formatCents(wallet.stakeCents)} stays at stake</span></>}
             </p>
             <Field label="Amount ($)" inputMode="decimal" value={amount} onChange={(e) => { setAmount(e.target.value); setError(null); }}
               placeholder="0" error={error} autoFocus />
@@ -78,9 +79,9 @@ export function WithdrawSheet({ open, onClose, wallet }: { open: boolean; onClos
               ))}
             </div>
             <div className="rounded-2xl bg-surface-muted p-3 text-sm font-bold text-ink-soft space-y-1">
-              <p>🏦 To: Capital One ••••4821</p>
-              <p>❄️ Arrives in {formatCooldown(wallet.cooldownMs)}. You can cancel until then.</p>
-              <p>👀 Your squad will see it in the feed.</p>
+              <p><Icon name="cash" /> To: Capital One ••••4821</p>
+              <p><Icon name="hourglass" /> Arrives in {formatCooldown(wallet.cooldownMs)}. You can cancel until then.</p>
+              <p><Icon name="chat" /> Your squad will see it in the feed.</p>
             </div>
             <Button onClick={submit} loading={busy} disabled={wallet.availableCents < wallet.minWithdrawCents}>Confirm withdrawal</Button>
           </motion.div>
