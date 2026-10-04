@@ -1,0 +1,362 @@
+{
+  "fps": 30,
+  "totalFrames": 4367,
+  "scenes": [
+    {
+      "id": "s01",
+      "layout": "title",
+      "title": "Skip the task. Lose the cash.",
+      "sub": "Friends commit. Everyone watches. Flaking costs real money.",
+      "vo": "Resolutions fail because breaking them is free. ShamePool makes flaking cost something, and your friends are watching.",
+      "audio": "audio/s01.mp3",
+      "audioSeconds": 6.87,
+      "frames": 223
+    },
+    {
+      "id": "s02",
+      "layout": "phone",
+      "title": "Your squad, one tap away",
+      "sub": "A shared pool, a live leaderboard, and your own commitments.",
+      "vo": "Sign in and your squad is ready: a shared pool, a live leaderboard, and your own commitments.",
+      "shots": [
+        {
+          "img": "a01_login",
+          "at": 0
+        },
+        {
+          "img": "a03_home",
+          "at": 0.5,
+          "tap": true
+        }
+      ],
+      "audio": "audio/s02.mp3",
+      "audioSeconds": 6.04,
+      "frames": 198
+    },
+    {
+      "id": "s03",
+      "layout": "phone",
+      "title": "Tell Benny the Penny what you want",
+      "sub": "One sentence, typed or spoken. Grok plans the commitment.",
+      "chips": [
+        "Grok AI coach",
+        "Voice input"
+      ],
+      "vo": "Not sure what to commit to? Tell Benny the Penny in one sentence, typed or spoken. Grok turns it into a real plan: days, deadline, minimum stay, and a penalty that doubles every time you flake.",
+      "shots": [
+        {
+          "img": "a05_coach_typed",
+          "at": 0
+        },
+        {
+          "img": "a06_coach_filled",
+          "at": 0.28,
+          "tap": true
+        },
+        {
+          "img": "a07_form",
+          "at": 0.6
+        },
+        {
+          "img": "a08_form_penalty",
+          "at": 0.8
+        }
+      ],
+      "audio": "audio/s03.mp3",
+      "audioSeconds": 13.65,
+      "frames": 426
+    },
+    {
+      "id": "s04",
+      "layout": "phone",
+      "title": "You have to actually be there",
+      "sub": "GPS verifies the place. A timer makes you stay.",
+      "chips": [
+        "GPS radius",
+        "Minimum stay"
+      ],
+      "vo": "To check in, you have to actually be there. GPS verifies the place, then a timer makes you stay.",
+      "shots": [
+        {
+          "img": "a04_goal",
+          "at": 0
+        },
+        {
+          "img": "a11_stay",
+          "at": 0.32,
+          "tap": true
+        },
+        {
+          "img": "a12_stay_done",
+          "at": 0.78
+        }
+      ],
+      "audio": "audio/s04.mp3",
+      "audioSeconds": 7.57,
+      "frames": 244
+    },
+    {
+      "id": "s05",
+      "layout": "phone",
+      "title": "Prove it with a photo",
+      "sub": "Grok vision checks every photo and roasts the fakes.",
+      "chips": [
+        "Grok vision",
+        "Couch rejected"
+      ],
+      "vo": "Then prove it with a photo. Grok's vision model looks at it. A couch? Rejected, with a roast. The real gym? Nailed it.",
+      "shots": [
+        {
+          "img": "a14_couch_preview",
+          "at": 0
+        },
+        {
+          "img": "a15_verifying",
+          "at": 0.22,
+          "tap": true
+        },
+        {
+          "img": "a16_rejected",
+          "at": 0.34,
+          "sfx": "flake"
+        },
+        {
+          "img": "a17_gym_preview",
+          "at": 0.6
+        },
+        {
+          "img": "a18_success",
+          "at": 0.8,
+          "tap": true,
+          "sfx": "success"
+        }
+      ],
+      "audio": "audio/s05.mp3",
+      "audioSeconds": 9.29,
+      "frames": 295
+    },
+    {
+      "id": "s06",
+      "layout": "phone",
+      "title": "Flake, and it costs you",
+      "sub": "Charged automatically. Visible instantly. Doubles every time.",
+      "chips": [
+        "Auto-charged",
+        "Live leaderboard"
+      ],
+      "vo": "Miss the deadline and the penalty is charged automatically. The pool jumps, the leaderboard reshuffles, and the Flake of the Week gets crowned, live, for everyone to see.",
+      "shots": [
+        {
+          "img": "b02_flake_modal",
+          "at": 0,
+          "sfx": "flake"
+        },
+        {
+          "img": "b03_squad",
+          "at": 0.38
+        },
+        {
+          "img": "b04_squad_feed",
+          "at": 0.72
+        }
+      ],
+      "audio": "audio/s06.mp3",
+      "audioSeconds": 11.1,
+      "frames": 349
+    },
+    {
+      "id": "s07",
+      "layout": "wide",
+      "title": "Put it on the big screen",
+      "sub": "Pool, leaderboard and live feed, in real time.",
+      "vo": "Put it on the projector, and the whole room watches the pool, the leaderboard, and the live feed update in real time.",
+      "shots": [
+        {
+          "img": "b17_projector",
+          "at": 0
+        }
+      ],
+      "audio": "audio/s07.mp3",
+      "audioSeconds": 7.15,
+      "frames": 231
+    },
+    {
+      "id": "s08",
+      "layout": "phone",
+      "title": "Spend it together, or it does good",
+      "sub": "Nobody wins anyone else's money. That is why it is not gambling.",
+      "chips": [
+        "Squad vote",
+        "Auto-donate to charity"
+      ],
+      "vo": "When the pool fills up, the squad votes to spend it together. If nobody does within seven days, it goes to the charity you chose. Nobody wins anyone else's money, so it is not gambling.",
+      "shots": [
+        {
+          "img": "b05_pool_full",
+          "at": 0
+        },
+        {
+          "img": "b06_charity_clock",
+          "at": 0.3,
+          "tap": true
+        },
+        {
+          "img": "b08_donated",
+          "at": 0.62,
+          "sfx": "cash"
+        },
+        {
+          "img": "b09_feed_donation",
+          "at": 0.82
+        }
+      ],
+      "audio": "audio/s08.mp3",
+      "audioSeconds": 11.56,
+      "frames": 363
+    },
+    {
+      "id": "s09",
+      "layout": "phone",
+      "title": "Your money stays yours",
+      "sub": "A locked stake and a cooling period stop flake-and-run.",
+      "chips": [
+        "Locked stake",
+        "Cooling period"
+      ],
+      "vo": "Your own balance is yours. You can withdraw it, but a locked stake covers your worst case, and a cooling period means nobody can flake and run.",
+      "shots": [
+        {
+          "img": "b10_wallet",
+          "at": 0
+        },
+        {
+          "img": "b11_withdraw_sheet",
+          "at": 0.4,
+          "tap": true
+        },
+        {
+          "img": "b12_withdraw_pending",
+          "at": 0.72,
+          "tap": true,
+          "sfx": "cash"
+        }
+      ],
+      "audio": "audio/s09.mp3",
+      "audioSeconds": 9.43,
+      "frames": 299
+    },
+    {
+      "id": "s10",
+      "layout": "phone",
+      "title": "Squad Bot: real AI, real data",
+      "sub": "It only changes money after you confirm.",
+      "chips": [
+        "Grok",
+        "ElevenLabs voice"
+      ],
+      "vo": "Squad Bot is real AI with your real data. Ask who is flaking. Ask it to change a penalty, and it only does it after you confirm. And Benny the Penny talks back, with a voice from ElevenLabs.",
+      "shots": [
+        {
+          "img": "b13_bot",
+          "at": 0
+        },
+        {
+          "img": "b14_bot_answer",
+          "at": 0.22,
+          "tap": true
+        },
+        {
+          "img": "b15_bot_confirm",
+          "at": 0.52,
+          "tap": true
+        },
+        {
+          "img": "b16_voice_settings",
+          "at": 0.82
+        }
+      ],
+      "audio": "audio/s10.mp3",
+      "audioSeconds": 12.31,
+      "frames": 386
+    },
+    {
+      "id": "s11",
+      "layout": "imessage",
+      "title": "Also on iMessage",
+      "sub": "The same brain, built with Photon Spectrum.",
+      "chips": [
+        "Photon Spectrum",
+        "Same Squad Bot"
+      ],
+      "vo": "The very same brain answers by text on iMessage, built with Photon Spectrum, so the squad's referee is always one message away.",
+      "chat": [
+        {
+          "from": "me",
+          "text": "who's flaking the most?"
+        },
+        {
+          "from": "bot",
+          "text": "Kevin's flaking the most with that twenty dollar gym penalty and the official flake of the week crown."
+        },
+        {
+          "from": "me",
+          "text": "how close are we to pizza?"
+        },
+        {
+          "from": "bot",
+          "text": "We are 25 bucks away from pizza night. Keep it up or Kevin might flake us there too."
+        }
+      ],
+      "audio": "audio/s11.mp3",
+      "audioSeconds": 7.06,
+      "frames": 228
+    },
+    {
+      "id": "s12",
+      "layout": "tech",
+      "title": "Built to be trusted",
+      "sub": "One contract, many services, 270+ tests.",
+      "vo": "Under the hood, Spacetime keeps the live state, Capital One Nessie records every penalty as a transfer, Grok powers the intelligence, ElevenLabs gives it a voice, and Photon puts it on iMessage, all behind one contract and over two hundred seventy tests.",
+      "audio": "audio/s12.mp3",
+      "audioSeconds": 17.51,
+      "frames": 542
+    },
+    {
+      "id": "s13",
+      "layout": "business",
+      "title": "How it makes money",
+      "sub": "Never a cut of your failure.",
+      "vo": "How does it make money? Merchants pay when a squad cashes out its pool. A ShamePool Plus subscription unlocks more goals and bigger squads. And gyms and universities can run team challenges. Never a cut of your failure.",
+      "cards": [
+        {
+          "icon": "pizza",
+          "title": "Merchant cash-outs",
+          "text": "Gift cards and partner offers when a squad spends its pool."
+        },
+        {
+          "icon": "star",
+          "title": "ShamePool Plus",
+          "text": "More goals, bigger squads, deeper stats and the AI coach."
+        },
+        {
+          "icon": "team",
+          "title": "Teams and campuses",
+          "text": "Gyms, schools and companies run challenges for their members."
+        }
+      ],
+      "audio": "audio/s13.mp3",
+      "audioSeconds": 15.33,
+      "frames": 476
+    },
+    {
+      "id": "s14",
+      "layout": "outro",
+      "title": "ShamePool",
+      "sub": "Skip the task. Lose the cash.",
+      "vo": "ShamePool. Skip the task. Lose the cash.",
+      "audio": "audio/s14.mp3",
+      "audioSeconds": 3.02,
+      "frames": 107
+    }
+  ]
+}
