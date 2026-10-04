@@ -64,6 +64,30 @@ body {
   outline-offset: 2px;
 }
 
+/*
+ * Tap feedback for everything clickable: links, buttons and elements acting as one. Pressing nudges the
+ * item down and dims it, so a tap always gets a visible answer (the browser's own tap highlight is off).
+ * Items that bring their own pressed look (any `active:` class, such as Button and tappable Card) keep it.
+ * This sits in the base layer with zero specificity, so any utility class on an element still wins.
+ */
+@layer base {
+  :where(a[href], button, summary, [role='button'], [role='radio'], [role='tab'], [role='option'], [role='combobox']) {
+    cursor: pointer;
+    touch-action: manipulation; /* no double-tap zoom, so taps land straight away */
+  }
+  :where(button:disabled, [aria-disabled='true']) {
+    cursor: default;
+  }
+  :where(a[href], button, summary, [role='button'], [role='radio'], [role='tab'], [role='option'], [role='combobox']):where(:not(:disabled, [aria-disabled='true'], [class*='active:'])) {
+    transition: translate 75ms ease-out, opacity 150ms ease-out;
+  }
+  :where(a[href], button, summary, [role='button'], [role='radio'], [role='tab'], [role='option'], [role='combobox']):where(:not(:disabled, [aria-disabled='true'], [class*='active:'])):active {
+    translate: 0 2px;
+    opacity: 0.65;
+    transition-duration: 0ms; /* press shows at once; the release eases back */
+  }
+}
+
 /* shimmer skeleton */
 @keyframes shimmer {
   0% { background-position: -200% 0; }
