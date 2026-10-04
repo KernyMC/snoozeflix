@@ -58,5 +58,10 @@ Mock mode keeps data **in one browser**, so run every screen as **windows of the
 - The charity rule and the AI bot context run in **mock mode only**; the live Spacetime module still needs them (and the demo-reducer authorization fixes listed in `docs/audit-report.md`).
 - Notifications work while the app is open (no server push yet).
 
+## Future work
+- **Leave squad.** Today you are in one squad at a time and only the squad's creator can remove you. Planned: a "Leave squad" button. Your own balance comes with you, what you already paid stays in the old pool, your goals pause, open votes are re-counted, and if the creator leaves, the oldest member takes over. Unlike a removed member, someone who leaves can rejoin later.
+- **End a goal.** Goals repeat every week with no end date. Planned: "End goal" once a habit is built. It stops future charges, keeps the history, and frees the free-tier slot for a new goal.
+- **Seasons.** An optional end date for a squad challenge (for example 30 days), with a final leaderboard and the pool spent or donated at the end.
+
 ## iMessage agent (Photon Spectrum)
 The `photon/` folder (kept outside the web app) is a long-running agent that shares this app's brain by calling `/api/ai/chat`. It cannot run on Vercel (it holds a persistent connection); run it with `bun start` on a laptop or any always-on host.
