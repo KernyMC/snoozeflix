@@ -81,6 +81,10 @@ export const ERROR_COPY: Record<string, string> = {
   wrong_answers: 'Those answers do not match.',
   auth_locked: 'Too many tries. Wait 30 seconds and try again.',
   invalid_reset: 'Reset session expired. Start over.',
+  below_minimum: 'Minimum withdrawal is $5.',
+  insufficient_available: 'That is more than you can withdraw right now.',
+  withdrawal_pending: 'You already have a withdrawal in progress.',
+  withdrawal_not_found: 'That withdrawal is gone or already landed.',
   mock_error: 'Simulated error (mockError=1).',
   offline: 'You are offline.',
 };

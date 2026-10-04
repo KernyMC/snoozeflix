@@ -2,6 +2,17 @@ export type Cents = number; // integer, always
 
 export interface User { id: string; name: string; avatar: string; squadId: string | null; balanceCents: Cents; }
 
+export type WithdrawalStatus = 'pending' | 'completed' | 'cancelled';
+export interface Withdrawal {
+  id: string; userId: string; squadId: string; amountCents: Cents; status: WithdrawalStatus;
+  destination: string; createdAt: number; availableAt: number;
+}
+export interface StakeItem { goalId: string; title: string; emoji: string; occurrences: number; cents: Cents }
+export interface Wallet {
+  balanceCents: Cents; stakeCents: Cents; availableCents: Cents; pendingCents: Cents;
+  stake: StakeItem[]; minWithdrawCents: Cents; cooldownMs: number;
+}
+
 export interface Squad {
   id: string; name: string; inviteCode: string;
   poolGoalName: string; poolGoalCents: Cents; poolBalanceCents: Cents;
@@ -35,7 +46,7 @@ export interface Penalty {
   status: PenaltyStatus; createdAt: number;
 }
 
-export type FeedKind = 'commit' | 'checkin' | 'flake' | 'milestone' | 'bot' | 'message' | 'cashout';
+export type FeedKind = 'commit' | 'checkin' | 'flake' | 'milestone' | 'bot' | 'message' | 'cashout' | 'withdrawal';
 export interface FeedEvent {
   id: string; squadId: string; actorUserId: string | null; // null = Squad Bot
   kind: FeedKind; text: string; createdAt: number; meta?: Record<string, unknown>;
@@ -67,6 +78,7 @@ export type ErrorCode =
   | 'invalid_first_name' | 'invalid_last_name' | 'invalid_email' | 'invalid_username' | 'weak_password' | 'password_mismatch'
   | 'username_taken' | 'email_taken' | 'invalid_security' | 'invalid_credentials' | 'account_not_found' | 'wrong_answers'
   | 'auth_locked' | 'invalid_reset'
+  | 'below_minimum' | 'insufficient_available' | 'withdrawal_pending' | 'withdrawal_not_found'
   | 'offline' | 'mock_error' | 'unknown';
 
 export interface SecurityAnswer { qId: string; answerHash: number }

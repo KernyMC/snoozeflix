@@ -115,6 +115,9 @@ Legend: **Where** = who enforces. `logic` = `src/data/logic.ts`, `action` = mock
 | X8 | Merchant empty | Defaults to "Pizza House" |
 | X9 | Non-member votes | `not_in_squad` |
 
+## Wallet / withdrawals / auth
+See `withdrawals.md` (W1–W13 and auth validation). Same rules in mock and live.
+
 ## UI / platform
 | # | Case | Expected |
 |---|---|---|

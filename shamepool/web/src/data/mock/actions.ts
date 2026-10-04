@@ -1,5 +1,5 @@
 import type {
-  RegisterInput, BotReply, CashoutProposal, Checkin, DemoFlags, FeedEvent, Goal, GoalInput, PhotoVerdict, Penalty, Pos, Result, Squad, User,
+  RegisterInput, BotReply, CashoutProposal, Checkin, DemoFlags, FeedEvent, Goal, GoalInput, PhotoVerdict, Penalty, Pos, Result, Squad, User, Withdrawal,
 } from '../types';
 import * as E from './engine';
 import * as A from './authEngine';
@@ -88,6 +88,10 @@ export const proposeCashout = (m: string): Promise<Result<CashoutProposal>> => r
 export const voteCashout = (id: string, approve: boolean): Promise<Result<CashoutProposal>> => run((c) => E.voteCashout(c, id, approve));
 export const cancelCashout = (id: string): Promise<Result<CashoutProposal>> => run((c) => E.cancelCashout(c, id));
 export const setPoolGoal = (name: string, cents: number): Promise<Result<Squad>> => run((c) => E.setPoolGoal(c, name, cents));
+
+/* wallet */
+export const requestWithdrawal = (cents: number): Promise<Result<Withdrawal>> => run((c) => E.requestWithdrawal(c, cents));
+export const cancelWithdrawal = (id: string): Promise<Result<Withdrawal>> => run((c) => E.cancelWithdrawal(c, id));
 
 /* demo */
 export async function resetDemoData(): Promise<Result<true>> {

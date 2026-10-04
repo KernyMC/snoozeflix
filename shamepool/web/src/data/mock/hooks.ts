@@ -1,9 +1,9 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
 import type {
-  BotThreadMessage, CashoutProposal, Cents, Checkin, DemoFlags, FeedEvent, Goal, LeaderboardRow, Penalty, Squad, User,
+  BotThreadMessage, CashoutProposal, Cents, Checkin, DemoFlags, FeedEvent, Goal, LeaderboardRow, Penalty, Squad, User, Wallet, Withdrawal,
 } from '../types';
-import { leaderboardFor, openProposal } from './engine';
+import { leaderboardFor, openProposal, walletFor } from './engine';
 import { useMockStore } from './store';
 
 const useS = () => useMockStore((s) => s.state);
@@ -111,4 +111,17 @@ export function useBotThread(): BotThreadMessage[] {
 
 export function useDemoFlags(): DemoFlags {
   return useMockStore((s) => s.state.demo);
+}
+
+export function useWallet(): Wallet | null {
+  const s = useS();
+  const id = useUserId();
+  const now = useNow(15_000);
+  return useMemo(() => (id && s.users[id] ? walletFor(s, id, now) : null), [s, id, now]);
+}
+
+export function useWithdrawals(): Withdrawal[] {
+  const s = useS();
+  const id = useUserId();
+  return useMemo(() => Object.values(s.withdrawals).filter((w) => w.userId === id).sort((a, b) => b.createdAt - a.createdAt), [s, id]);
 }

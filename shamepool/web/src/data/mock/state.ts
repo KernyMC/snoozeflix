@@ -1,8 +1,8 @@
 import type {
-  Account, BotThreadMessage, CashoutProposal, Checkin, DemoFlags, ErrorCode, FeedEvent, Goal, PendingAction, Penalty, Result, Squad, User,
+  Account, BotThreadMessage, CashoutProposal, Checkin, DemoFlags, ErrorCode, FeedEvent, Goal, PendingAction, Penalty, Result, Squad, User, Withdrawal,
 } from '../types';
 
-export const MOCK_VERSION = 2;
+export const MOCK_VERSION = 3;
 export const STORAGE_KEY = 'shamepool-mock-v1';
 
 export interface MockState {
@@ -17,6 +17,7 @@ export interface MockState {
   penalties: Record<string, Penalty>; // key = penaltyKey(goalId, date)
   feed: FeedEvent[]; // newest first
   cashouts: Record<string, CashoutProposal>;
+  withdrawals: Record<string, Withdrawal>;
   botThreads: Record<string, BotThreadMessage[]>;
   pendingActions: Record<string, PendingAction & { userId: string }>;
   milestones: Record<string, true>;

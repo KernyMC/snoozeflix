@@ -9,7 +9,7 @@ export {
 } from './authLogic';
 export {
   buildLeaderboard, formatCents, formatCountdown, formatDeadline, formatDistance, haversineM, isInside, localDate, LIMITS,
-  msUntilDeadline, nextPenaltyCents, deadlinePassed, isDueToday, localMinutes,
+  msUntilDeadline, nextPenaltyCents, deadlinePassed, isDueToday, localMinutes, MIN_WITHDRAW_CENTS,
 } from './logic';
 
 const impl = process.env.NEXT_PUBLIC_DATA_MODE === 'live' ? live : mock;
@@ -35,6 +35,10 @@ export const registerUser = impl.registerUser;
 export const registerAccount = impl.registerAccount;
 export const login = impl.login;
 export const logout = impl.logout;
+export const requestWithdrawal = impl.requestWithdrawal;
+export const cancelWithdrawal = impl.cancelWithdrawal;
+export const useWallet = impl.useWallet;
+export const useWithdrawals = impl.useWithdrawals;
 export const getSecurityQuestions = impl.getSecurityQuestions;
 export const verifySecurityAnswers = impl.verifySecurityAnswers;
 export const resetPassword = impl.resetPassword;

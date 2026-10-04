@@ -9,7 +9,7 @@ export function makeSeed(now: number): MockState {
   const tz = DEFAULT_TZ;
   const today = localDate(now, tz);
   const s: MockState = {
-    version: MOCK_VERSION, users: {}, accounts: {}, authAttempts: {}, resetTokens: {}, squads: {}, goals: {}, checkins: {}, penalties: {}, feed: [], cashouts: {},
+    version: MOCK_VERSION, users: {}, accounts: {}, authAttempts: {}, resetTokens: {}, squads: {}, goals: {}, checkins: {}, penalties: {}, feed: [], cashouts: {}, withdrawals: {},
     botThreads: {}, pendingActions: {}, milestones: {}, msgTimes: {}, seedUserIds: [],
     demo: { nextPhotoFails: false, fakeLocation: null, timeOffsetMs: 0 }, seq: 1, rev: 1,
   };
