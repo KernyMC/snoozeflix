@@ -1,6 +1,7 @@
 'use client';
 import { useId } from 'react';
-import type { InputHTMLAttributes } from 'react';
+import type { InputHTMLAttributes, SelectHTMLAttributes } from 'react';
+import { ChevronDown } from 'lucide-react';
 
 export const inputCls =
   'w-full bg-surface-muted border-2 border-surface-line rounded-xl px-4 py-3 min-h-[48px] font-bold text-ink ' +
@@ -21,6 +22,16 @@ export function Field({ label, error, hint, className = '', ...rest }: Props) {
         className={`${inputCls} ${error ? 'border-ember bg-ember-light' : ''} ${className}`} />
       {hint && !error && <p className="text-xs text-ink-faint font-bold mt-1">{hint}</p>}
       {error && <p id={`${id}-e`} className="text-sm text-ember-dark font-extrabold mt-1" role="alert">{error}</p>}
+    </div>
+  );
+}
+
+/** Native select with the browser's arrow replaced by the app's chevron icon. Pass sizing and colours in `className`. */
+export function Select({ className = inputCls, children, ...rest }: SelectHTMLAttributes<HTMLSelectElement>) {
+  return (
+    <div className="relative">
+      <select {...rest} className={`${className} appearance-none pr-11`}>{children}</select>
+      <ChevronDown aria-hidden size={20} strokeWidth={3} className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-ink-soft" />
     </div>
   );
 }
