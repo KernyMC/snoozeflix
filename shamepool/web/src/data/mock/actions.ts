@@ -1,5 +1,5 @@
 import type {
-  RegisterInput, BotReply, CashoutProposal, Checkin, DemoFlags, FeedEvent, Goal, GoalInput, PhotoVerdict, Penalty, Pos, Result, Squad, User, Withdrawal,
+  AccountInfo, RegisterInput, BotReply, CashoutProposal, Checkin, DemoFlags, FeedEvent, Goal, GoalInput, PhotoVerdict, Penalty, Pos, Result, Squad, User, Withdrawal,
 } from '../types';
 import * as E from './engine';
 import * as A from './authEngine';
@@ -52,6 +52,15 @@ export const verifySecurityAnswers = (username: string, answers: string[]): Prom
   run((c) => A.verifySecurityAnswers(c, username, answers));
 export const resetPassword = (username: string, token: string, password: string, confirm: string): Promise<Result<true>> =>
   run((c) => A.resetPassword(c, username, token, password, confirm));
+/* account management */
+export const updateAvatar = (avatar: string): Promise<Result<User>> => run((c) => A.updateAvatar(c, avatar));
+export const updateAccountName = (i: { firstName: string; lastName: string }): Promise<Result<AccountInfo>> => run((c) => A.updateAccountName(c, i));
+export const changeEmail = (newEmail: string, password: string): Promise<Result<AccountInfo>> => run((c) => A.changeEmail(c, newEmail, password));
+export const changePassword = (current: string, next: string, confirm: string): Promise<Result<true>> =>
+  run((c) => A.changePassword(c, current, next, confirm));
+export const updateSecurity = (password: string, items: { qId: string; answer: string }[]): Promise<Result<AccountInfo>> =>
+  run((c) => A.updateSecurity(c, password, items));
+
 export async function claimSeedUser(userId: string): Promise<Result<User>> {
   const r = await run((c) => E.claimSeedUser(c, userId));
   if (r.ok) setIdentity(r.data.id);

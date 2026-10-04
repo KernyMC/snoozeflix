@@ -78,6 +78,7 @@ export type ErrorCode =
   | 'invalid_first_name' | 'invalid_last_name' | 'invalid_email' | 'invalid_username' | 'weak_password' | 'password_mismatch'
   | 'username_taken' | 'email_taken' | 'invalid_security' | 'invalid_credentials' | 'account_not_found' | 'wrong_answers'
   | 'auth_locked' | 'invalid_reset'
+  | 'no_account' | 'wrong_password' | 'same_email' | 'same_password' | 'invalid_avatar'
   | 'below_minimum' | 'insufficient_available' | 'withdrawal_pending' | 'withdrawal_not_found'
   | 'offline' | 'mock_error' | 'unknown';
 
@@ -87,6 +88,8 @@ export interface Account {
   passwordHash: number; // mock-only hash; the real backend must use a proper KDF
   security: SecurityAnswer[];
 }
+/** The signed-in user's own account details. Never carries the password or answer hashes. */
+export interface AccountInfo { username: string; email: string; firstName: string; lastName: string; securityQuestionIds: string[] }
 export interface RegisterInput {
   firstName: string; lastName: string; email: string; username: string; password: string; confirm: string;
   security: { qId: string; answer: string }[];

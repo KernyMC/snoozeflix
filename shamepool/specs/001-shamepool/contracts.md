@@ -112,6 +112,14 @@ setPoolGoal(name, cents): Result<Squad>
 signUp({ name, email, password, avatar }): Result<User>   // invalid_email | weak_password | email_taken | invalid_name
 signIn({ email, password }): Result<User>                 // no_account | invalid_email | weak_password
 signOut(): Result<true>
+// account management (signed-in user; email, password and security changes re-check the current password)
+useAccount(): AccountInfo | null    // { username, email, firstName, lastName, securityQuestionIds }; null = profile has no login. Never carries hashes.
+updateAvatar(avatar): Result<User>                                     // invalid_avatar
+updateAccountName({ firstName, lastName }): Result<AccountInfo>        // invalid_first_name | invalid_last_name
+changeEmail(newEmail, currentPassword): Result<AccountInfo>            // invalid_email | same_email | wrong_password | email_taken | auth_locked
+changePassword(current, next, confirm): Result<true>                   // weak_password | password_mismatch | same_password | wrong_password | auth_locked
+updateSecurity(currentPassword, [{ qId, answer }] x3): Result<AccountInfo> // invalid_security | wrong_password | auth_locked
+// all five: no_user (signed out) | no_account (profile without a login). 5 wrong current passwords lock confirmation for 30 s.
 // wallet
 useWallet(): Wallet | null          // balance, stake (locked), available, pending, stake breakdown
 useWithdrawals(): Withdrawal[]

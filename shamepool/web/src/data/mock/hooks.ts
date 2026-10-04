@@ -1,8 +1,9 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
 import type {
-  BotThreadMessage, CashoutProposal, Cents, Checkin, DemoFlags, FeedEvent, Goal, LeaderboardRow, Penalty, Squad, User, Wallet, Withdrawal,
+  AccountInfo, BotThreadMessage, CashoutProposal, Cents, Checkin, DemoFlags, FeedEvent, Goal, LeaderboardRow, Penalty, Squad, User, Wallet, Withdrawal,
 } from '../types';
+import { accountInfo } from './authEngine';
 import { leaderboardFor, openProposal, walletFor } from './engine';
 import { useMockStore } from './store';
 
@@ -34,6 +35,16 @@ export function useMe(): User | null | undefined {
   const hydrated = useHydrated();
   if (!hydrated) return undefined;
   return id ? s.users[id] ?? null : null;
+}
+
+/** The signed-in user's login details; null when the profile has no account (older "name only" profiles). */
+export function useAccount(): AccountInfo | null {
+  const s = useS();
+  const id = useUserId();
+  return useMemo(() => {
+    const a = id ? Object.values(s.accounts).find((x) => x.userId === id) : undefined;
+    return a ? accountInfo(a) : null;
+  }, [s, id]);
 }
 
 export function useSquad(): Squad | null {

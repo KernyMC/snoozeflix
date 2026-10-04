@@ -16,7 +16,7 @@
 | `/squad` | Squad dashboard | `PoolCard`, `Leaderboard`, `Feed` + message box, cash-out banner |
 | `/squad?tv=1` | Projector | 3 columns, no nav, QR to join |
 | `/bot` | Squad Bot chat | Chat, suggestion chips, confirmation cards |
-| `/settings` | Settings | Profile, demo controls, reset data |
+| `/settings` | My profile | Profile card + avatar, account (name, email, password, security questions), squad, wallet link, sign out, demo reset |
 | `*` | 404 | Flakey sleepy + "Nothing here" |
 
 ## Components
@@ -41,4 +41,4 @@ Tap targets ≥ 44 px; color never the only signal; `prefers-reduced-motion`; la
 | `/register` | Name, email, username, password, 3 security Q&As, then `/onboarding` |
 | `/forgot-password` | 3 steps: find account, verify answers, new password |
 
-Signed-out visits to any app route (and `/onboarding`) redirect to `/`. Settings has "Sign out".
+Signed-out visits to any app route (and `/onboarding`) redirect to `/`. My profile (`/settings`) has "Sign out".

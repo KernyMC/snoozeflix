@@ -2,7 +2,7 @@ import {
   normalizeAnswer, SECURITY_QUESTIONS, validateConfirm, validateEmail, validateFirstName, validateLastName, validatePassword,
   validateSecurity, validateUsername,
 } from '../authLogic';
-import type { Account, RegisterInput, Result, User } from '../types';
+import type { Account, AccountInfo, ErrorCode, RegisterInput, Result, User } from '../types';
 import { type Ctx, err, ok, uid } from './state';
 
 const MAX_FAILS = 5;
@@ -84,4 +84,83 @@ export function resetPassword(c: Ctx, username: string, token: string, password:
   delete c.s.resetTokens[k];
   clear(c, k);
   return ok(true);
+}
+
+/* ---------- account management (signed-in user) ---------- */
+export const accountInfo = (a: Account): AccountInfo => ({
+  username: a.username, email: a.email, firstName: a.firstName, lastName: a.lastName, securityQuestionIds: a.security.map((s) => s.qId),
+});
+
+function ownAccount(c: Ctx): { k: string; a: Account } | null {
+  if (!c.userId) return null;
+  const hit = Object.entries(c.s.accounts).find(([, a]) => a.userId === c.userId);
+  return hit ? { k: hit[0], a: hit[1] } : null;
+}
+
+/** Sensitive changes re-check the current password. Shares the 5-tries / 30 s lock, on its own counter. */
+function confirmPassword(c: Ctx, k: string, a: Account, password: string): ErrorCode | null {
+  const lk = `confirm:${k}`;
+  if (locked(c, lk)) return 'auth_locked';
+  if (a.passwordHash !== hash(password)) { fail(c, lk); return 'wrong_password'; }
+  clear(c, lk);
+  return null;
+}
+
+export function updateAvatar(c: Ctx, avatar: string): Result<User> {
+  const me = c.userId ? c.s.users[c.userId] : null;
+  if (!me) return err('no_user');
+  const v = typeof avatar === 'string' ? avatar.trim() : '';
+  if (!v || v.length > 200) return err('invalid_avatar');
+  me.avatar = v;
+  return ok(me);
+}
+
+export function updateAccountName(c: Ctx, i: { firstName: string; lastName: string }): Result<AccountInfo> {
+  const own = ownAccount(c);
+  if (!own) return err(c.userId ? 'no_account' : 'no_user');
+  const bad = validateFirstName(i.firstName) ?? validateLastName(i.lastName);
+  if (bad) return err(bad);
+  own.a.firstName = i.firstName.trim();
+  own.a.lastName = i.lastName.trim();
+  return ok(accountInfo(own.a));
+}
+
+export function changeEmail(c: Ctx, newEmail: string, password: string): Result<AccountInfo> {
+  const own = ownAccount(c);
+  if (!own) return err(c.userId ? 'no_account' : 'no_user');
+  const bad = validateEmail(newEmail);
+  if (bad) return err(bad);
+  const email = newEmail.trim().toLowerCase();
+  if (email === own.a.email) return err('same_email');
+  const wrong = confirmPassword(c, own.k, own.a, password);
+  if (wrong) return err(wrong);
+  if (Object.values(c.s.accounts).some((a) => a !== own.a && a.email === email)) return err('email_taken');
+  own.a.email = email;
+  return ok(accountInfo(own.a));
+}
+
+export function changePassword(c: Ctx, current: string, next: string, confirm: string): Result<true> {
+  const own = ownAccount(c);
+  if (!own) return err(c.userId ? 'no_account' : 'no_user');
+  const bad = validatePassword(next) ?? validateConfirm(next, confirm);
+  if (bad) return err(bad);
+  if (next === current) return err('same_password');
+  const wrong = confirmPassword(c, own.k, own.a, current);
+  if (wrong) return err(wrong);
+  own.a.passwordHash = hash(next);
+  delete c.s.resetTokens[own.k]; // a half-finished "forgot password" can no longer overwrite the new one
+  clear(c, own.k);
+  return ok(true);
+}
+
+export function updateSecurity(c: Ctx, password: string, items: { qId: string; answer: string }[]): Result<AccountInfo> {
+  const own = ownAccount(c);
+  if (!own) return err(c.userId ? 'no_account' : 'no_user');
+  const bad = validateSecurity(items);
+  if (bad) return err(bad);
+  const wrong = confirmPassword(c, own.k, own.a, password);
+  if (wrong) return err(wrong);
+  own.a.security = items.map((s) => ({ qId: s.qId, answerHash: hash(normalizeAnswer(s.answer)) }));
+  delete c.s.resetTokens[own.k];
+  return ok(accountInfo(own.a));
 }

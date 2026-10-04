@@ -1,13 +1,12 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import { logout, resetDemoData, useConnection, useMe, useSquad } from '@/data';
+import { AccountSettings, ProfileCard } from '@/components/AccountForms';
 import { AppShell } from '@/components/AppShell';
 import { NewPoolGoal } from '@/components/Cashout';
-import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Icon } from '@/components/ui/Icon';
-import { MoneyText } from '@/components/ui/Money';
 
 const DEMO = process.env.NEXT_PUBLIC_DEMO === 'true';
 
@@ -16,26 +15,39 @@ function Settings() {
   const squad = useSquad();
   const conn = useConnection();
   const router = useRouter();
+  const h2 = 'font-display font-black text-xl';
   return (
-    <div className="space-y-5">
-      <h1 className="font-display font-black text-3xl">Settings</h1>
-      <Card className="flex items-center gap-4">
-        <div className="size-16 rounded-full bg-sky-light grid place-items-center text-4xl"><Avatar value={me?.avatar} size={64} /></div>
-        <div>
-          <p className="font-display font-black text-2xl">{me?.name}</p>
-          <p className="font-bold text-ink-soft">Balance <MoneyText cents={me?.balanceCents ?? 0} /></p>
-        </div>
-      </Card>
-      {squad && <Card tone="sun"><p className="text-xs font-extrabold uppercase tracking-wide text-ink-soft">Squad</p><p className="font-display font-black text-xl">{squad.name}</p><p className="font-bold">Invite code <b className="tracking-widest">{squad.inviteCode}</b></p></Card>}
-      <NewPoolGoal />
-      <Card>
-        <p className="font-extrabold">Backend: <b className="text-sky-dark">{conn.mode}</b> ({conn.status})</p>
-        {DEMO && <p className="text-sm font-bold text-ink-soft mt-1">Demo controls live in the <Icon name="wrench" /> button. Add <code>?mockSlow=1</code> or <code>?mockError=1</code> to any URL to test loading and error states.</p>}
-      </Card>
-      <Button variant="secondary" href="/squad?tv=1"><Icon name="tv" /> Open projector view</Button>
-      <Button variant="secondary" href="/wallet"><Icon name="cash" /> Wallet and withdrawals</Button>
-      <Button variant="secondary" onClick={async () => { await logout(); router.replace('/'); }}>Sign out</Button>
-      {DEMO && <Button variant="danger" onClick={async () => { await resetDemoData(); router.push('/'); }}>Reset demo data</Button>}
+    <div className="space-y-6">
+      <h1 className="font-display font-black text-3xl">My profile</h1>
+      <ProfileCard />
+
+      <section aria-labelledby="acct" className="space-y-3">
+        <h2 id="acct" className={h2}>Account</h2>
+        <AccountSettings />
+      </section>
+
+      {squad && (
+        <section aria-labelledby="sq" className="space-y-3">
+          <h2 id="sq" className={h2}>Squad</h2>
+          <Card tone="sun"><p className="font-display font-black text-xl">{squad.name}</p><p className="font-bold">Invite code <b className="tracking-widest">{squad.inviteCode}</b></p></Card>
+          <NewPoolGoal />
+        </section>
+      )}
+
+      <section aria-labelledby="more" className="space-y-3">
+        <h2 id="more" className={h2}>More</h2>
+        <Button variant="secondary" href="/wallet"><Icon name="cash" /> Wallet and withdrawals</Button>
+        <Button variant="secondary" href="/squad?tv=1"><Icon name="tv" /> Open projector view</Button>
+        <Card>
+          <p className="font-extrabold">Backend: <b className="text-sky-dark">{conn.mode}</b> ({conn.status})</p>
+          {DEMO && <p className="text-sm font-bold text-ink-soft mt-1">Demo controls live in the <Icon name="wrench" /> button. Add <code>?mockSlow=1</code> or <code>?mockError=1</code> to any URL to test loading and error states.</p>}
+        </Card>
+      </section>
+
+      <div className="space-y-3">
+        <Button variant="secondary" onClick={async () => { await logout(); router.replace('/'); }}>Sign out{me ? ` (${me.name})` : ''}</Button>
+        {DEMO && <Button variant="danger" onClick={async () => { await resetDemoData(); router.push('/'); }}>Reset demo data</Button>}
+      </div>
     </div>
   );
 }

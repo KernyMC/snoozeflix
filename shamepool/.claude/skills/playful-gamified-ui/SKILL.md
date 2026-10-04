@@ -87,7 +87,7 @@ Top-bar pill: flame icon in `flame` + number in Nunito 900. Gray (`ink-faint`) w
 Left: avatar circle. Center: streak flame, balance (`$` in ink), pool contribution chip in sun. Right: bot bubble icon. Height 56 px, white, bottom border `surface-line`.
 
 ### Bottom tab bar
-White, top border 2 px `surface-line`, 4 tabs with big colorful icons (Home, Squad, + New goal as a raised round leaf button, Bot). Active tab: icon tinted + `sky-light` rounded background behind it.
+White, top border 2 px `surface-line`, 5 tabs with big colorful icons (Home, Squad, + New goal as a raised round leaf button, Profile, Bot). Active tab: icon tinted + `sky-light` rounded background behind it.
 
 ### Leaderboard rows
 Rank number in a colored circle (1 = sun, 2 = surface-line silver, 3 = flame bronze), avatar, name (800), completion % and streak on the right. "Flake of the Week" row gets `ember-light` background + melting mini-mascot + label chip. Rows animate reorder with `layout` (framer-motion).

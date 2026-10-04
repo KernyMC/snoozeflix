@@ -37,7 +37,7 @@ function TopBar() {
   return (
     <header className="sticky top-0 z-30 h-14 bg-white border-b-2 border-surface-line">
       <div className="mx-auto max-w-md h-full px-3 flex items-center gap-2">
-        <Link href="/settings" aria-label="Settings" className="size-10 rounded-full bg-sky-light grid place-items-center text-xl shrink-0"><Avatar value={me?.avatar} size={40} /></Link>
+        <Link href="/settings" aria-label="My profile" className="size-10 rounded-full bg-sky-light grid place-items-center text-xl shrink-0"><Avatar value={me?.avatar} size={40} /></Link>
         <div className={`flex items-center gap-1 font-display font-black ${streak > 0 ? 'text-flame' : 'text-ink-faint'}`} aria-label={`${streak} day streak`}>
           <Flame size={22} strokeWidth={2.5} fill="currentColor" aria-hidden />{streak}
         </div>

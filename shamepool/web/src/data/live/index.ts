@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // Phase B: implement the same hooks/actions with SpacetimeDB + server routes.
 // Until then every export throws so a mis-set NEXT_PUBLIC_DATA_MODE fails loudly.
-import type { RegisterInput, BotReply, BotThreadMessage, CashoutProposal, Checkin, DemoFlags, FeedEvent, Goal, GoalInput, LeaderboardRow, PhotoVerdict, Penalty, Pos, Result, Squad, User, Cents, Wallet, Withdrawal } from '../types';
+import type { AccountInfo, RegisterInput, BotReply, BotThreadMessage, CashoutProposal, Checkin, DemoFlags, FeedEvent, Goal, GoalInput, LeaderboardRow, PhotoVerdict, Penalty, Pos, Result, Squad, User, Cents, Wallet, Withdrawal } from '../types';
 
 const nope = (): never => { throw new Error('Live mode is not connected yet (Phase B).'); };
 const rej = <T>(): Promise<Result<T>> => Promise.reject(new Error('Live mode is not connected yet (Phase B).'));
@@ -10,6 +10,7 @@ export const startBackend = (): (() => void) => () => {};
 export const useNow = (_i?: number): number => Date.now();
 export const useConnection = (): { status: 'connecting' | 'ready' | 'error'; mode: 'mock' | 'live' } => ({ status: 'error', mode: 'live' });
 export const useMe = (): User | null | undefined => nope();
+export const useAccount = (): AccountInfo | null => nope();
 export const useSquad = (): Squad | null => nope();
 export const useSquadMembers = (): User[] => nope();
 export const useMyGoals = (): Goal[] => nope();
@@ -54,3 +55,8 @@ export const logout = (): Promise<Result<true>> => rej();
 export const getSecurityQuestions = (_u: string): Promise<Result<string[]>> => rej();
 export const verifySecurityAnswers = (_u: string, _a: string[]): Promise<Result<string>> => rej();
 export const resetPassword = (_u: string, _t: string, _p: string, _c: string): Promise<Result<true>> => rej();
+export const updateAvatar = (_a: string): Promise<Result<User>> => rej();
+export const updateAccountName = (_i: { firstName: string; lastName: string }): Promise<Result<AccountInfo>> => rej();
+export const changeEmail = (_e: string, _p: string): Promise<Result<AccountInfo>> => rej();
+export const changePassword = (_c: string, _n: string, _k: string): Promise<Result<true>> => rej();
+export const updateSecurity = (_p: string, _i: { qId: string; answer: string }[]): Promise<Result<AccountInfo>> => rej();
