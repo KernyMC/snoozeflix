@@ -2,9 +2,14 @@
 import { QRCodeSVG } from 'qrcode.react';
 import { useEffect, useState } from 'react';
 
-/** Reads the invite code a QR or share link carried in `?join=`, cleaned up for display and reuse. */
+/** Normalises a typed or scanned invite code: capitals and digits only, at most 8 characters. */
+export function cleanCode(raw: string): string {
+  return raw.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
+}
+
+/** Reads the invite code a QR or share link carried in `?join=`. */
 export function joinParam(params: { get(name: string): string | null }): string {
-  return (params.get('join') ?? '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
+  return cleanCode(params.get('join') ?? '');
 }
 
 /** Appends the carried invite code to a route, so it survives sign-in and sign-up. */

@@ -2,11 +2,12 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useRef, useState } from 'react';
 import {
-  registerAccount, SECURITY_QUESTIONS, useMe, validateConfirm, validateEmail, validateFirstName, validateLastName, validatePassword,
+  joinSquad, registerAccount, SECURITY_QUESTIONS, useMe, validateConfirm, validateEmail, validateFirstName, validateLastName, validatePassword,
   validateUsername, normalizeAnswer, type ErrorCode,
 } from '@/data';
 import { AuthShell, focusFirstInvalid } from '@/components/auth/AuthShell';
-import { joinParam, withJoin } from '@/components/InviteQr';
+import { cleanCode, joinParam, withJoin } from '@/components/InviteQr';
+import { fireConfetti } from '@/components/effects';
 import { PasswordField } from '@/components/auth/PasswordField';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -37,8 +38,8 @@ function validate(f: Form, qs: string[], ans: string[]): Record<string, string> 
 function RegisterPage() {
   const me = useMe();
   const router = useRouter();
-  const join = joinParam(useSearchParams()); // invite code from a scanned QR, if any
-  const onboarding = withJoin('/onboarding', join);
+  const [code, setCode] = useState(joinParam(useSearchParams())); // optional; pre-filled from a scanned QR
+  const onboarding = withJoin('/onboarding', code);
   const [f, setF] = useState<Form>(EMPTY);
   const [qs, setQs] = useState(['', '', '']);
   const [ans, setAns] = useState(['', '', '']);
@@ -46,8 +47,9 @@ function RegisterPage() {
   const [formErr, setFormErr] = useState('');
   const [busy, setBusy] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
+  const submitting = useRef(false); // submit() decides where to go once the account exists
 
-  useEffect(() => { if (me) router.replace(me.squadId ? '/home' : onboarding); }, [me, router, onboarding]);
+  useEffect(() => { if (me && !submitting.current) router.replace(me.squadId ? '/home' : onboarding); }, [me, router, onboarding]);
 
   const upd = (k: keyof Form) => (e: React.ChangeEvent<HTMLInputElement>) => setF((p) => ({ ...p, [k]: e.target.value }));
   /** Validate one field when the user leaves it, so errors appear early but not while typing. */
@@ -68,9 +70,16 @@ function RegisterPage() {
     setErr(v);
     if (Object.keys(v).length) return focusFirstInvalid(formRef.current);
     setBusy(true);
+    submitting.current = true;
     const r = await registerAccount({ ...f, security: qs.map((qId, i) => ({ qId, answer: ans[i] })) });
+    if (r.ok) {
+      // With an invite code, join straight away. If the code is rejected, the join step shows it for fixing.
+      const joined = code ? await joinSquad(code) : null;
+      if (joined?.ok) fireConfetti();
+      return router.replace(joined?.ok ? '/home' : onboarding);
+    }
+    submitting.current = false;
     setBusy(false);
-    if (r.ok) return router.replace(onboarding);
     const field: Partial<Record<ErrorCode, string>> = { username_taken: 'username', email_taken: 'email' };
     const k = field[r.error];
     if (k) { setErr({ [k]: errorText(r.error) }); focusFirstInvalid(formRef.current); } else setFormErr(errorText(r.error));
@@ -78,9 +87,8 @@ function RegisterPage() {
 
   return (
     <AuthShell mood={formErr || Object.keys(err).length ? 'worried' : 'happy'} title="Create your account"
-      subtitle={join ? 'Takes a minute. Then you join the squad.' : 'Takes a minute. Then pick your squad.'}>
+      subtitle={code ? `Takes a minute. Then you join with code ${code}.` : 'Takes a minute. Then pick your squad.'}>
       <form ref={formRef} onSubmit={submit} noValidate className="space-y-4">
-        {join && <Card tone="sun" className="!p-3 text-sm font-bold text-center">Invite code <b className="tracking-widest">{join}</b> saved. Sign up to join.</Card>}
         <div className="grid grid-cols-2 gap-3">
           <Field label="First name" value={f.firstName} onChange={upd('firstName')} onBlur={blur('firstName')} error={err.firstName} maxLength={30}
             placeholder="Jane" autoComplete="given-name" enterKeyHint="next" />
@@ -96,6 +104,10 @@ function RegisterPage() {
           maxLength={72} placeholder="At least 8 characters" hint="Use a letter and a number." autoComplete="new-password" enterKeyHint="next" />
         <PasswordField label="Confirm password" value={f.confirm} onChange={upd('confirm')} onBlur={blur('confirm')} error={err.confirm}
           maxLength={72} placeholder="Re-enter your password" autoComplete="new-password" enterKeyHint="next" />
+        <Field label="Invite code (optional)" value={code} onChange={(e) => setCode(cleanCode(e.target.value))} maxLength={8}
+          placeholder="PIZZA6" hint="Got one from a friend? You join their squad as soon as you sign up."
+          autoComplete="off" autoCapitalize="characters" autoCorrect="off" spellCheck={false} enterKeyHint="next"
+          className="tracking-[0.3em] font-black placeholder:tracking-normal placeholder:font-bold" />
 
         <div className="pt-2">
           <h2 className="font-display font-black text-xl">Security questions</h2>
@@ -122,7 +134,7 @@ function RegisterPage() {
 
         {formErr && <p className="text-sm text-ember-dark font-extrabold text-center" role="alert">{formErr}</p>}
         <Button type="submit" loading={busy}>Create account</Button>
-        <Button variant="secondary" href={withJoin('/', join)}>← Back to sign in</Button>
+        <Button variant="secondary" href={withJoin('/', code)}>← Back to sign in</Button>
       </form>
     </AuthShell>
   );
