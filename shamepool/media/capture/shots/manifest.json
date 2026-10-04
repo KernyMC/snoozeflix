@@ -1,0 +1,218 @@
+[
+  {
+    "name": "a01_login",
+    "tap": null,
+    "note": ""
+  },
+  {
+    "name": "a02_filled",
+    "tap": null,
+    "note": ""
+  },
+  {
+    "name": "a03_home",
+    "tap": {
+      "x": 0.5,
+      "y": 0.6244635193133047
+    },
+    "note": ""
+  },
+  {
+    "name": "a04_goal",
+    "tap": {
+      "x": 0.5,
+      "y": 0.3417381974248927
+    },
+    "note": ""
+  },
+  {
+    "name": "a05_coach_typed",
+    "tap": null,
+    "note": ""
+  },
+  {
+    "name": "a06_coach_filled",
+    "tap": {
+      "x": 0.5,
+      "y": 0.3090128755364807
+    },
+    "note": ""
+  },
+  {
+    "name": "a07_form",
+    "tap": null,
+    "note": ""
+  },
+  {
+    "name": "a08_form_penalty",
+    "tap": null,
+    "note": ""
+  },
+  {
+    "name": "a09_cant_see_you",
+    "tap": {
+      "x": 0.5,
+      "y": 0.3605150214592275
+    },
+    "note": ""
+  },
+  {
+    "name": "a10_demo_panel",
+    "tap": null,
+    "note": ""
+  },
+  {
+    "name": "a11_stay",
+    "tap": {
+      "x": 0.3627906976744186,
+      "y": 0.576909535944206
+    },
+    "note": ""
+  },
+  {
+    "name": "a12_stay_done",
+    "tap": null,
+    "note": ""
+  },
+  {
+    "name": "a13_photo_step",
+    "tap": {
+      "x": 0.5,
+      "y": 0.9377682403433476
+    },
+    "note": ""
+  },
+  {
+    "name": "a14_couch_preview",
+    "tap": null,
+    "note": ""
+  },
+  {
+    "name": "a15_verifying",
+    "tap": {
+      "x": 0.5,
+      "y": 0.8664163090128756
+    },
+    "note": ""
+  },
+  {
+    "name": "a16_rejected",
+    "tap": null,
+    "note": ""
+  },
+  {
+    "name": "a17_gym_preview",
+    "tap": {
+      "x": 0.5,
+      "y": 0.869098712446352
+    },
+    "note": ""
+  },
+  {
+    "name": "a18_success",
+    "tap": {
+      "x": 0.5,
+      "y": 0.8664163090128756
+    },
+    "note": ""
+  },
+  {
+    "name": "a19_success_settled",
+    "tap": null,
+    "note": ""
+  },
+  {
+    "name": "b01_home",
+    "tap": null,
+    "note": ""
+  },
+  {
+    "name": "b02_flake_modal",
+    "tap": null,
+    "note": ""
+  },
+  {
+    "name": "b03_squad",
+    "tap": null,
+    "note": ""
+  },
+  {
+    "name": "b04_squad_feed",
+    "tap": null,
+    "note": ""
+  },
+  {
+    "name": "b05_pool_full",
+    "tap": null,
+    "note": ""
+  },
+  {
+    "name": "b06_charity_clock",
+    "tap": null,
+    "note": ""
+  },
+  {
+    "name": "b07_charity_picker",
+    "tap": null,
+    "note": ""
+  },
+  {
+    "name": "b08_donated",
+    "tap": null,
+    "note": ""
+  },
+  {
+    "name": "b09_feed_donation",
+    "tap": null,
+    "note": ""
+  },
+  {
+    "name": "b10_wallet",
+    "tap": null,
+    "note": ""
+  },
+  {
+    "name": "b11_withdraw_sheet",
+    "tap": {
+      "x": 0.5,
+      "y": 0.3399611051502146
+    },
+    "note": ""
+  },
+  {
+    "name": "b12_withdraw_pending",
+    "tap": {
+      "x": 0.5,
+      "y": 0.9377682403433476
+    },
+    "note": ""
+  },
+  {
+    "name": "b13_bot",
+    "tap": null,
+    "note": ""
+  },
+  {
+    "name": "b14_bot_answer",
+    "tap": {
+      "x": 0.19073401162790699,
+      "y": 0.796137339055794
+    },
+    "note": ""
+  },
+  {
+    "name": "b15_bot_confirm",
+    "tap": null,
+    "note": ""
+  },
+  {
+    "name": "b16_voice_settings",
+    "tap": null,
+    "note": ""
+  },
+  {
+    "name": "b17_projector",
+    "tap": null,
+    "note": "landscape 1440x810"
+  }
+]

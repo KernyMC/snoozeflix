@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>ShamePool pitch</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet" />
+<style>
+  :root { --indigo:#24215B; --indigo-dark:#14123A; --gold:#F6C445; --gold-dark:#A67C0A; --aqua:#75BFBC; --aqua-light:#E3F2F1; --cream:#FAF7EE; --slate:#666779; --line:#E5E2D9; --green:#287A58; --red:#B83D49; --red-light:#F8E4E6; --grape:#4B4789; }
+  @page { size: 1920px 1080px; margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #888; font-family: 'Nunito', system-ui, sans-serif; font-weight: 700; color: var(--indigo); }
+  .slide { width: 1920px; height: 1080px; position: relative; overflow: hidden; background: radial-gradient(1200px 800px at 85% 10%, #fff6d8 0%, var(--cream) 55%); page-break-after: always; margin: 0 auto; }
+  .num { position: absolute; right: 56px; bottom: 36px; display: flex; align-items: center; gap: 12px; font-weight: 900; font-size: 28px; color: var(--slate); }
+  .num img { width: 44px; height: 44px; }
+  .eyebrow { font-size: 30px; font-weight: 900; letter-spacing: 4px; text-transform: uppercase; color: var(--gold-dark); }
+  h1 { font-size: 104px; font-weight: 900; line-height: 1.02; letter-spacing: -3px; }
+  h2 { font-size: 78px; font-weight: 900; line-height: 1.04; letter-spacing: -2px; }
+  p.lead { font-size: 40px; font-weight: 700; color: var(--slate); line-height: 1.3; }
+  .gold { color: var(--gold-dark); }
+  .hl { background: linear-gradient(transparent 58%, var(--gold) 58%); padding: 0 8px; }
+  .pill { display: inline-block; background: var(--aqua-light); border: 3px solid var(--aqua); color: #2c6663; font-weight: 800; font-size: 28px; padding: 8px 22px; border-radius: 999px; }
+  .card { background: #fff; border: 5px solid var(--line); border-radius: 36px; padding: 34px; box-shadow: 0 20px 50px rgba(36,33,91,.10); }
+  .card h3 { font-size: 44px; font-weight: 900; line-height: 1.05; margin: 14px 0 10px; }
+  .card p { font-size: 29px; font-weight: 700; color: var(--slate); line-height: 1.3; }
+  .card img.ic { width: 100px; height: 100px; }
+  .phone { width: 372px; height: 806px; border-radius: 54px; background: var(--indigo-dark); padding: 13px; box-shadow: 0 40px 80px rgba(36,33,91,.35); position: relative; flex: none; }
+  .phone .scr { width: 100%; height: 100%; border-radius: 42px; overflow: hidden; background: var(--cream); }
+  .phone img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .cap { font-size: 30px; font-weight: 900; text-align: center; margin-top: 22px; line-height: 1.15; }
+  .cap small { display: block; font-size: 24px; font-weight: 700; color: var(--slate); margin-top: 6px; }
+  .abs { position: absolute; }
+  .row { display: flex; } .col { display: flex; flex-direction: column; }
+</style>
+</head>
+<body>
+
+<!-- 1. TITLE -->
+<section class="slide" id="s1" style="background: radial-gradient(1100px 900px at 30% 45%, #fff2c4 0%, var(--cream) 62%);">
+  <img class="abs" src="assets/Shamepool-Logo.png" style="left:150px; top:190px; width:620px; height:620px;" />
+  <div class="abs" style="left:800px; top:230px; width:1050px;">
+    <div class="eyebrow">MHacks 2026 &nbsp;·&nbsp; FinTech</div>
+    <div style="font-size:210px; font-weight:900; letter-spacing:-8px; line-height:1; margin-top:10px;">shame<span class="gold">pool</span></div>
+    <div style="font-size:70px; font-weight:800; color:var(--slate); margin-top:14px;">Skip the task. Lose the cash.</div>
+    <div style="margin-top:46px; display:flex; gap:16px; flex-wrap:wrap;">
+      <span class="pill">Behavioral finance with friends</span><span class="pill">AI that does real work</span><span class="pill">Live demo</span>
+    </div>
+    <div style="margin-top:48px; font-size:38px; font-weight:900;">shamepool.vercel.app</div>
+  </div>
+</section>
+
+<!-- 2. PROBLEM -->
+<section class="slide" id="s2">
+  <div class="abs" style="left:110px; top:100px;"><div class="eyebrow">The problem</div></div>
+  <div class="abs" style="left:110px; top:170px; width:1650px;">
+    <h1 style="font-size:128px;">Resolutions fail because breaking them is <span class="hl">free</span>.</h1>
+  </div>
+  <div class="abs row" style="left:110px; top:640px; gap:36px;">
+    <div class="card" style="width:540px; height:300px;"><img class="ic" src="assets/money-wings.png"><h3>No cost to quit</h3><p>Skipping the gym, the library or the run costs you nothing.</p></div>
+    <div class="card" style="width:540px; height:300px;"><img class="ic" src="assets/chat.png"><h3>Nobody is watching</h3><p>Willpower alone is private, so excuses are easy.</p></div>
+    <div class="card" style="width:540px; height:300px;"><img class="ic" src="assets/camera.png"><h3>No proof you showed up</h3><p>"I went" is a claim, not a fact.</p></div>
+  </div>
+  <div class="num"><img src="assets/Shamepool-Logo.png">2</div>
+</section>
+
+<!-- 3. SOLUTION -->
+<section class="slide" id="s3">
+  <div class="abs" style="left:110px; top:90px;"><div class="eyebrow">The solution</div></div>
+  <div class="abs" style="left:110px; top:150px; width:1700px;"><h2>Make flaking cost something, in front of your friends.</h2></div>
+  <div class="abs row" style="left:110px; top:430px; gap:20px; align-items:stretch;">
+    <div class="card" style="width:350px; height:430px; border-color:var(--gold);"><img class="ic" src="assets/target.png"><h3>1. Commit</h3><p>Pick a goal, place, deadline and penalty. An AI coach plans it for you.</p></div>
+    <div class="abs" style="position:static; align-self:center; font-size:44px; color:var(--gold-dark);">➜</div>
+    <div class="card" style="width:350px; height:430px; border-color:var(--aqua);"><img class="ic" src="assets/camera.png"><h3>2. Prove it</h3><p>GPS radius, a minimum stay and a photo checked by AI vision.</p></div>
+    <div class="abs" style="position:static; align-self:center; font-size:44px; color:var(--gold-dark);">➜</div>
+    <div class="card" style="width:350px; height:430px; border-color:var(--red);"><img class="ic" src="assets/money-wings.png"><h3>3. Flake, pay</h3><p>Charged automatically, doubled each time, into the squad pool.</p></div>
+    <div class="abs" style="position:static; align-self:center; font-size:44px; color:var(--gold-dark);">➜</div>
+    <div class="card" style="width:350px; height:430px; border-color:var(--green);"><img class="ic" src="assets/pizza.png"><h3>4. Spend or give</h3><p>The squad votes to spend it together, or it goes to charity.</p></div>
+  </div>
+  <div class="abs" style="left:110px; top:910px; width:1700px; background:var(--indigo); color:#fff; border-radius:28px; padding:22px 36px; font-size:40px; font-weight:900; text-align:center;">Nobody wins anyone else's money. That is why it is not gambling.</div>
+  <div class="num"><img src="assets/Shamepool-Logo.png">3</div>
+</section>
+
+<!-- 4. PRODUCT -->
+<section class="slide" id="s4">
+  <div class="abs" style="left:110px; top:70px;"><div class="eyebrow">The product, for real</div></div>
+  <div class="abs" style="left:110px; top:120px;"><h2 style="font-size:70px;">Every screen here is the live app.</h2></div>
+  <div class="abs row" style="left:200px; top:225px; gap:120px;">
+    <div class="col" style="align-items:center;"><div class="phone" style="width:300px;height:650px;border-radius:44px;padding:11px;"><div class="scr" style="border-radius:34px;"><img src="assets/a06_coach_filled.png"></div></div><div class="cap">AI goal coach<small>One sentence becomes a plan</small></div></div>
+    <div class="col" style="align-items:center;"><div class="phone" style="width:300px;height:650px;border-radius:44px;padding:11px;"><div class="scr" style="border-radius:34px;"><img src="assets/a16_rejected.png"></div></div><div class="cap">Photo verified by Grok vision<small>A couch gets roasted</small></div></div>
+    <div class="col" style="align-items:center;"><div class="phone" style="width:300px;height:650px;border-radius:44px;padding:11px;"><div class="scr" style="border-radius:34px;"><img src="assets/b02_flake_modal.png"></div></div><div class="cap">Flake, and it costs you<small>Charged, shared, visible</small></div></div>
+    <div class="col" style="align-items:center;"><div class="phone" style="width:300px;height:650px;border-radius:44px;padding:11px;"><div class="scr" style="border-radius:34px;"><img src="assets/b06_charity_clock.png"></div></div><div class="cap">Unspent pool goes to charity<small>A clock keeps squads honest</small></div></div>
+  </div>
+  <div class="num"><img src="assets/Shamepool-Logo.png">4</div>
+</section>
+
+<!-- 5. FAIR BY DESIGN -->
+<section class="slide" id="s5">
+  <div class="abs" style="left:110px; top:90px;"><div class="eyebrow">Money, reimagined</div></div>
+  <div class="abs" style="left:110px; top:150px; width:1150px;"><h2>Fair by design, not gambling.</h2></div>
+  <div class="abs col" style="left:110px; top:370px; width:1150px; gap:20px;">
+    <div class="card" style="padding:22px 30px; border-radius:28px;"><p style="color:var(--indigo); font-weight:800;"><b style="color:var(--green)">✔</b> The pool is <b>never paid out as cash</b> and never refunded to the flaker.</p></div>
+    <div class="card" style="padding:22px 30px; border-radius:28px;"><p style="color:var(--indigo); font-weight:800;"><b style="color:var(--green)">✔</b> A <b>locked stake</b> covers your next 3 days, so nobody can flake and run.</p></div>
+    <div class="card" style="padding:22px 30px; border-radius:28px;"><p style="color:var(--indigo); font-weight:800;"><b style="color:var(--green)">✔</b> Withdrawals have a <b>cooling period</b> and can be cancelled.</p></div>
+    <div class="card" style="padding:22px 30px; border-radius:28px;"><p style="color:var(--indigo); font-weight:800;"><b style="color:var(--green)">✔</b> Penalties double per flake but are <b>capped</b>, and a balance never goes negative.</p></div>
+    <div class="card" style="padding:22px 30px; border-radius:28px;"><p style="color:var(--indigo); font-weight:800;"><b style="color:var(--green)">✔</b> A full pool nobody spends in 7 days <b>goes to charity</b>.</p></div>
+  </div>
+  <div class="abs" style="left:1400px; top:140px;"><div class="phone" style="width:380px; height:824px; border-radius:56px;"><div class="scr" style="border-radius:44px;"><img src="assets/b10_wallet.png"></div></div></div>
+  <div class="num"><img src="assets/Shamepool-Logo.png">5</div>
+</section>
+
+<!-- 6. AI + VOICE -->
+<section class="slide" id="s6">
+  <div class="abs" style="left:110px; top:80px;"><div class="eyebrow">Actually intelligent</div></div>
+  <div class="abs" style="left:110px; top:135px; width:1700px;"><h2 style="font-size:70px;">AI that does real work, not AI for AI's sake.</h2></div>
+  <div class="abs row" style="left:110px; top:290px; gap:30px;">
+    <div class="card" style="width:430px; height:540px; border-color:var(--grape);"><img class="ic" src="assets/chat.png"><h3>Squad Bot (Grok)</h3><p>Answers with your real data. Proposes penalty changes that the engine validates and you confirm.</p></div>
+    <div class="card" style="width:430px; height:540px; border-color:var(--aqua);"><img class="ic" src="assets/camera.png"><h3>Vision check (Grok)</h3><p>Looks at the photo. Rejects a couch and writes the roast. Fails safe if the AI is down.</p></div>
+    <div class="card" style="width:430px; height:540px; border-color:var(--gold);"><img class="ic" src="assets/target.png"><h3>Goal coach (Grok)</h3><p>Turns one sentence into days, deadline, minimum stay and a realistic penalty.</p></div>
+    <div class="phone" style="width:262px; height:568px; margin-left:20px; border-radius:40px; padding:10px;"><div class="scr" style="border-radius:31px;"><img src="assets/b14_bot_answer.png"></div></div>
+  </div>
+  <div class="abs row" style="left:110px; top:905px; gap:24px;">
+    <span class="pill" style="font-size:32px; padding:14px 30px;">ElevenLabs: talk to Benny the Penny, voice and sound effects</span>
+    <span class="pill" style="font-size:32px; padding:14px 30px;">Photon Spectrum: the same bot on iMessage</span>
+  </div>
+  <div class="num"><img src="assets/Shamepool-Logo.png">6</div>
+</section>
+
+<!-- 7. UNDER THE HOOD -->
+<section class="slide" id="s7">
+  <div class="abs" style="left:110px; top:90px;"><div class="eyebrow">Built to be trusted</div></div>
+  <div class="abs" style="left:110px; top:150px; width:1000px;"><h2>One contract, many services.</h2></div>
+  <div class="abs col" style="left:110px; top:430px; gap:22px; width:760px;">
+    <div class="card" style="padding:24px 30px; border-radius:28px;"><p style="color:var(--indigo)"><b>273 automated tests</b> on the money rules, idempotent penalties and edge cases.</p></div>
+    <div class="card" style="padding:24px 30px; border-radius:28px;"><p style="color:var(--indigo)"><b>Independent code audit</b> by a second AI model; every demo-breaking finding fixed.</p></div>
+    <div class="card" style="padding:24px 30px; border-radius:28px;"><p style="color:var(--indigo)"><b>Stage-proof:</b> a full mock backend runs the same contract if the wifi dies.</p></div>
+    <div class="card" style="padding:24px 30px; border-radius:28px;"><p style="color:var(--indigo)"><b>Keys stay server-side</b>; paid routes accept only our own app.</p></div>
+  </div>
+  <!-- architecture -->
+  <div class="abs" style="left:960px; top:170px; width:880px; height:800px;">
+    <div class="abs" style="left:290px; top:330px; width:300px; height:190px; background:var(--indigo); color:#fff; border-radius:34px; display:flex; flex-direction:column; align-items:center; justify-content:center; box-shadow:0 26px 60px rgba(36,33,91,.35);"><img src="assets/Shamepool-Logo.png" style="width:78px;height:78px"><div style="font-size:38px;font-weight:900;">ShamePool</div><div style="font-size:22px;opacity:.8">Next.js · one data contract</div></div>
+    <div class="card abs" style="left:250px; top:0px; width:380px; padding:18px 22px; border-color:var(--indigo); border-radius:26px;"><h3 style="font-size:32px;margin:0;">Spacetime</h3><p style="font-size:22px;">Live state, rules, real-time sync</p></div>
+    <div class="card abs" style="left:490px; top:600px; width:390px; padding:18px 22px; border-color:var(--green); border-radius:26px;"><h3 style="font-size:32px;margin:0;">Capital One Nessie</h3><p style="font-size:22px;">Every penalty as a transfer record</p></div>
+    <div class="card abs" style="left:0px; top:600px; width:380px; padding:18px 22px; border-color:var(--grape); border-radius:26px;"><h3 style="font-size:32px;margin:0;">Grok (xAI)</h3><p style="font-size:22px;">Bot, vision and goal coach</p></div>
+    <div class="card abs" style="left:510px; top:170px; width:370px; padding:18px 22px; border-color:var(--gold); border-radius:26px;"><h3 style="font-size:32px;margin:0;">ElevenLabs</h3><p style="font-size:22px;">Voice in and out, sound effects</p></div>
+    <div class="card abs" style="left:0px; top:170px; width:360px; padding:18px 22px; border-color:var(--aqua); border-radius:26px;"><h3 style="font-size:32px;margin:0;">Photon Spectrum</h3><p style="font-size:22px;">The bot on iMessage</p></div>
+    <div class="card abs" style="left:240px; top:760px; width:400px; padding:14px 22px; border-color:var(--line); border-radius:26px; text-align:center;"><p style="font-size:24px; color:var(--indigo)">Deployed on Vercel</p></div>
+  </div>
+  <div class="num"><img src="assets/Shamepool-Logo.png">7</div>
+</section>
+
+<!-- 8. BUSINESS -->
+<section class="slide" id="s8">
+  <div class="abs" style="left:110px; top:90px;"><div class="eyebrow">Business model</div></div>
+  <div class="abs" style="left:110px; top:150px; width:1700px;"><h2>We earn when pools are spent, never when you fail.</h2></div>
+  <div class="abs row" style="left:110px; top:430px; gap:36px;">
+    <div class="card" style="width:540px; height:400px; border-color:var(--gold);"><img class="ic" src="assets/pizza.png"><h3>Merchant cash-outs</h3><p>Gift cards and partner offers every time a squad spends its pool.</p></div>
+    <div class="card" style="width:540px; height:400px; border-color:var(--aqua);"><img class="ic" src="assets/fire.png"><h3>ShamePool Plus</h3><p>More goals, bigger squads, deeper stats and the AI coach.</p></div>
+    <div class="card" style="width:540px; height:400px; border-color:var(--grape);"><img class="ic" src="assets/target.png"><h3>Teams and campuses</h3><p>Gyms, schools and companies run challenges for their members.</p></div>
+  </div>
+  <div class="abs row" style="left:110px; top:890px; gap:22px; align-items:center; font-size:36px; font-weight:900;">
+    <span class="pill" style="font-size:34px;">Hackathon friends</span> ➜ <span class="pill" style="font-size:34px;">Campus squads</span> ➜ <span class="pill" style="font-size:34px;">Gyms and teams</span>
+  </div>
+  <div class="num"><img src="assets/Shamepool-Logo.png">8</div>
+</section>
+
+<!-- 9. WHY WE WIN + CTA -->
+<section class="slide" id="s9" style="background: radial-gradient(1100px 900px at 75% 50%, #fff2c4 0%, var(--cream) 62%);">
+  <div class="abs" style="left:110px; top:90px;"><div class="eyebrow">Try it now</div></div>
+  <div class="abs" style="left:110px; top:150px; width:1100px;"><h2>Skip the task. Lose the cash.</h2></div>
+  <div class="abs col" style="left:110px; top:420px; width:1050px; gap:18px;">
+    <div class="card" style="padding:20px 30px; border-radius:26px;"><p style="color:var(--indigo)"><b>FinTech:</b> commitment contracts, shared money, real Nessie transfers.</p></div>
+    <div class="card" style="padding:20px 30px; border-radius:26px;"><p style="color:var(--indigo)"><b>Actually Intelligent:</b> vision, tool use and a coach doing real jobs.</p></div>
+    <div class="card" style="padding:20px 30px; border-radius:26px;"><p style="color:var(--indigo)"><b>Spacetime, ElevenLabs, Photon:</b> each one load-bearing, not decoration.</p></div>
+    <div class="card" style="padding:20px 30px; border-radius:26px;"><p style="color:var(--indigo)"><b>Polish:</b> a full design system, mascot, voice and a projector mode.</p></div>
+  </div>
+  <div class="abs col" style="left:1290px; top:200px; align-items:center; width:520px;">
+    <div style="background:#fff; padding:26px; border-radius:36px; border:5px solid var(--gold); box-shadow:0 26px 60px rgba(36,33,91,.18);"><img src="assets/qr.png" style="width:420px; height:420px; display:block;"></div>
+    <div style="font-size:42px; font-weight:900; margin-top:26px;">shamepool.vercel.app</div>
+    <div style="font-size:28px; font-weight:700; color:var(--slate); text-align:center; margin-top:10px; line-height:1.3;">Sign in as <b style="color:var(--indigo)">kevin</b> · <b style="color:var(--indigo)">Password1</b></div>
+    <img src="assets/Shamepool-Benny-the-Penny.png" style="width:240px; height:240px; margin-top:18px;">
+  </div>
+  <div class="num"><img src="assets/Shamepool-Logo.png">9</div>
+</section>
+
+</body>
+</html>

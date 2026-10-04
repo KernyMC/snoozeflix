@@ -1,0 +1,26 @@
+SLIDE 1
+[0:00 - 0:12] Hi judges, we are ShamePool: skip the task, lose the cash. It is behavioral finance for friends, built for the FinTech track, with AI doing real work inside.
+
+SLIDE 2
+[0:12 - 0:30] Everyone has a resolution they dropped. Why? Quitting is free, nobody is watching, and there is no proof you ever showed up. Willpower alone does not scale, so we change the incentives instead of asking for more discipline.
+
+SLIDE 3
+[0:30 - 0:58] Here is the loop. You commit to a goal with a place, a deadline and a penalty, and an AI coach plans it from one sentence. To check in you must be there: GPS, a minimum stay, and a photo that Grok's vision model verifies. If you flake, the penalty is charged automatically, doubles each time, and lands in a shared squad pool. Then the squad votes to spend it together, or it goes to charity. Nobody wins anyone else's money, so it is not gambling.
+
+SLIDE 4
+[0:58 - 1:18] Everything you see is the live app, not mockups. The coach fills the form from one sentence. A couch photo gets rejected with a roast. A flake is charged instantly and shows up for everyone. And a full pool that nobody spends is donated automatically.
+
+SLIDE 5
+[1:18 - 1:38] Fairness is built in. The pool is never paid out as cash. A locked stake covers your worst case, so nobody can flake and run. Withdrawals have a cooling period, penalties are capped, and balances never go negative. We wrote every rule down and tested it.
+
+SLIDE 6
+[1:38 - 2:03] The AI does real work. Squad Bot answers with your actual data, and when it proposes a penalty change, our engine validates it and you confirm. Vision checks every photo. The coach plans goals. ElevenLabs gives Benny the Penny a voice you can talk to, and Photon Spectrum puts the same bot on iMessage.
+
+SLIDE 7
+[2:03 - 2:23] Under the hood: Spacetime holds the live state, Capital One Nessie records every penalty as a transfer, and everything sits behind one data contract, with two hundred seventy three tests and an independent AI audit. If the wifi dies, a mock backend runs the same contract.
+
+SLIDE 8
+[2:23 - 2:43] How we make money: merchants pay when a squad cashes out, ShamePool Plus unlocks more goals and bigger squads, and gyms and campuses run team challenges. We never take a cut of your failure, and we grow from friends to campuses to teams.
+
+SLIDE 9
+[2:43 - 3:00] Try it right now: scan the code, sign in as kevin, and flake. ShamePool: skip the task, lose the cash. Thank you.

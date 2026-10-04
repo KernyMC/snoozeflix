@@ -1,0 +1,43 @@
+SHAMEPOOL DEMO VIDEO - NARRATION (ElevenLabs voice id DtQLDxHbTiQTpVVanTy1)
+
+[s01] Skip the task. Lose the cash.
+Resolutions fail because breaking them is free. ShamePool makes flaking cost something, and your friends are watching.
+
+[s02] Your squad, one tap away
+Sign in and your squad is ready: a shared pool, a live leaderboard, and your own commitments.
+
+[s03] Tell Benny the Penny what you want
+Not sure what to commit to? Tell Benny the Penny in one sentence, typed or spoken. Grok turns it into a real plan: days, deadline, minimum stay, and a penalty that doubles every time you flake.
+
+[s04] You have to actually be there
+To check in, you have to actually be there. GPS verifies the place, then a timer makes you stay.
+
+[s05] Prove it with a photo
+Then prove it with a photo. Grok's vision model looks at it. A couch? Rejected, with a roast. The real gym? Nailed it.
+
+[s06] Flake, and it costs you
+Miss the deadline and the penalty is charged automatically. The pool jumps, the leaderboard reshuffles, and the Flake of the Week gets crowned, live, for everyone to see.
+
+[s07] Put it on the big screen
+Put it on the projector, and the whole room watches the pool, the leaderboard, and the live feed update in real time.
+
+[s08] Spend it together, or it does good
+When the pool fills up, the squad votes to spend it together. If nobody does within seven days, it goes to the charity you chose. Nobody wins anyone else's money, so it is not gambling.
+
+[s09] Your money stays yours
+Your own balance is yours. You can withdraw it, but a locked stake covers your worst case, and a cooling period means nobody can flake and run.
+
+[s10] Squad Bot: real AI, real data
+Squad Bot is real AI with your real data. Ask who is flaking. Ask it to change a penalty, and it only does it after you confirm. And Benny the Penny talks back, with a voice from ElevenLabs.
+
+[s11] Also on iMessage
+The very same brain answers by text on iMessage, built with Photon Spectrum, so the squad's referee is always one message away.
+
+[s12] Built to be trusted
+Under the hood, Spacetime keeps the live state, Capital One Nessie records every penalty as a transfer, Grok powers the intelligence, ElevenLabs gives it a voice, and Photon puts it on iMessage, all behind one contract and over two hundred seventy tests.
+
+[s13] How it makes money
+How does it make money? Merchants pay when a squad cashes out its pool. A ShamePool Plus subscription unlocks more goals and bigger squads. And gyms and universities can run team challenges. Never a cut of your failure.
+
+[s14] ShamePool
+ShamePool. Skip the task. Lose the cash.
