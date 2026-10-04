@@ -63,6 +63,18 @@ const squad = table({ name: 'squad', public: true }, {
 const squadOwner = table({ name: 'squad_owner', public: true }, { squadId: t.string().primaryKey(), userId: t.string() });
 /** banKey(squadId, userId) of removed members: they cannot rejoin with the squad's public invite code. */
 const squadBan = table({ name: 'squad_ban' }, { key: t.string().primaryKey() });
+/** Charity rule per squad: chosen charity and when the pool first reached its goal (-1 = not full). */
+const squadCharity = table({ name: 'squad_charity', public: true }, {
+  squadId: t.string().primaryKey(), charityId: t.string(), poolFullAt: t.f64(),
+});
+/** Simulated donations to the (fictional) demo charities. */
+const donation = table({ name: 'donation', public: true }, {
+  id: t.string().primaryKey(), squadId: t.string().index('btree'), charityId: t.string(), amountCents: t.i32(), reason: t.string(), createdAt: t.f64(),
+});
+/** Marks a cash-out proposal as a donation vote (its money goes to the charity instead of a merchant). */
+const cashoutDonate = table({ name: 'cashout_donate', public: true }, {
+  cashoutId: t.string().primaryKey(), squadId: t.string().index('btree'), charityId: t.string(),
+});
 const goal = table({ name: 'goal', public: true }, {
   id: t.string().primaryKey(),
   userId: t.string().index('btree'),
@@ -187,7 +199,7 @@ const nessieLink = table({ name: 'nessie_link' }, { key: t.string().primaryKey()
 const spacetimedb = schema({
   demoFlags, bridge, counter, milestone, deadlineTick,
   account, authAttempt, resetToken, session,
-  user, squad, squadOwner, squadBan, goal, checkin, penalty, feedEvent, cashout, cashoutVote, withdrawal,
+  user, squad, squadOwner, squadBan, squadCharity, donation, cashoutDonate, goal, checkin, penalty, feedEvent, cashout, cashoutVote, withdrawal,
   billingPlan, address, paymentMethod, botMessage, pendingAction, msgRate,
   outbox, nessieLink,
 });

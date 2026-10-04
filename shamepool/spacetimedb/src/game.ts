@@ -11,6 +11,8 @@ import {
   type CashoutRow, type CheckinRow, type GoalRow, type PenaltyRow, type SquadRow, type WithdrawalRow,
 } from './shared/mappers';
 import { botAnswer, brokeLine, hypeLine, photoRoast, roastLine } from './bot';
+import { charityById } from './shared/charities';
+import { donate, poolGoalLocked, syncPoolFull } from './charity';
 import { type Ctx, type Env, enqueue, err, meOf, ok, pushFeed, squadMembers, tzOfSquad, uid } from './core';
 
 const STALE_CHECKIN_MS = 3 * 3600_000;
@@ -338,6 +340,7 @@ export function applyFlake(env: Env, goal: GoalRow, date: string): PenaltyRow {
   pushFeed(env, squad.id, null, 'bot',
     shortfall > 0 && charged === 0 ? `${user.name} owes ${formatCents(intended)} but has $0. ${brokeLine(n)}` : `${user.name}: ${roastLine(n)}`, env.now);
   checkPoolMilestones(env, squad.id);
+  syncPoolFull(env, squad.id);
   return pen;
 }
 
@@ -417,10 +420,12 @@ export function setPoolGoal(env: Env, name: string, cents: number) {
   const bad = validatePoolGoal(cents);
   if (bad) return err(bad);
   const sq = c.db.squad.id.find(me.squadId)!;
+  if (poolGoalLocked(c, sq.id)) return err('goal_locked'); // no stalling the charity clock
   const row = { ...sq, poolGoalName: name.trim(), poolGoalCents: cents };
   c.db.squad.id.update(row);
   pushFeed(env, sq.id, me.id, 'commit', `New pool goal: ${row.poolGoalName} (${formatCents(cents)}).`, env.now);
   checkPoolMilestones(env, sq.id);
+  syncPoolFull(env, sq.id);
   return ok(squadOf(row));
 }
 
@@ -444,7 +449,7 @@ export function proposeCashout(env: Env, merchant: string) {
   return resolveVotes(env, p.id);
 }
 
-function resolveVotes(env: Env, proposalId: string) {
+export function resolveVotes(env: Env, proposalId: string) {
   const c = env.ctx;
   const p = c.db.cashout.id.find(proposalId)!;
   const sq = c.db.squad.id.find(p.squadId)!;
@@ -457,11 +462,17 @@ function resolveVotes(env: Env, proposalId: string) {
   let cur = p;
   if (yes * 2 > n) {
     if (sq.poolBalanceCents < p.amountCents) return err('pool_changed'); // X6
-    c.db.squad.id.update({ ...sq, poolBalanceCents: sq.poolBalanceCents - p.amountCents });
     cur = { ...p, status: 'paid' };
     c.db.cashout.id.update(cur);
-    enqueue(c, 'nessie_purchase', `cashout:${p.id}`, { cashoutId: p.id, squadId: sq.id, merchantName: p.merchantName, amountCents: p.amountCents });
-    pushFeed(env, sq.id, null, 'cashout', `Approved! ${formatCents(p.amountCents)} spent at ${p.merchantName} \u{1F355}\u{1F389}`, env.now);
+    const don = c.db.cashoutDonate.cashoutId.find(p.id);
+    if (don) {
+      donate(env, sq.id, 'vote', p.amountCents, charityById(don.charityId).id);
+    } else {
+      c.db.squad.id.update({ ...sq, poolBalanceCents: sq.poolBalanceCents - p.amountCents });
+      enqueue(c, 'nessie_purchase', `cashout:${p.id}`, { cashoutId: p.id, squadId: sq.id, merchantName: p.merchantName, amountCents: p.amountCents });
+      pushFeed(env, sq.id, null, 'cashout', `Approved! ${formatCents(p.amountCents)} spent at ${p.merchantName} \u{1F355}\u{1F389}`, env.now);
+      syncPoolFull(env, sq.id);
+    }
   } else if (no * 2 > n) {
     cur = { ...p, status: 'rejected' };
     c.db.cashout.id.update(cur);

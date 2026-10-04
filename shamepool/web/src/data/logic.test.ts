@@ -174,3 +174,20 @@ describe('validation', () => {
   });
   it('normalizes invite codes (E2)', () => expect(normalizeInviteCode(' pi zza6 ')).toBe('PIZZA6'));
 });
+
+describe('randomSquadName', () => {
+  it('always gives a valid two-word name and varies with the rng', async () => {
+    const { randomSquadName } = await import('./logic');
+    const names = new Set<string>();
+    for (let i = 0; i < 200; i++) {
+      const n = randomSquadName();
+      expect(n.trim().length).toBeGreaterThan(0);
+      expect(n.length).toBeLessThanOrEqual(30);
+      expect(n.split(' ')).toHaveLength(2);
+      names.add(n);
+    }
+    expect(names.size).toBeGreaterThan(20);
+    expect(randomSquadName(() => 0)).toBe('Sleepy Pennies');
+    expect(randomSquadName(() => 0.9999)).toBe('Overslept Club');
+  });
+});

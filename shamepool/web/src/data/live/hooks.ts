@@ -7,12 +7,13 @@ import {
   WITHDRAW_COOLDOWN_REAL_MS,
 } from '../logic';
 import type {
-  AccountInfo, Billing, BotThreadMessage, CashoutProposal, Cents, Checkin, DemoFlags, FeedEvent, Goal, LeaderboardRow, Penalty, Pos, Squad, User, Wallet, Withdrawal,
+  AccountInfo, Billing, BotThreadMessage, CashoutProposal, Cents, CharityStatus, Checkin, DemoFlags, Donation, FeedEvent, Goal, LeaderboardRow, Penalty, Pos, Squad, User, Wallet, Withdrawal,
 } from '../types';
 import {
   accountInfoOf, billingOf, botMessageOf, cashoutOf, checkinOf, feedOf, goalOf, penaltyOf, squadOf, userOf, withdrawalOf, type UserRow,
 } from './mappers';
 import { useLive } from './stdb';
+import { CASHOUT_WINDOW_DEMO_MS, CASHOUT_WINDOW_REAL_MS, DEFAULT_CHARITY_ID } from '../charities';
 
 const EMPTY_BILLING: Billing = { tier: 'free', payments: [], addresses: [] };
 
@@ -68,10 +69,16 @@ export function useSquad(): Squad | null {
   const id = useSquadId();
   const squads = useLive((s) => s.squads);
   const owners = useLive((s) => s.owners);
+  const charity = useLive((s) => s.charity);
   return useMemo(() => {
     const r = id ? squads.find((q) => q.id === id) : undefined;
-    return r ? { ...squadOf(r), ownerUserId: owners.find((o) => o.squadId === r.id)?.userId ?? null } : null;
-  }, [id, squads, owners]);
+    if (!r) return null;
+    const ch = charity.find((c) => c.squadId === r.id);
+    return {
+      ...squadOf(r), ownerUserId: owners.find((o) => o.squadId === r.id)?.userId ?? null,
+      charityId: ch?.charityId ?? DEFAULT_CHARITY_ID, poolFullAt: ch && ch.poolFullAt >= 0 ? ch.poolFullAt : null,
+    };
+  }, [id, squads, owners, charity]);
 }
 
 export function useSquadMembers(): User[] {
@@ -159,10 +166,31 @@ export function useOpenCashout(): CashoutProposal | null {
   const squadId = useSquadId();
   const cashouts = useLive((s) => s.cashouts);
   const votes = useLive((s) => s.votes);
+  const donateVotes = useLive((s) => s.donateVotes);
   return useMemo(() => {
     const p = squadId ? cashouts.find((c) => c.squadId === squadId && c.status === 'open') : undefined;
-    return p ? cashoutOf(p, votes) : null;
-  }, [squadId, cashouts, votes]);
+    if (!p) return null;
+    const d = donateVotes.find((x) => x.cashoutId === p.id);
+    return { ...cashoutOf(p, votes), kind: d ? 'donate' : 'spend', ...(d ? { charityId: d.charityId } : {}) };
+  }, [squadId, cashouts, votes, donateVotes]);
+}
+
+/** Charity clock for the current squad (window follows the module's demo mode, like the withdrawal cooldown). */
+export function useCharityStatus(): CharityStatus | null {
+  const squad = useSquad();
+  const demo = useLive((s) => s.flags?.demoMode ?? true);
+  return useMemo(() => {
+    if (!squad) return null;
+    const windowMs = demo ? CASHOUT_WINDOW_DEMO_MS : CASHOUT_WINDOW_REAL_MS;
+    return { charityId: squad.charityId, windowMs, deadlineAt: squad.poolFullAt !== null ? squad.poolFullAt + windowMs : null };
+  }, [squad, demo]);
+}
+
+export function useDonations(): Donation[] {
+  const squadId = useSquadId();
+  const rows = useLive((s) => s.donations);
+  return useMemo(() => rows.filter((d) => d.squadId === squadId)
+    .map((d) => ({ ...d, reason: d.reason as Donation['reason'] })).sort((a, b) => b.createdAt - a.createdAt), [rows, squadId]);
 }
 
 export function useBotThread(): BotThreadMessage[] {

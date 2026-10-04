@@ -25,7 +25,7 @@ describe('AI arguments for the live procedures', () => {
 describe('live bot context', () => {
   const now = Date.UTC(2026, 9, 4, 16, 0); // Sunday noon in Detroit
   const base: LiveState = {
-    status: 'ready', users: [], squads: [], owners: [], goals: [], checkins: [], penalties: [], feed: [], cashouts: [], votes: [], withdrawals: [], flags: null,
+    status: 'ready', users: [], squads: [], owners: [], charity: [], donations: [], donateVotes: [], goals: [], checkins: [], penalties: [], feed: [], cashouts: [], votes: [], withdrawals: [], flags: null,
     fakeLocation: null, squadSynced: 'sq', me: null, account: null, plan: null, addresses: [], payments: [], bot: [],
   };
   const me = { id: 'u1', name: 'Eve', avatar: 'a', squadId: 'sq', balanceCents: 19500, isSeed: false };

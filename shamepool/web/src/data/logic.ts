@@ -218,6 +218,15 @@ export function generateInviteCode(rng: () => number = Math.random): string {
   return s;
 }
 
+/* ---------- random squad names ---------- */
+const NAME_ADJ = ['Sleepy', 'Broke', 'Lazy', 'Snoozing', 'Flaky', 'Sweaty', 'Late', 'Couch', 'Midnight', 'Caffeinated', 'Guilty', 'Hungry', 'Unbothered', 'Chaotic', 'Overslept'];
+const NAME_NOUN = ['Pennies', 'Llamas', 'Raccoons', 'Snoozers', 'Potatoes', 'Gremlins', 'Pigeons', 'Wombats', 'Burritos', 'Goblins', 'Pandas', 'Noodles', 'Otters', 'Squad', 'Club'];
+/** A fun random squad name like "Broke Raccoons" (always 1-30 characters, so it passes createSquad's name check). */
+export function randomSquadName(rng: () => number = Math.random): string {
+  const pick = (a: string[]) => a[Math.min(a.length - 1, Math.floor(rng() * a.length))];
+  return `${pick(NAME_ADJ)} ${pick(NAME_NOUN)}`.slice(0, 30);
+}
+
 /* ---------- plan goal limits ---------- */
 /** Active goals each plan allows. Enforced by the data layer (mock and Spacetime), not only by the screens. */
 export const GOAL_LIMITS = { free: 1, paid: 5 } as const;

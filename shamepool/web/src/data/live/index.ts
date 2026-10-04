@@ -5,18 +5,10 @@ export {
   updateAvatar, updateAccountName, changeEmail, changePassword, updateSecurity, setPlanTier, addPaymentMethod, removePaymentMethod, addAddress, removeAddress,
   createSquad, joinSquad, kickMember, createGoal, updateGoalPenalty, startCheckin, pingCheckin, finishCheckin, forceFlake, postMessage, askBot, confirmBotAction,
   proposeCashout, voteCashout, cancelCashout, setPoolGoal, requestWithdrawal, cancelWithdrawal, resetDemoData, setDemoFlags, getDemoFlags,
-  getBotContext,
+  getBotContext, setCharity, proposeDonation, demoExpirePoolDeadline,
 } from './actions';
 export {
   useNow, useConnection, useMe, useAccount, useBilling, useSquad, useSquadMembers, useMyGoals, useGoal, useGoalHistory, useActiveCheckin, useLeaderboard,
-  useFeed, usePoolFunders, useOpenCashout, useBotThread, useDemoFlags, useWallet, useWithdrawals,
+  useFeed, usePoolFunders, useOpenCashout, useBotThread, useDemoFlags, useWallet, useWithdrawals, useCharityStatus, useDonations,
 } from './hooks';
 
-// Charity rule (mock-only for now): the Spacetime module still needs charity_id/pool_full_at columns and procedures.
-import type { CashoutProposal, CharityStatus, Donation, Result, Squad } from '../types';
-const notLive = <T>(): Promise<Result<T>> => Promise.resolve({ ok: false, error: 'not_available' });
-export const setCharity = (_id: string): Promise<Result<Squad>> => notLive(); // eslint-disable-line @typescript-eslint/no-unused-vars
-export const proposeDonation = (): Promise<Result<CashoutProposal>> => notLive();
-export const demoExpirePoolDeadline = (): Promise<Result<Squad>> => notLive();
-export const useCharityStatus = (): CharityStatus | null => null;
-export const useDonations = (): Donation[] => [];

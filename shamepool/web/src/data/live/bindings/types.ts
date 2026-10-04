@@ -110,6 +110,13 @@ export const Cashout = __t.object("Cashout", {
 });
 export type Cashout = __Infer<typeof Cashout>;
 
+export const CashoutDonate = __t.object("CashoutDonate", {
+  cashoutId: __t.string(),
+  squadId: __t.string(),
+  charityId: __t.string(),
+});
+export type CashoutDonate = __Infer<typeof CashoutDonate>;
+
 export const CashoutVote = __t.object("CashoutVote", {
   id: __t.string(),
   proposalId: __t.string(),
@@ -172,6 +179,16 @@ export const DemoPatch = __t.object("DemoPatch", {
   timeOffsetMs: __t.f64(),
 });
 export type DemoPatch = __Infer<typeof DemoPatch>;
+
+export const Donation = __t.object("Donation", {
+  id: __t.string(),
+  squadId: __t.string(),
+  charityId: __t.string(),
+  amountCents: __t.i32(),
+  reason: __t.string(),
+  createdAt: __t.f64(),
+});
+export type Donation = __Infer<typeof Donation>;
 
 export const FeedEvent = __t.object("FeedEvent", {
   id: __t.string(),
@@ -330,6 +347,13 @@ export const SquadBan = __t.object("SquadBan", {
   key: __t.string(),
 });
 export type SquadBan = __Infer<typeof SquadBan>;
+
+export const SquadCharity = __t.object("SquadCharity", {
+  squadId: __t.string(),
+  charityId: __t.string(),
+  poolFullAt: __t.f64(),
+});
+export type SquadCharity = __Infer<typeof SquadCharity>;
 
 export const SquadOwner = __t.object("SquadOwner", {
   squadId: __t.string(),

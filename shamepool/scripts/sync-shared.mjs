@@ -14,6 +14,7 @@ const files = [
   ['web/src/data/billingLogic.ts', 'billingLogic.ts'],
   ['web/src/data/live/mappers.ts', 'mappers.ts'],
   ['web/src/data/live/sha256.ts', 'sha256.ts'],
+  ['web/src/data/charities.ts', 'charities.ts'],
 ];
 for (const [from, to] of files) {
   const src = readFileSync(join(root, from), 'utf8').replace(/from '\.\.\/types'/g, "from './types'");

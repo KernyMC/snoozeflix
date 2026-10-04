@@ -10,6 +10,7 @@ import * as Auth from './auth';
 import * as Billing from './billing';
 import * as Game from './game';
 import * as Bot from './botchat';
+import * as Charity from './charity';
 import { type Env, type Ctx, envOf, sessionUser, err, ok, realNowMs } from './core';
 import { seedDemo } from './seed';
 import { errResult, okResult, type ActionResult } from './shared/mappers';
@@ -88,6 +89,14 @@ export const enforceGoalLimits = spacetimedb.reducer((ctx) => {
   for (const u of [...ctx.db.user.iter()]) n += Game.enforceGoalLimit(ctx, u.id);
   if (n) console.info(`enforce_goal_limits: paused ${n} goals`);
 });
+/* ---------- charity ---------- */
+export const setCharity = spacetimedb.procedure({ charityId: t.string() }, ActionResultT, (ctx, a) => act(ctx, (e) => Charity.setCharity(e, a.charityId) as Result<unknown>));
+export const proposeDonation = spacetimedb.procedure(ActionResultT, (ctx) => act(ctx, (e) => {
+  const r = Charity.openDonationProposal(e);
+  return (r.ok ? Game.resolveVotes(e, r.data) : r) as Result<unknown>;
+}));
+export const demoExpirePoolDeadline = spacetimedb.procedure(ActionResultT, (ctx) => act(ctx, (e) => Charity.demoExpirePoolDeadline(e) as Result<unknown>));
+
 /** Fills squad_owner for squads created before it existed. Idempotent and derived only from data, so anyone may run it. */
 export const backfillSquadOwners = spacetimedb.reducer((ctx) => {
   const n = Game.backfillOwners(ctx);
@@ -146,7 +155,8 @@ export const checkDeadlines = spacetimedb.reducer({ onSchedule: deadlineTick }, 
   const env = envOf(ctx, null);
   const flaked = Game.evaluateDeadlines(env);
   const settled = Game.settleWithdrawals(env);
-  if (flaked || settled) console.info(`check_deadlines: ${flaked} flaked, ${settled} withdrawals settled`);
+  const donated = Charity.settleCharity(env);
+  if (flaked || settled || donated) console.info(`check_deadlines: ${flaked} flaked, ${settled} withdrawals settled, ${donated} pools donated`);
 });
 
 /* ---------- demo controls ---------- */

@@ -17,7 +17,8 @@ import { demoFlagsOf } from './hooks';
 import { planDemoPatch } from './demo';
 import { aiBotArgs, aiVerdictArgs } from './aiArgs';
 import { buildLiveBotContext } from './botContext';
-import { type ActionResult, resultOf } from './mappers';
+import { type ActionResult, resultOf, squadOf } from './mappers';
+import { DEFAULT_CHARITY_ID } from '../charities';
 import { secretHash, sha256Hex } from './sha256';
 import { getConn, nowMs, setFakeLocation, settle, startLive, useLive, whenReady } from './stdb';
 
@@ -209,6 +210,33 @@ export async function removeAddress(id: string): Promise<Result<true>> {
   const r = await run<true>((c) => c.procedures.removeAddress({ id }));
   if (r.ok) await settle((s) => !s.addresses.some((a) => a.id === id));
   return r;
+}
+
+/* ---------- charity (fictional demo charities, simulated donations) ---------- */
+export async function setCharity(id: string): Promise<Result<Squad>> {
+  const r = await run<true>((c) => c.procedures.setCharity({ charityId: id }));
+  if (!r.ok) return r;
+  await settle((s) => s.charity.some((x) => x.squadId === s.me?.squadId && x.charityId === id));
+  return currentSquad();
+}
+export async function proposeDonation(): Promise<Result<CashoutProposal>> {
+  const r = await run<CashoutProposal>((c) => c.procedures.proposeDonation({}));
+  if (r.ok) await settle((s) => s.donateVotes.some((d) => d.cashoutId === r.data.id) || r.data.status !== 'open');
+  return r.ok ? { ok: true, data: { ...r.data, kind: 'donate' } } : r;
+}
+export async function demoExpirePoolDeadline(): Promise<Result<Squad>> {
+  const before = useLive.getState().donations.length;
+  const r = await run<true>((c) => c.procedures.demoExpirePoolDeadline({}));
+  if (!r.ok) return r;
+  await settle((s) => s.donations.length > before);
+  return currentSquad();
+}
+function currentSquad(): Result<Squad> {
+  const s = useLive.getState();
+  const q = s.squads.find((x) => x.id === s.me?.squadId);
+  if (!q) return fail('not_in_squad');
+  const ch = s.charity.find((x) => x.squadId === q.id);
+  return { ok: true, data: { ...squadOf(q), charityId: ch?.charityId ?? DEFAULT_CHARITY_ID, poolFullAt: ch && ch.poolFullAt >= 0 ? ch.poolFullAt : null } };
 }
 
 /* ---------- squads and goals ---------- */

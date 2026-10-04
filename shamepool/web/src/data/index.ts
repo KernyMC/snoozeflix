@@ -17,7 +17,7 @@ export {
 export { encodeSnapshot, decodeSnapshot } from './inviteSnapshot';
 export {
   buildLeaderboard, formatCents, formatCountdown, formatDeadline, formatDistance, haversineM, isInside, localDate, LIMITS,
-  msUntilDeadline, nextPenaltyCents, deadlinePassed, isDueToday, localMinutes, MIN_WITHDRAW_CENTS, GOAL_LIMITS,
+  msUntilDeadline, nextPenaltyCents, deadlinePassed, isDueToday, localMinutes, MIN_WITHDRAW_CENTS, GOAL_LIMITS, randomSquadName,
 } from './logic';
 
 const impl = process.env.NEXT_PUBLIC_DATA_MODE === 'live' ? live : mock;

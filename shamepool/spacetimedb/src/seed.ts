@@ -24,6 +24,9 @@ function wipe(c: Ctx): void {
   for (const r of [...c.db.squad.iter()]) c.db.squad.id.delete(r.id);
   for (const r of [...c.db.squadOwner.iter()]) c.db.squadOwner.squadId.delete(r.squadId);
   for (const r of [...c.db.squadBan.iter()]) c.db.squadBan.key.delete(r.key);
+  for (const r of [...c.db.squadCharity.iter()]) c.db.squadCharity.squadId.delete(r.squadId);
+  for (const r of [...c.db.donation.iter()]) c.db.donation.id.delete(r.id);
+  for (const r of [...c.db.cashoutDonate.iter()]) c.db.cashoutDonate.cashoutId.delete(r.cashoutId);
   for (const r of [...c.db.billingPlan.iter()]) c.db.billingPlan.userId.delete(r.userId);
   for (const r of [...c.db.address.iter()]) c.db.address.id.delete(r.id);
   for (const r of [...c.db.paymentMethod.iter()]) c.db.paymentMethod.id.delete(r.id);

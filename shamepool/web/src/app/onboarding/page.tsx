@@ -1,8 +1,8 @@
 'use client';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useRef, useState } from 'react';
-import { Check, Copy, Share2 } from 'lucide-react';
-import { createSquad, decodeSnapshot, joinSquad, registerUser, useMe, useSquad } from '@/data';
+import { Check, Copy, Dices, Share2 } from 'lucide-react';
+import { createSquad, decodeSnapshot, joinSquad, randomSquadName, registerUser, useMe, useSquad } from '@/data';
 import { Wordmark } from '@/components/AppShell';
 import { InviteQr, inviteUrl, useInviteSnapshot } from '@/components/InviteQr';
 import { Avatar, AVATARS } from '@/components/ui/Avatar';
@@ -24,7 +24,7 @@ function Onboarding() {
   const [mode, setMode] = useState<'create' | 'join'>(params.get('join') ? 'join' : 'create');
   const [name, setName] = useState('');
   const [avatar, setAvatar] = useState(AVATARS[0]);
-  const [squadName, setSquadName] = useState('');
+  const [squadName, setSquadName] = useState(''); // filled with a random name after mount (no SSR mismatch)
   const [poolName, setPoolName] = useState('Pizza night');
   const [poolAmount, setPoolAmount] = useState('60');
   const [code, setCode] = useState(params.get('join') && params.get('join') !== '1' ? (params.get('join') as string) : '');
@@ -32,6 +32,7 @@ function Onboarding() {
   const [err, setErr] = useState<Record<string, string>>({});
   const [created, setCreated] = useState(false);
   const [copied, setCopied] = useState(false);
+  useEffect(() => { setSquadName((n) => n || randomSquadName()); }, []);
 
   useEffect(() => { if (me === null) router.replace('/'); }, [me, router]); // sign in first
   // While our own createSquad is in flight the user already has a squad (live mode waits for that row before it
@@ -128,7 +129,15 @@ function Onboarding() {
           </div>
           {mode === 'create' ? (
             <div className="space-y-4">
-              <Field label="Squad name" value={squadName} maxLength={30} onChange={(e) => setSquadName(e.target.value)} placeholder="MHacks Crew" error={err.squadName} />
+              <div className="flex items-end gap-2">
+                <div className="flex-1 min-w-0">
+                  <Field label="Squad name" value={squadName} maxLength={30} onChange={(e) => setSquadName(e.target.value)} placeholder="MHacks Crew" error={err.squadName} />
+                </div>
+                <button type="button" onClick={() => setSquadName(randomSquadName())} aria-label="Random squad name"
+                  className="mb-0.5 size-[52px] shrink-0 grid place-items-center rounded-2xl border-2 border-surface-line bg-white text-sky-dark shadow-chunky-sm active:translate-y-px">
+                  <Dices size={24} strokeWidth={2.5} />
+                </button>
+              </div>
               <Field label="Pool goal" value={poolName} maxLength={30} onChange={(e) => setPoolName(e.target.value)} hint="What will you spend the pool on?" />
               <Field label="Goal amount ($)" inputMode="decimal" value={poolAmount} onChange={(e) => setPoolAmount(e.target.value)} error={err.poolAmount} />
               <Button onClick={doCreate} loading={busy}>Create squad</Button>

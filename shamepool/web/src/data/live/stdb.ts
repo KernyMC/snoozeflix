@@ -18,7 +18,10 @@ export interface FlagsRow {
 
 export interface LiveState {
   status: 'connecting' | 'ready' | 'error';
-  users: UserRow[]; squads: SquadRow[]; owners: { squadId: string; userId: string }[]; goals: GoalRow[]; checkins: CheckinRow[]; penalties: PenaltyRow[]; feed: FeedRow[];
+  users: UserRow[]; squads: SquadRow[]; owners: { squadId: string; userId: string }[]; goals: GoalRow[];
+  charity: { squadId: string; charityId: string; poolFullAt: number }[];
+  donations: { id: string; squadId: string; charityId: string; amountCents: number; reason: string; createdAt: number }[];
+  donateVotes: { cashoutId: string; squadId: string; charityId: string }[]; checkins: CheckinRow[]; penalties: PenaltyRow[]; feed: FeedRow[];
   cashouts: CashoutRow[]; votes: VoteRow[]; withdrawals: WithdrawalRow[];
   flags: FlagsRow | null;
   /** Demo "pretend I'm there" location. Per tab: the module's flags are global, so it is never sent to Spacetime. */
@@ -43,7 +46,7 @@ export function setFakeLocation(v: LiveState['fakeLocation']): void {
 }
 
 export const useLive = create<LiveState>(() => ({
-  status: 'connecting', users: [], squads: [], owners: [], goals: [], checkins: [], penalties: [], feed: [], cashouts: [], votes: [], withdrawals: [],
+  status: 'connecting', users: [], squads: [], owners: [], charity: [], donations: [], donateVotes: [], goals: [], checkins: [], penalties: [], feed: [], cashouts: [], votes: [], withdrawals: [],
   flags: null, fakeLocation: loadFakeLocation(), squadSynced: '', me: null, account: null, plan: null, addresses: [], payments: [], bot: [],
 }));
 
@@ -73,7 +76,8 @@ function browserStores(): { local: Storage | null; session: Storage | null } {
 type Key = keyof LiveState;
 // [store key, accessor on conn.db, single row?]
 const MIRROR: [Key, string, boolean?][] = [
-  ['users', 'user'], ['squads', 'squad'], ['owners', 'squadOwner'], ['goals', 'goal'], ['checkins', 'checkin'], ['penalties', 'penalty'], ['feed', 'feedEvent'],
+  ['users', 'user'], ['squads', 'squad'], ['owners', 'squadOwner'], ['charity', 'squadCharity'], ['donations', 'donation'], ['donateVotes', 'cashoutDonate'],
+  ['goals', 'goal'], ['checkins', 'checkin'], ['penalties', 'penalty'], ['feed', 'feedEvent'],
   ['cashouts', 'cashout'], ['votes', 'cashoutVote'], ['withdrawals', 'withdrawal'], ['flags', 'demoFlags', true],
   ['me', 'myUser', true], ['account', 'myAccount', true], ['plan', 'myBillingPlan', true], ['addresses', 'myAddresses'], ['payments', 'myPaymentMethods'],
   ['bot', 'myBotMessages'],
@@ -136,6 +140,9 @@ function syncSquadSubscription(): void {
       .subscribe([
         tables.squad.where((r) => r.id.eq(squadId)),
         tables.squadOwner.where((r) => r.squadId.eq(squadId)),
+        tables.squadCharity.where((r) => r.squadId.eq(squadId)),
+        tables.donation.where((r) => r.squadId.eq(squadId)),
+        tables.cashoutDonate.where((r) => r.squadId.eq(squadId)),
         tables.user.where((r) => r.squadId.eq(squadId)),
         tables.goal.where((r) => r.squadId.eq(squadId)),
         tables.checkin.where((r) => r.squadId.eq(squadId)),

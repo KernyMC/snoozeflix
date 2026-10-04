@@ -58,12 +58,10 @@ describe('live layer contract', () => {
     expect(missing).toEqual([]);
   });
   it('degrades unsupported features with not_available instead of failing silently', async () => {
-    for (const p of [live.setCharity('x'), live.proposeDonation(), live.demoExpirePoolDeadline(), live.claimSeedUser('seed_kevin'), live.resetDemoData()]) {
+    for (const p of [live.claimSeedUser('seed_kevin'), live.resetDemoData()]) {
       expect(await p).toEqual({ ok: false, error: 'not_available' });
     }
     expect(await live.setDemoFlags({ timeOffsetMs: 3_600_000 })).toEqual({ ok: false, error: 'not_available' });
-    expect(live.useCharityStatus()).toBeNull();
-    expect(live.useDonations()).toEqual([]);
   });
 });
 

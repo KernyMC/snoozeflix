@@ -58,6 +58,7 @@ import * as ClaimSeedUserProcedure from "./claim_seed_user_procedure";
 import * as ConfirmBotActionProcedure from "./confirm_bot_action_procedure";
 import * as CreateGoalProcedure from "./create_goal_procedure";
 import * as CreateSquadProcedure from "./create_squad_procedure";
+import * as DemoExpirePoolDeadlineProcedure from "./demo_expire_pool_deadline_procedure";
 import * as FinishCheckinProcedure from "./finish_checkin_procedure";
 import * as FinishCheckinAiProcedure from "./finish_checkin_ai_procedure";
 import * as ForceFlakeProcedure from "./force_flake_procedure";
@@ -68,12 +69,14 @@ import * as LoginProcedure from "./login_procedure";
 import * as PingCheckinProcedure from "./ping_checkin_procedure";
 import * as PostMessageProcedure from "./post_message_procedure";
 import * as ProposeCashoutProcedure from "./propose_cashout_procedure";
+import * as ProposeDonationProcedure from "./propose_donation_procedure";
 import * as RegisterAccountProcedure from "./register_account_procedure";
 import * as RegisterUserProcedure from "./register_user_procedure";
 import * as RemoveAddressProcedure from "./remove_address_procedure";
 import * as RemovePaymentMethodProcedure from "./remove_payment_method_procedure";
 import * as RequestWithdrawalProcedure from "./request_withdrawal_procedure";
 import * as ResetPasswordProcedure from "./reset_password_procedure";
+import * as SetCharityProcedure from "./set_charity_procedure";
 import * as SetPlanTierProcedure from "./set_plan_tier_procedure";
 import * as SetPoolGoalProcedure from "./set_pool_goal_procedure";
 import * as StartCheckinProcedure from "./start_checkin_procedure";
@@ -88,9 +91,11 @@ import * as VoteCashoutProcedure from "./vote_cashout_procedure";
 import BridgeLinksRow from "./bridge_links_table";
 import BridgeOutboxRow from "./bridge_outbox_table";
 import CashoutRow from "./cashout_table";
+import CashoutDonateRow from "./cashout_donate_table";
 import CashoutVoteRow from "./cashout_vote_table";
 import CheckinRow from "./checkin_table";
 import DemoFlagsRow from "./demo_flags_table";
+import DonationRow from "./donation_table";
 import FeedEventRow from "./feed_event_table";
 import GoalRow from "./goal_table";
 import MyAccountRow from "./my_account_table";
@@ -101,6 +106,7 @@ import MyPaymentMethodsRow from "./my_payment_methods_table";
 import MyUserRow from "./my_user_table";
 import PenaltyRow from "./penalty_table";
 import SquadRow from "./squad_table";
+import SquadCharityRow from "./squad_charity_table";
 import SquadOwnerRow from "./squad_owner_table";
 import UserRow from "./user_table";
 import WithdrawalRow from "./withdrawal_table";
@@ -123,6 +129,20 @@ const tablesSchema = __schema({
       { name: 'cashout_id_key', constraint: 'unique', columns: ['id'] },
     ],
   }, CashoutRow),
+  cashoutDonate: __table({
+    name: 'cashout_donate',
+    indexes: [
+      { accessor: 'cashoutId', name: 'cashout_donate_cashout_id_idx_btree', algorithm: 'btree', columns: [
+        'cashoutId',
+      ] },
+      { accessor: 'squadId', name: 'cashout_donate_squad_id_idx_btree', algorithm: 'btree', columns: [
+        'squadId',
+      ] },
+    ],
+    constraints: [
+      { name: 'cashout_donate_cashout_id_key', constraint: 'unique', columns: ['cashoutId'] },
+    ],
+  }, CashoutDonateRow),
   cashoutVote: __table({
     name: 'cashout_vote',
     indexes: [
@@ -171,6 +191,20 @@ const tablesSchema = __schema({
       { name: 'demo_flags_id_key', constraint: 'unique', columns: ['id'] },
     ],
   }, DemoFlagsRow),
+  donation: __table({
+    name: 'donation',
+    indexes: [
+      { accessor: 'id', name: 'donation_id_idx_btree', algorithm: 'btree', columns: [
+        'id',
+      ] },
+      { accessor: 'squadId', name: 'donation_squad_id_idx_btree', algorithm: 'btree', columns: [
+        'squadId',
+      ] },
+    ],
+    constraints: [
+      { name: 'donation_id_key', constraint: 'unique', columns: ['id'] },
+    ],
+  }, DonationRow),
   feedEvent: __table({
     name: 'feed_event',
     indexes: [
@@ -240,6 +274,17 @@ const tablesSchema = __schema({
       { name: 'squad_id_key', constraint: 'unique', columns: ['id'] },
     ],
   }, SquadRow),
+  squadCharity: __table({
+    name: 'squad_charity',
+    indexes: [
+      { accessor: 'squadId', name: 'squad_charity_squad_id_idx_btree', algorithm: 'btree', columns: [
+        'squadId',
+      ] },
+    ],
+    constraints: [
+      { name: 'squad_charity_squad_id_key', constraint: 'unique', columns: ['squadId'] },
+    ],
+  }, SquadCharityRow),
   squadOwner: __table({
     name: 'squad_owner',
     indexes: [
@@ -371,6 +416,7 @@ const proceduresSchema = __procedures(
   __procedureSchema("confirm_bot_action", ConfirmBotActionProcedure.params, ConfirmBotActionProcedure.returnType),
   __procedureSchema("create_goal", CreateGoalProcedure.params, CreateGoalProcedure.returnType),
   __procedureSchema("create_squad", CreateSquadProcedure.params, CreateSquadProcedure.returnType),
+  __procedureSchema("demo_expire_pool_deadline", DemoExpirePoolDeadlineProcedure.params, DemoExpirePoolDeadlineProcedure.returnType),
   __procedureSchema("finish_checkin", FinishCheckinProcedure.params, FinishCheckinProcedure.returnType),
   __procedureSchema("finish_checkin_ai", FinishCheckinAiProcedure.params, FinishCheckinAiProcedure.returnType),
   __procedureSchema("force_flake", ForceFlakeProcedure.params, ForceFlakeProcedure.returnType),
@@ -381,12 +427,14 @@ const proceduresSchema = __procedures(
   __procedureSchema("ping_checkin", PingCheckinProcedure.params, PingCheckinProcedure.returnType),
   __procedureSchema("post_message", PostMessageProcedure.params, PostMessageProcedure.returnType),
   __procedureSchema("propose_cashout", ProposeCashoutProcedure.params, ProposeCashoutProcedure.returnType),
+  __procedureSchema("propose_donation", ProposeDonationProcedure.params, ProposeDonationProcedure.returnType),
   __procedureSchema("register_account", RegisterAccountProcedure.params, RegisterAccountProcedure.returnType),
   __procedureSchema("register_user", RegisterUserProcedure.params, RegisterUserProcedure.returnType),
   __procedureSchema("remove_address", RemoveAddressProcedure.params, RemoveAddressProcedure.returnType),
   __procedureSchema("remove_payment_method", RemovePaymentMethodProcedure.params, RemovePaymentMethodProcedure.returnType),
   __procedureSchema("request_withdrawal", RequestWithdrawalProcedure.params, RequestWithdrawalProcedure.returnType),
   __procedureSchema("reset_password", ResetPasswordProcedure.params, ResetPasswordProcedure.returnType),
+  __procedureSchema("set_charity", SetCharityProcedure.params, SetCharityProcedure.returnType),
   __procedureSchema("set_plan_tier", SetPlanTierProcedure.params, SetPlanTierProcedure.returnType),
   __procedureSchema("set_pool_goal", SetPoolGoalProcedure.params, SetPoolGoalProcedure.returnType),
   __procedureSchema("start_checkin", StartCheckinProcedure.params, StartCheckinProcedure.returnType),
