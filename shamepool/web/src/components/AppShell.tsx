@@ -3,7 +3,8 @@ import { Bot, Flame, Home, LogOut, Plus, User, Users } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { logout, useMe, useMyGoals, useSquad } from '@/data';
+import { logout, useBilling, useMe, useMyGoals, useSquad } from '@/data';
+import { Pill } from './ui/Card';
 import { MoneyText } from './ui/Money';
 import { Icon } from './ui/Icon';
 import { Skeleton } from './ui/States';
@@ -34,7 +35,10 @@ function TopBar() {
   const goals = useMyGoals();
   const squad = useSquad();
   const router = useRouter();
+  const path = usePathname();
   const [leaving, setLeaving] = useState(false);
+  // Free users see their tier on every screen but the profile, which shows it on its own card. Paid users never see it here.
+  const showFreeTier = useBilling().tier === 'free' && !path.startsWith('/settings');
   const streak = goals.reduce((m, g) => Math.max(m, g.streak), 0);
   const signOut = async () => {
     setLeaving(true);
@@ -48,12 +52,16 @@ function TopBar() {
         <div className={`flex items-center gap-1 font-display font-black ${streak > 0 ? 'text-flame' : 'text-ink-faint'}`} aria-label={`${streak} day streak`}>
           <Flame size={22} strokeWidth={2.5} fill="currentColor" aria-hidden />{streak}
         </div>
-        <div className="flex-1 flex justify-center gap-1.5 min-w-0">
-          <Link href="/wallet" className="rounded-full bg-surface-muted px-2.5 py-1 text-sm min-h-8 inline-flex items-center" aria-label="Your balance, open wallet"><Icon name="cash" />&nbsp;<MoneyText cents={me?.balanceCents ?? 0} /></Link>
-          <span className="rounded-full bg-sun-light px-2.5 py-1 text-sm" aria-label="Pool balance"><Icon name="pizza" /> <MoneyText cents={squad?.poolBalanceCents ?? 0} kind="pool" /></span>
+        {/* One row, 32px tall. The tier label stacks into two lines when squeezed and drops to a clipped second row when even that cannot fit. */}
+        <div className="flex-1 min-w-0 h-8 overflow-hidden flex flex-wrap items-center justify-center gap-x-1 gap-y-4">
+          <Link href="/wallet" className="shrink-0 whitespace-nowrap rounded-full bg-surface-muted px-2.5 py-1 text-sm min-h-8 inline-flex items-center" aria-label="Your balance, open wallet"><Icon name="cash" />&nbsp;<MoneyText cents={me?.balanceCents ?? 0} /></Link>
+          <span className="shrink-0 whitespace-nowrap rounded-full bg-sun-light px-2.5 py-1 text-sm" aria-label="Pool balance"><Icon name="pizza" /> <MoneyText cents={squad?.poolBalanceCents ?? 0} kind="pool" /></span>
+          {showFreeTier && <Pill tone="gray" className="basis-[min-content] grow max-w-max min-h-5 justify-center !px-2 text-center leading-[1.05]">Free tier</Pill>}
         </div>
         <button type="button" onClick={signOut} disabled={leaving} aria-label="Sign out" title="Sign out"
-          className="size-10 rounded-full bg-surface-muted grid place-items-center text-ink shrink-0 active:translate-y-px disabled:opacity-50"><LogOut size={20} strokeWidth={2.5} aria-hidden /></button>
+          className="group size-10 rounded-full bg-surface-muted grid place-items-center text-ink shrink-0 active:translate-y-px disabled:opacity-50">
+          <LogOut size={20} strokeWidth={2.5} aria-hidden className="motion-safe:transition-transform motion-safe:duration-200 motion-safe:ease-out group-hover:translate-x-1 group-focus-visible:translate-x-1" />
+        </button>
       </div>
     </header>
   );

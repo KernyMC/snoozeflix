@@ -15,13 +15,15 @@ function HomeInner() {
   const goals = useMyGoals();
   const conn = useConnection();
   const paid = usePenaltyTotal();
-  const limit = GOAL_LIMITS[useBilling().tier];
+  const { tier } = useBilling();
+  const limit = GOAL_LIMITS[tier];
   return (
     <>
       <UpgradeBanner className="mb-4" />
       <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
         <h1 className="font-display font-black text-3xl">Hey {me?.name} <Avatar value={me?.avatar} size={32} /></h1>
-        <TierPill />
+        {/* Free users get this label in the top bar instead. */}
+        {tier === 'paid' && <TierPill />}
       </div>
       <div className="grid grid-cols-2 gap-3 my-4">
         <div className="rounded-2xl border-2 border-surface-line p-3 shadow-chunky-sm">
